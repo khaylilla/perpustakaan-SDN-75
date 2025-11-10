@@ -1,0 +1,7 @@
+{
+    "private": true,
+    "scripts": {
+        "dev": "echo \"No build steps required.\"",
+        "build": "echo \"No build steps required.\""
+    }
+}
