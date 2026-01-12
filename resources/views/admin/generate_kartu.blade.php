@@ -114,16 +114,15 @@ table th, table td { border: 1px solid #ccc; padding: 8px; text-align: center; }
       </thead>
      <tbody>
     @forelse($users as $user)
-        @php
-            $masa_aktif = $user->created_at->copy()->addYears(2);
-            $expired = now()->gt($masa_aktif);
-        @endphp
+          @php
+            $masa_aktif_text = 'Berlaku Seumur Hidup';
+          @endphp
         <tr>
             <td>
                 <div class="mini-card" 
                      data-nama="{{ $user->nama }}" 
                      data-npm="{{ $user->npm }}" 
-                     data-masa="s/d {{ $masa_aktif->translatedFormat('d F Y') }}"
+                 data-masa="{{ $masa_aktif_text }}"
                      data-foto="{{ asset('storage/foto/'.$user->foto) }}">
                     <div class="header">PERPUSTAKAAN</div>
                     <div class="body">
@@ -133,19 +132,14 @@ table th, table td { border: 1px solid #ccc; padding: 8px; text-align: center; }
                             <div>{{ $user->npm }}</div>
                         </div>
                     </div>
-                    <div class="footer">s/d {{ $masa_aktif->translatedFormat('d F Y') }}</div>
-                </div>
-                @if($expired)
-                    <button class="btn-generate-mini active" data-id="{{ $user->id }}">Generate</button>
-                @else
-                    <button class="btn-generate-mini disabled" disabled>Generate</button>
-                @endif
+                <div class="footer">{{ $masa_aktif_text }}</div>
+              </div>
             </td>
             <td><img src="{{ asset('storage/foto/'.$user->foto) }}" style="width:50px; height:50px; object-fit:cover;"></td>
             <td>{{ $user->nama }}</td>
             <td>{{ $user->npm }}</td>
-            <td>s/d {{ $masa_aktif->translatedFormat('d F Y') }}</td>
-            <td>@if($expired)<span style="color:red;font-weight:bold;">Kadaluarsa</span>@else<span style="color:green;font-weight:bold;">Aktif</span>@endif</td>
+            <td>{{ $masa_aktif_text }}</td>
+            <td><span style="color:green;font-weight:bold;">Aktif</span></td>
         </tr>
     @empty
         <tr>
@@ -160,38 +154,7 @@ table th, table td { border: 1px solid #ccc; padding: 8px; text-align: center; }
 
 <script>
 $(document).ready(function(){
-    $('.btn-generate-mini.active').on('click', function(e){
-        e.preventDefault();
-        var button = $(this);
-        var userId = button.data('id');
-        var miniCard = button.closest('td').find('.mini-card');
-
-        $.ajax({
-            url: '/admin/kartu/generate/' + userId,
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response){
-                // update mini-card footer
-                miniCard.find('.footer').text('s/d ' + response.masa_aktif);
-                miniCard.data('masa', 's/d ' + response.masa_aktif);
-
-                // nonaktifkan tombol
-                button.removeClass('active').addClass('disabled').prop('disabled', true);
-
-                // update status di tabel
-                miniCard.closest('tr').find('td:eq(5)').html('<span style="color:green;font-weight:bold;">Aktif</span>');
-            },
-            error: function(xhr){
-                if(xhr.responseJSON && xhr.responseJSON.error){
-                    alert(xhr.responseJSON.error);
-                } else {
-                    alert('Terjadi kesalahan, coba lagi.');
-                }
-            }
-        });
-    });
+    // Kartu bersifat permanen sekarang, tidak perlu tombol generate lagi.
 });
 </script>
 @endsection

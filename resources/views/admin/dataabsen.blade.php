@@ -220,8 +220,8 @@
       </form>
 
 
-    <a href="{{ route('admin.dataabsen.print', ['group_by' => ($groupBy ?? 'day')]) }}" class="btn btn-danger">
-      <i class="bi bi-file-earmark-pdf"></i> Cetak PDF
+    <a href="{{ route('admin.dataabsen.export', ['groupBy' => 'day']) }}" class="btn btn-danger">
+        <i class="bi bi-file-earmark-pdf"></i> Export PDF
     </a>
   </div>
 

@@ -291,13 +291,12 @@
               <div class="invalid-feedback">Kategori wajib diisi.</div>
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Nomor Buku</label>
-              <div class="input-group">
-                <input type="text" id="nomor_buku_input" class="form-control" required>
-                <button type="button" class="btn btn-outline-secondary" onclick="generateNomor()">Generate</button>
-              </div>
-              <div class="invalid-feedback">Nomor buku wajib diisi.</div>
+            <div class="mb-3">
+                <label for="nomor_buku_add" class="form-label">Nomor Buku</label>
+                <div class="input-group">
+                    <input type="text" id="nomor_buku_add" name="nomor_buku" class="form-control" readonly>
+                    <button type="button" class="btn btn-primary" id="generateNomorBukuAdd">Generate</button>
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -390,9 +389,14 @@
               <input type="text" name="kategori" class="form-control" value="{{ $book->kategori }}" required>
             </div>
 
-            <div class="col-md-6">
-              <label class="form-label">Nomor Buku</label>
-              <input type="text" name="nomor_buku_edit" class="form-control" value="{{ $book->nomor_buku }}" required>
+            <div class="mb-3">
+                <label for="nomor_buku_edit{{ $book->id }}" class="form-label">Nomor Buku</label>
+                <div class="input-group">
+                    <input type="text" id="nomor_buku_edit{{ $book->id }}" name="nomor_buku" class="form-control" value="{{ $book->nomor_buku }}" readonly>
+                    <button type="button" class="btn btn-primary btn-generate-nomor-edit" data-id="{{ $book->id }}">
+                        Generate
+                    </button>
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -442,47 +446,58 @@
 </div>
 @endforeach
 
-<!-- === SCRIPT TAMBAHAN UNTUK QR CODE === -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-  // === Generate QR untuk tabel utama ===
-  document.querySelectorAll('[id^="qrTable"]').forEach(function(div) {
-    const value = div.dataset.qrValue;
-    if (value) {
-      new QRCode(div, { text: value, width: 100, height: 100 });
-    }
-  });
+     // === GENERATE QR OTOMATIS UNTUK TABEL ===
+    document.querySelectorAll('[id^="qrTable"]').forEach(function(div) {
+        const value = div.dataset.qrValue;
+        if(value){
+            new QRCode(div, { text: value, width: 100, height: 100 });
+        }
+    });
 
-  // === Tombol Save PNG untuk QR tabel ===
-  window.downloadQR = function(divId, filename) {
-    const container = document.getElementById(divId);
-    if (!container) return;
+    // === Tombol Save PNG untuk QR tabel ===
+    window.downloadQR = function(divId, filename) {
+        const container = document.getElementById(divId);
+        if (!container) return;
 
-    let imgData = '';
-    const imgTag = container.querySelector('img');
-    const canvas = container.querySelector('canvas');
+        let imgData = '';
+        const imgTag = container.querySelector('img');
+        const canvas = container.querySelector('canvas');
 
-    if (imgTag) {
-      imgData = imgTag.src;
-    } else if (canvas) {
-      imgData = canvas.toDataURL("image/png");
-    }
+        // QRCode.js bisa menghasilkan canvas atau img, tergantung browser
+        if (imgTag) imgData = imgTag.src;
+        else if (canvas) imgData = canvas.toDataURL("image/png");
 
-    if (!imgData) return alert('QR code belum siap.');
+        if (!imgData) return alert('QR code belum siap.');
 
-    const link = document.createElement('a');
-    link.href = imgData;
-    link.download = filename + "_QR.png";
-    link.click();
-  };
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = filename + "_QR.png";
+        link.click();
+    };
 
-  // === MODAL TAMBAH ===
+    // === GENERATE NOMOR BUKU TAMBAH ===
+  const nomorAddInput = document.getElementById("nomor_buku_add");
+  const btnGenerateAdd = document.getElementById("generateNomorBukuAdd");
+  if (btnGenerateAdd && nomorAddInput) {
+    // Hilangkan readonly supaya bisa diinput manual
+    nomorAddInput.removeAttribute('readonly');
+
+    btnGenerateAdd.addEventListener("click", function () {
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const year = new Date().getFullYear();
+      nomorAddInput.value = "BK-" + year + rand;
+    });
+  }
+
+  // === GENERATE QR TAMBAH ===
   const btnGenerateQRAdd = document.getElementById('btnGenerateQRAdd');
   if (btnGenerateQRAdd) {
     btnGenerateQRAdd.addEventListener('click', function () {
-      const nomorInput = document.getElementById('nomor_buku_input').value;
+      const nomorInput = nomorAddInput.value;
       if (!nomorInput) return alert('Isi nomor buku dulu!');
 
       const container = document.getElementById('qrAddPreview');
@@ -491,16 +506,45 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // === MODAL EDIT ===
+  // === GENERATE NOMOR BUKU EDIT ===
+  document.querySelectorAll('.btn-generate-nomor-edit').forEach(button => {
+    button.addEventListener('click', function () {
+      const id = button.dataset.id;
+      const input = document.getElementById('nomor_buku_edit' + id);
+      if (!input) return;
+      input.removeAttribute('readonly'); // biar bisa manual
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const year = new Date().getFullYear();
+      input.value = "BK-" + year + rand;
+    });
+  });
+
+  // === GENERATE QR EDIT ===
   document.querySelectorAll('.btn-generate-qr-edit').forEach(button => {
     button.addEventListener('click', function () {
       const id = button.dataset.id;
-      const nomorInput = document.querySelector(`#editModal${id} input[name="nomor_buku_edit"]`).value;
-      if (!nomorInput) return alert('Isi nomor buku dulu!');
+      const input = document.getElementById('nomor_buku_edit' + id);
+      if (!input || !input.value) return alert('Isi nomor buku dulu!');
 
-      const container = document.getElementById(`qrEditPreview${id}`);
+      const container = document.getElementById('qrEditPreview' + id);
       container.innerHTML = '';
-      new QRCode(container, { text: nomorInput, width: 100, height: 100 });
+      new QRCode(container, { text: input.value, width: 100, height: 100 });
+    });
+  });
+
+  // === RESET MODAL ADD ===
+  const addModal = document.getElementById('addModal');
+  addModal.addEventListener('hidden.bs.modal', function () {
+    addModal.querySelector('form').reset();
+    document.getElementById('qrAddPreview').innerHTML = '';
+  });
+
+  // === RESET MODAL EDIT ===
+  document.querySelectorAll('[id^="editModal"]').forEach(modal => {
+    modal.addEventListener('hidden.bs.modal', function () {
+      modal.querySelector('form').reset();
+      const qrContainer = modal.querySelector('[id^="qrEditPreview"]');
+      if (qrContainer) qrContainer.innerHTML = '';
     });
   });
 

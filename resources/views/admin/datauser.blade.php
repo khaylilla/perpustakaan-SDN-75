@@ -184,19 +184,15 @@
           <tr>
             <td>{{ $index + 1 }}</td>
             <td>
-              <div class="d-flex align-items-center justify-content-center">
-                @if(!empty($user->foto))
-                  <img src="{{ asset('storage/foto/'.$user->foto) }}" 
-                       alt="Foto {{ $user->nama }}" 
-                       class="rounded-circle me-2" 
-                       style="width:40px; height:40px;">
-                @else
-                  <div class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2"
-                       style="width:40px; height:40px; font-size:14px;">
-                    {{ strtoupper(substr($user->nama, 0, 1)) }}
-                  </div>
-                @endif
-                <span>{{ $user->nama }}</span>
+             <div class="d-flex align-items-center justify-content-center">
+                  @if(!empty($user->foto))
+                    <img src="{{ asset('storage/foto/'.$user->foto) }}" 
+                        alt=" " 
+                        class="rounded-circle me-2" 
+                        style="width:40px; height:40px;">
+                  @endif
+
+                  <span>{{ $user->nama }}</span>
               </div>
             </td>
             <td>{{ $user->npm }}</td>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Denda;
+use App\Models\Peminjaman;
 use Carbon\Carbon;
 
 class DendaController extends Controller
@@ -34,7 +35,47 @@ class DendaController extends Controller
 
         $denda = $query->latest()->get();
 
-        return view('admin.riwayat.denda', compact('denda'));
+        // Ambil peminjaman yang masih "dipinjam" tetapi sudah lewat tanggal kembali
+        $hariIni = Carbon::now()->toDateString();
+        $peminjamanTerlambat = Peminjaman::where('status', 'dipinjam')
+            ->whereDate('tanggal_kembali', '<', $hariIni)
+            ->get();
+
+        $nominalPerHari = 1000;
+
+        $peminjamanAsDenda = $peminjamanTerlambat->map(function($p) use ($nominalPerHari) {
+            $hariTerlambat = Carbon::parse($p->tanggal_kembali)->diffInDays(Carbon::now());
+            $totalDenda = $hariTerlambat * $nominalPerHari;
+
+            return (object) [
+                'id' => 'p-' . $p->id,
+                'nama' => $p->nama,
+                'npm' => $p->npm,
+                'judul_buku' => $p->judul_buku,
+                'nomor_buku' => $p->nomor_buku,
+                'tanggal_pinjam' => $p->tanggal_pinjam,
+                'tanggal_kembali' => $p->tanggal_kembali,
+                'hari_terlambat' => $hariTerlambat,
+                'total_denda' => $totalDenda,
+            ];
+        });
+
+        // Gabungkan data denda manual dengan peminjaman terlambat
+        $merged = collect();
+        // Pastikan semua item berupa objek dengan properti yang sama seperti view harapkan
+        foreach ($denda as $d) {
+            $merged->push((object) $d->toArray());
+        }
+        foreach ($peminjamanAsDenda as $pd) {
+            $merged->push($pd);
+        }
+
+        // Urutkan berdasarkan tanggal_pinjam desc
+        $merged = $merged->sortByDesc(function($item) {
+            return isset($item->tanggal_pinjam) ? strtotime($item->tanggal_pinjam) : 0;
+        })->values();
+
+        return view('admin.riwayat.denda', ['denda' => $merged]);
     }
 
     // Simpan denda baru (manual)

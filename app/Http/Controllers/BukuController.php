@@ -22,21 +22,26 @@ class BukuController extends Controller
                       ->orWhere('penulis', 'LIKE', "%{$search}%")
                       ->orWhere('penerbit', 'LIKE', "%{$search}%")
                       ->orWhere('kategori', 'LIKE', "%{$search}%")
-                      ->orWhere('tahun_terbit', 'LIKE', "%{$search}%"); // ✅ diperbaiki
+                      ->orWhere('tahun_terbit', 'LIKE', "%{$search}%");
                 } else {
                     $q->where($searchType, 'LIKE', "%{$search}%");
                 }
             });
         }
 
+        // ⭐️ Filter kategori dari dropdown
+        if ($request->filled('kategori')) {
+            $query->where('kategori', $request->kategori);
+        }
+
         // 📅 Urutkan
         if ($request->filled('sort')) {
             switch ($request->get('sort')) {
                 case 'terbaru':
-                    $query->orderBy('tahun_terbit', 'desc'); // ✅ diperbaiki
+                    $query->orderBy('tahun_terbit', 'desc');
                     break;
                 case 'terlama':
-                    $query->orderBy('tahun_terbit', 'asc'); // ✅ diperbaiki
+                    $query->orderBy('tahun_terbit', 'asc');
                     break;
                 case 'judul_az':
                     $query->orderBy('judul', 'asc');
@@ -63,21 +68,19 @@ class BukuController extends Controller
     }
 
     public function kategori($kategori)
-{
-    // Ambil semua buku berdasarkan kategori yang diklik
-    $books = Book::where('kategori', $kategori)->paginate(12);
+    {
+        // Ambil semua buku berdasarkan kategori yang diklik
+        $books = Book::where('kategori', $kategori)->paginate(12);
 
-    // Ambil daftar kategori unik (biar dropdown tetap muncul)
-    $kategoriList = Book::select('kategori')->distinct()->pluck('kategori');
+        // Ambil daftar kategori unik
+        $kategoriList = Book::select('kategori')->distinct()->pluck('kategori');
 
-    // Kirim ke view yang sama dengan halaman buku utama
-    return view('auth.buku', [
-        'books' => $books,
-        'kategoriList' => $kategoriList,
-        'selectedKategori' => $kategori,
-        'selectedTahun' => '',
-        'search' => '',
-    ]);
-}
-
+        return view('auth.buku', [
+            'books' => $books,
+            'kategoriList' => $kategoriList,
+            'selectedKategori' => $kategori,
+            'selectedTahun' => '',
+            'search' => '',
+        ]);
+    }
 }

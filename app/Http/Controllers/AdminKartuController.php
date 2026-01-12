@@ -45,20 +45,14 @@ class AdminKartuController extends Controller
     {
         $now = Carbon::now();
 
-        // Cek apakah kartu sudah kadaluarsa
-        if($now->lt($user->created_at->addYears(2))) {
-            return response()->json(['error' => 'Kartu anggota ini masih aktif.'], 400);
-        }
-
-        // Update tanggal pembuatan kartu menjadi sekarang
-        $user->created_at = $now;
-        $user->save();
-
-        $masa_aktif = $user->created_at->addYears(2)->translatedFormat('d F Y');
+        // Untuk kebijakan baru: kartu berlaku selamanya.
+        // Jika admin tetap menekan generate, kita perbolehkan dan hanya
+        // mengembalikan informasi bahwa kartu "Berlaku Seumur Hidup".
+        $user->touch(); // update timestamps jika masih ingin merekam aksi
 
         return response()->json([
             'success' => 'Kartu anggota berhasil digenerate ulang.',
-            'masa_aktif' => $masa_aktif,
+            'masa_aktif' => 'Berlaku Seumur Hidup',
         ]);
     }
 }

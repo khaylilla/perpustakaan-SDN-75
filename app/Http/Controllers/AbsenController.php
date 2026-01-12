@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Absen;
+use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class AbsenController extends Controller
@@ -78,14 +79,14 @@ class AbsenController extends Controller
     // ================================
     // HAPUS DATA ABSEN
     // ================================
-    public function delete($id)
+    public function destroy($id)
     {
         $absen = Absen::findOrFail($id);
         $absen->delete();
 
-        return redirect()->route('admin.dataabsen')
-                         ->with('success', 'Data absen berhasil dihapus.');
+        return redirect()->back()->with('success', 'Data absen berhasil dihapus.');
     }
+
 
     // ================================
     // CETAK PDF
@@ -110,40 +111,84 @@ class AbsenController extends Controller
 
         return $pdf->download("data_absen.pdf");
     }
-    public function scanPage()
-{
-    return view('admin.scan_absen');
-}
 
-public function getUser($npm)
-{
-    $user = \App\Models\User::where('npm', $npm)->first();
+    // ================================
+    // EXPORT ABSEN GROUPED (DAY / MONTH / YEAR)
+    // ================================
+   public function exportAbsens(Request $request)
+    {
+        $start_date = $request->get('start_date');
+        $end_date   = $request->get('end_date');
 
-    if (!$user) {
-        return response()->json(['nama' => null]);
+        $query = Absen::orderBy('tanggal', 'asc');
+
+        if ($start_date && $end_date) {
+            $query->whereBetween('tanggal', [$start_date, $end_date]);
+        }
+
+        $absens = $query->get();
+
+        $pdf = Pdf::loadView('admin.absen_pdf', compact('absens'))
+                ->setPaper('a4', 'portrait'); // <-- ini A4 portrait
+
+        return $pdf->download('data_absen.pdf');
     }
 
-    return response()->json([
-        'nama' => $user->nama,
-    ]);
-}
+    public function printFilteredPdf(Request $request)
+    {
+        $start_date = $request->get('start_date');
+        $end_date   = $request->get('end_date');
 
-public function storeScan(Request $request)
-{
-    $request->validate([
-        'npm' => 'required|string',
-        'nama' => 'required|string',
-        'tanggal' => 'required|date'
-    ]);
+        // Query dasar
+        $query = Absen::orderBy('tanggal', 'asc');
 
-    Absen::create([
-        'npm' => $request->npm,
-        'nama' => $request->nama,
-        'tanggal' => $request->tanggal,
-        'user_id' => null,
-    ]);
+        // Filter jika ada range tanggal
+        if ($start_date && $end_date) {
+            $query->whereBetween('tanggal', [$start_date, $end_date]);
+        }
 
-    return response()->json(['message' => 'Absen berhasil dicatat!']);
-}
+        $absens = $query->get();
 
+        // Load Blade PDF khusus full tabel
+        $pdf = Pdf::loadView('admin.absen_pdf_full', compact('absens'))
+                ->setPaper('a4', 'portrait');
+
+        return $pdf->download("data_absen.pdf");
+    }
+
+    public function scanPage()
+    {
+        return view('admin.scan_absen');
+    }
+
+    public function getUser($npm)
+    {
+        $user = \App\Models\User::where('npm', $npm)->first();
+
+        if (!$user) {
+            return response()->json(['nama' => null]);
+        }
+
+        return response()->json([
+            'nama' => $user->nama,
+        ]);
+    }
+
+    public function storeScan(Request $request)
+    {
+        $request->validate([
+            'npm' => 'required|string',
+            'nama' => 'required|string',
+            'tanggal' => 'required|date'
+        ]);
+
+        Absen::create([
+            'npm' => $request->npm,
+            'nama' => $request->nama,
+            'tanggal' => $request->tanggal,
+            'user_id' => null,
+        ]);
+
+        return response()->json(['message' => 'Absen berhasil dicatat!']);
+    }
 }

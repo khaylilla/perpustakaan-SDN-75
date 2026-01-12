@@ -91,15 +91,6 @@
       <i class="bi bi-arrow-repeat"></i>
     </a>
 
-    {{-- 💰 Denda --}}
-    <a href="{{ route('admin.riwayat.denda.index') }}" class="info-box">
-      <div class="info-box-content">
-        <h5>Data Denda</h5>
-        <p>Riwayat pembayaran denda keterlambatan</p>
-      </div>
-      <i class="bi bi-cash-stack"></i>
-    </a>
-
   </div>
 </div>
 @endsection

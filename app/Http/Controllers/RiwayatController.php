@@ -284,6 +284,48 @@ class RiwayatController extends Controller
         return $pdf->download('peminjaman_dipinjam.pdf');
     }
 
+    // =========================
+//  AUTO PINDAH DENDA
+// =========================
+public function cekDanPindahDenda()
+{
+    $hariIni = Carbon::now()->toDateString();
+
+    // Ambil peminjaman yang masih dipinjam tapi sudah lewat tanggal kembali
+    $peminjamanTerlambat = Peminjaman::where('status', 'dipinjam')
+        ->where('tanggal_kembali', '<', $hariIni)
+        ->get();
+
+    foreach ($peminjamanTerlambat as $peminjaman) {
+
+        $hariTerlambat = Carbon::parse($peminjaman->tanggal_kembali)
+            ->diffInDays(Carbon::now());
+
+        $nominalPerHari = 1000;
+        $totalDenda = $hariTerlambat * $nominalPerHari;
+
+        // Pindahkan/Update ke tabel denda
+        \App\Models\Denda::updateOrCreate(
+            [
+                'npm' => $peminjaman->npm,
+                'nomor_buku' => $peminjaman->nomor_buku,
+            ],
+            [
+                'nama' => $peminjaman->nama,
+                'judul_buku' => $peminjaman->judul_buku,
+                'tanggal_pinjam' => $peminjaman->tanggal_pinjam,
+                'tanggal_kembali' => $peminjaman->tanggal_kembali,
+                'hari_terlambat' => $hariTerlambat,
+                'total_denda' => $totalDenda,
+            ]
+        );
+
+        // Update status peminjaman jadi 'terlambat'
+        $peminjaman->status = 'terlambat';
+        $peminjaman->save();
+    }
+}
+
     // Export PDF pengembalian
     public function exportPdfPengembalian(Request $request)
     {

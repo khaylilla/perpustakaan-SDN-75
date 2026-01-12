@@ -17,20 +17,13 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     // ✅ Menampilkan halaman signin
-    public function showSignInForm()
-    {
-        return view('auth.signin');
-    }
-
-    // ✅ Menangani submit form signin
-  public function signinSubmit(Request $request)
+    public function signinSubmit(Request $request)
 {
-    // pastikan gak ada session login aktif
     Auth::logout();
 
-    $validated = $request->validate([
+    $request->validate([
         'email' => 'required|email',
-        'password' => 'required',
+        'password' => 'required|min:5|confirmed', 
         'nama' => 'required',
         'npm' => 'required',
         'alamat' => 'required',
@@ -39,7 +32,18 @@ class AuthController extends Controller
         'foto' => 'required|image|max:2048',
     ]);
 
+    // Cek email atau NPM sudah ada
+    if (User::where('email', $request->email)->exists()) {
+        return back()->with('error', 'Email ini sudah terdaftar!')->withInput();
+    }
+
+    if (User::where('npm', $request->npm)->exists()) {
+        return back()->with('error', 'NPM ini sudah terdaftar!')->withInput();
+    }
+
+    // Simpan ke storage/public/foto
     $fotoPath = $request->file('foto')->store('public/foto');
+    $filename = basename($fotoPath);
 
     $user = User::create([
         'email' => $request->email,
@@ -49,7 +53,7 @@ class AuthController extends Controller
         'alamat' => $request->alamat,
         'tgl_lahir' => $request->tgl_lahir,
         'nohp' => $request->nohp,
-        'foto' => basename($fotoPath),
+        'foto' => $filename,
     ]);
 
     return redirect()
@@ -60,21 +64,24 @@ class AuthController extends Controller
         ]);
 }
 
-public function index()
+public function showSignInForm()
 {
-    $books = Book::latest()->take(4)->get();        // Koleksi buku terbaru
-    $artikels = Artikel::latest()->take(4)->get();  // Artikel & Jurnal terbaru
-
-    // 🔥 Tambahkan ini (TOP 5 buku paling sering dipinjam)
-    $bukuFavorit = Peminjaman::selectRaw('judul_buku, COUNT(*) as total')
-        ->groupBy('judul_buku')
-        ->orderBy('total', 'desc')
-        ->limit(5)
-        ->get();
-
-    return view('auth.home', compact('books', 'artikels', 'bukuFavorit'));
+    return view('auth.signin'); // ganti 'auth.signin' sesuai nama view sign-in kamu
 }
 
+
+public function index()
+{
+    return view('auth.home', [
+        'books' => Book::latest()->take(10)->get(),
+        'bukuFavorit' => Peminjaman::selectRaw('judul_buku, COUNT(*) as total')
+            ->groupBy('judul_buku')
+            ->orderByDesc('total')
+            ->take(5)
+            ->get(),
+        'artikels' => Artikel::latest()->take(5)->get(),
+    ]);
+}
 
     // ✅ Menampilkan kartu anggota
     public function showCard($id)

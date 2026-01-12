@@ -50,7 +50,7 @@ class BookController extends Controller
             'tahun_terbit' => 'nullable|digits:4',
             'kategori' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
-            'nomor_buku' => 'nullable|string|max:50',
+            'nomor_buku' => 'required|string|max:50',
             'rak' => 'nullable|string|max:50',
             'status' => 'nullable|string|max:100',
             'jumlah' => 'nullable|integer|min:0',

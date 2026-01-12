@@ -135,38 +135,43 @@
         <div class="borrow-table table-responsive">
             <table class="table mb-0">
                 <thead>
-                    <tr>
-                        <th><i class="bi bi-book"></i> Judul Buku</th>
-                        <th># Nomor Buku</th>
-                        <th><i class="bi bi-calendar"></i> Tanggal Peminjaman</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($peminjaman as $p)
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="borrow-icon">📗</div>
-                                <span>{{ $p->judul_buku }}</span>
-                            </div>
-                        </td>
-                        <td>{{ $p->nomor_buku }}</td>
-                        <td>{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}</td>
-                        <td>
-                            <span class="borrow-status">
-                                {{ ucfirst($p->status) }}
-                            </span>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center py-4 text-muted">
-                            Belum ada peminjaman
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
+                <tr>
+                    <th><i class="bi bi-book"></i> Judul Buku</th>
+                    <th># Nomor Buku</th>
+                    <th><i class="bi bi-calendar"></i> Tanggal Peminjaman</th>
+                    <th><i class="bi bi-calendar-check"></i> Tanggal Pengembalian</th> <!-- baru -->
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($peminjaman as $p)
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="borrow-icon">📗</div>
+                            <span>{{ $p->judul_buku }}</span>
+                        </div>
+                    </td>
+                    <td>{{ $p->nomor_buku }}</td>
+                    <td>{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}</td>
+                    <td>
+                        {{ $p->tanggal_kembali ? \Carbon\Carbon::parse($p->tanggal_kembali)->format('Y-m-d') : '-' }}
+                    </td>
+                    <td>
+                        <span class="borrow-status">
+                            {{ ucfirst($p->status) }}
+                        </span>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        Belum ada peminjaman
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+
             </table>
         </div>
     </div>

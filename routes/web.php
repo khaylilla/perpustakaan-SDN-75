@@ -35,21 +35,30 @@ Route::get('/login', function () {
 
 Route::post('/login', function (Request $request) {
     $request->validate([
-        'npm' => 'required',
+        'role' => 'required|in:guru,siswa,umum',
+        'identifier' => 'required|string',
         'password' => 'required',
     ]);
 
-    $npm = $request->npm;
+    $role = $request->role;
+    $identifier = $request->identifier;
     $password = $request->password;
 
-    // Login admin hardcoded
-    if ($npm === 'admin123' && $password === 'admin123') {
+    // Login admin hardcoded (kept for compatibility)
+    if ($identifier === 'admin123' && $password === 'admin123') {
         $request->session()->put('is_admin', true);
         return redirect()->route('admin.dashboard');
     }
 
-    // Login user biasa
-    $user = User::where('npm', $npm)->first();
+    // Determine lookup column based on role
+    if ($role === 'guru') {
+        $user = User::where('nip', $identifier)->first();
+    } elseif ($role === 'siswa') {
+        $user = User::where('nis', $identifier)->first();
+    } else {
+        $user = User::where('email', $identifier)->first();
+    }
+
     if ($user && Hash::check($password, $user->password)) {
         Auth::login($user);
         $request->session()->regenerate();
@@ -58,8 +67,8 @@ Route::post('/login', function (Request $request) {
     }
 
     return back()->withErrors([
-        'npm' => 'NPM atau password salah.',
-    ])->onlyInput('npm');
+        'identifier' => 'Kredensial tidak cocok.',
+    ])->onlyInput('identifier');
 })->name('login.submit');
 
 // ============================
@@ -69,32 +78,51 @@ Route::post('/logout', function (Request $request) {
     Auth::logout();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
-    return redirect()->route('login');
-})->name('logout');
+
+    return redirect()->route('landing');
+})->middleware('auth')->name('logout');
+
 
 Route::post('/admin/logout', function (Request $request) {
     $request->session()->forget('is_admin');
     return redirect()->route('login');
 })->name('admin.logout');
 
-// ============================
-// ROOT REDIRECT
-// ============================
-Route::get('/', fn() => redirect()->route('login'));
+// HOME PUBLIC
+Route::get('/', [AuthController::class, 'index'])->name('landing');
 
-// ============================
-// HOME & PROFILE
-// ============================
+
+// HOME SETELAH LOGIN
 Route::get('/home', function () {
-    return view('auth.home');
-})->middleware('auth')->name('home');
+    return redirect()->route('home');
+});
 
-Route::get('/profile', [ProfileController::class, 'show'])->middleware('auth')->name('profile');
-Route::post('/profile/update', [ProfileController::class, 'update'])->middleware('auth')->name('profile.update');
+// PROFILE
+Route::get('/profile', [ProfileController::class, 'show'])
+    ->middleware('auth')
+    ->name('profile');
 
 Route::get('/about', function () {
     return view('auth.about');
-})->middleware('auth')->name('about');
+})->name('about');
+
+Route::middleware('auth')->group(function () {
+
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+});
+
+Route::middleware('guest')->group(function () {
+
+    Route::get('/login', function () {
+        return view('auth.login');
+    })->name('login');
+
+    Route::get('/signin', [AuthController::class, 'showSignInForm'])->name('signin');
+    Route::post('/signin', [AuthController::class, 'signinSubmit'])->name('signin.submit');
+
+});
+
 
 // ============================
 // CARD
@@ -126,6 +154,11 @@ Route::prefix('admin')->group(function() {
     // Cetak PDF
     Route::get('/data-absen/print', [AbsenController::class, 'printPdf'])
         ->name('admin.dataabsen.print');
+        // Export grouped absens
+    Route::get('/data-absen/export/{groupBy?}', [AbsenController::class, 'exportAbsens'])
+        ->name('admin.dataabsen.export');
+    Route::get('/data-absen/print/full', [AbsenController::class, 'printFilteredPdf'])
+        ->name('admin.dataabsen.print.full');
 
     // ============================
     // SCAN ABSEN
@@ -186,7 +219,7 @@ Route::prefix('admin')->middleware('check.admin')->group(function () {
     Route::get('/datauser/create', [AdminController::class, 'createUser'])->name('admin.datauser.create');
     Route::post('/datauser/store', [AdminController::class, 'storeUser'])->name('admin.datauser.store');
     Route::get('/datauser/edit/{id}', [AdminController::class, 'editUser'])->name('admin.datauser.edit');
-    Route::post('/datauser/update/{id}', [AdminController::class, 'updateUser'])->name('admin.datauser.update');
+    Route::put('/datauser/update/{id}', [AdminController::class, 'updateUser'])->name('admin.datauser.update');
     Route::delete('/datauser/delete/{id}', [AdminController::class, 'deleteUser'])->name('admin.datauser.delete');
 
     // DATA ABSEN

@@ -140,7 +140,7 @@
     <input type="text" id="search" placeholder="🔍 Cari buku..." value="{{ request('search') }}" onkeypress="if(event.key==='Enter') applyFilters()">
     
     <select id="searchType" onchange="updatePlaceholder(); applyFilters()">
-      <option value="all" {{ request('searchType')=='all'?'selected':'' }}>Semua Kolom</option>
+      <option value="all" {{ request('searchType')=='all'?'selected':'' }}>Cari Berdasarkan</option>
       <option value="judul" {{ request('searchType')=='judul'?'selected':'' }}>Judul</option>
       <option value="penulis" {{ request('searchType')=='penulis'?'selected':'' }}>Penulis</option>
       <option value="penerbit" {{ request('searchType')=='penerbit'?'selected':'' }}>Penerbit</option>
@@ -154,6 +154,14 @@
         <option value="terlama" {{ request('sort')=='terlama'?'selected':'' }}>Tahun Terlama</option>
         <option value="terbaru" {{ request('sort')=='terbaru'?'selected':'' }}>Tahun Terbaru</option>
     </select>
+
+   <select id="filterKategori" onchange="applyFilters()">
+      <option value="">Kategori</option>
+      <option value="bacaan" {{ request('kategori')=='bacaan'?'selected':'' }}>Bacaan</option>
+      <option value="referensi" {{ request('kategori')=='referensi'?'selected':'' }}>Referensi</option>
+      <option value="skripsi" {{ request('kategori')=='skripsi'?'selected':'' }}>Skripsi</option>
+    </select>
+
   </div>
 
   <!-- 📚 Daftar Buku -->
@@ -196,17 +204,30 @@
   }
 
   function applyFilters() {
-      const search = document.getElementById('search').value.trim();
-      const sort = document.getElementById('urutkan').value;
-      const searchType = document.getElementById('searchType').value;
+    const search = document.getElementById('search').value.trim();
+    const sort = document.getElementById('urutkan').value;
+    const searchType = document.getElementById('searchType').value;
+    const kategori = document.getElementById('filterKategori').value;
 
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (sort) params.append('sort', sort);
-      if (searchType) params.append('searchType', searchType);
+    const params = new URLSearchParams(window.location.search);
 
-      window.location.href = `/buku?${params.toString()}`;
-  }
+    // hapus page kalau ganti filter
+    params.delete('page');
+
+    if (search) params.set('search', search);
+    else params.delete('search');
+
+    if (sort) params.set('sort', sort);
+    else params.delete('sort');
+
+    if (searchType) params.set('searchType', searchType);
+    else params.delete('searchType');
+
+    if (kategori) params.set('kategori', kategori);
+    else params.delete('kategori');
+
+    window.location.href = `/buku?${params.toString()}`;
+}
 
   document.addEventListener('DOMContentLoaded', function() {
     updatePlaceholder();

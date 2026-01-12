@@ -130,49 +130,57 @@
       </thead>
       <tbody>
         @forelse($peminjaman->where('status', 'dipinjam') as $index => $p)
-        <tr data-status="{{ strtolower($p->status) }}" data-date="{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}">
-          <td>{{ $index + 1 }}</td>
-          <td>{{ $p->nama }}</td>
-          <td>{{ $p->npm }}</td>
-          <td>{{ $p->judul_buku }}</td>
-          <td>{{ $p->nomor_buku }}</td>
-          <td>{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</td>
-          <td>
-            @if($p->tanggal_kembali)
-              {{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d M Y') }}
-            @else
-              <span class="text-muted">Belum kembali</span>
-            @endif
-          </td>
-          <td>
-            @if(strtolower($p->status) === 'dipinjam')
-              <span class="badge bg-warning text-dark">{{ $p->status }}</span>
-            @else
-              <span class="badge bg-success">{{ $p->status }}</span>
-            @endif
-          </td>
-          <td class="text-center">
-            <a href="javascript:;" 
-              class="btn-edit text-primary" 
-              data-id="{{ $p->id }}" 
-              data-nama="{{ $p->nama }}"
-              data-npm="{{ $p->npm }}"
-              data-judul="{{ $p->judul_buku }}"
-              data-nomor="{{ $p->nomor_buku }}"
-              data-status="{{ $p->status }}"
-              title="Edit Peminjaman">
-                <i class="bi bi-pencil"></i>
-            </a>
+          @php
+            $hariIni = \Carbon\Carbon::now();
+            $tanggalKembali = $p->tanggal_kembali ? \Carbon\Carbon::parse($p->tanggal_kembali) : null;
+            $telat = $tanggalKembali ? ($hariIni->gt($tanggalKembali) && strtolower($p->status) === 'dipinjam') : false;
+          @endphp
 
-            <form action="{{ route('destroy', $p->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-              @csrf
-              @method('DELETE')
-              <button type="submit" class="btn p-0 border-0 bg-transparent" title="Hapus Peminjaman">
-                <i class="bi bi-trash text-danger"></i>
-              </button>
-            </form>
-          </td>
-        </tr>
+          <tr data-status="{{ strtolower($p->status) }}" data-date="{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}" @if($telat) style="background-color:#f8d7da;" @endif>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ $p->nama }}</td>
+            <td>{{ $p->npm }}</td>
+            <td>{{ $p->judul_buku }}</td>
+            <td>{{ $p->nomor_buku }}</td>
+            <td>{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</td>
+            <td>
+              @if($p->tanggal_kembali)
+                {{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d M Y') }}
+              @else
+                <span class="text-muted">Belum kembali</span>
+              @endif
+            </td>
+            <td>
+              @if($telat)
+                <span class="badge bg-danger text-white">Terlambat</span>
+              @elseif(strtolower($p->status) === 'dipinjam')
+                <span class="badge bg-warning text-dark">{{ $p->status }}</span>
+              @else
+                <span class="badge bg-success">{{ $p->status }}</span>
+              @endif
+            </td>
+            <td class="text-center">
+              <a href="javascript:;" 
+                class="btn-edit text-primary" 
+                data-id="{{ $p->id }}" 
+                data-nama="{{ $p->nama }}"
+                data-npm="{{ $p->npm }}"
+                data-judul="{{ $p->judul_buku }}"
+                data-nomor="{{ $p->nomor_buku }}"
+                data-status="{{ $p->status }}"
+                title="Edit Peminjaman">
+                  <i class="bi bi-pencil"></i>
+              </a>
+
+              <form action="{{ route('destroy', $p->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn p-0 border-0 bg-transparent" title="Hapus Peminjaman">
+                  <i class="bi bi-trash text-danger"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
         @empty
         <tr>
           <td colspan="9" class="text-center text-muted">Belum ada data peminjaman</td>
