@@ -35,12 +35,10 @@ Route::get('/login', function () {
 
 Route::post('/login', function (Request $request) {
     $request->validate([
-        'role' => 'required|in:guru,siswa,umum',
         'identifier' => 'required|string',
         'password' => 'required',
     ]);
 
-    $role = $request->role;
     $identifier = $request->identifier;
     $password = $request->password;
 
@@ -50,13 +48,11 @@ Route::post('/login', function (Request $request) {
         return redirect()->route('admin.dashboard');
     }
 
-    // Determine lookup column based on role
-    if ($role === 'guru') {
-        $user = User::where('nip', $identifier)->first();
-    } elseif ($role === 'siswa') {
-        $user = User::where('nis', $identifier)->first();
-    } else {
+    // Determine lookup: if contains @ treat as email, otherwise try nis then nip
+    if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
         $user = User::where('email', $identifier)->first();
+    } else {
+        $user = User::where('nis', $identifier)->orWhere('nip', $identifier)->first();
     }
 
     if ($user && Hash::check($password, $user->password)) {

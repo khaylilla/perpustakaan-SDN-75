@@ -150,27 +150,15 @@
   <div class="login-box">
     <img src="{{ asset('unib.jpg') }}" alt="Logo UNIB">
     <h3>LOGIN</h3>
-    <p>Masuk menggunakan NIP (Guru), NIS (Siswa), atau Email (Umum)</p>
+    <p>Masuk menggunakan Email atau NIS/NIP</p>
 
     <form method="POST" action="{{ route('login.submit') }}">
       @csrf
-      <div class="mb-2 text-start"><b>Masuk Sebagai</b></div>
-      <div class="d-flex gap-2 mb-3">
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="role" id="role-guru" value="guru" checked>
-          <label class="form-check-label" for="role-guru">Guru</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="role" id="role-siswa" value="siswa">
-          <label class="form-check-label" for="role-siswa">Siswa</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="role" id="role-umum" value="umum">
-          <label class="form-check-label" for="role-umum">Umum</label>
-        </div>
-      </div>
 
-      <input type="text" name="identifier" id="identifier" class="form-control" placeholder="NIP" required value="{{ old('identifier') }}">
+      <div class="mb-2 text-start"><b>Email / NIS</b></div>
+      <div class="mb-3">
+        <input type="text" name="identifier" id="identifier" class="form-control" placeholder="Email atau NIS/NIP" required value="{{ old('identifier') }}">
+      </div>
 
       <div class="position-relative">
         <input type="password" name="password" id="password" class="form-control" placeholder="Password" required>
@@ -210,30 +198,6 @@
         icon.classList.add('fa-eye');
       }
     }
-  </script>
-  <script>
-    // role -> change identifier placeholder and input type
-    document.querySelectorAll('input[name="role"]').forEach(radio => {
-      radio.addEventListener('change', function(){
-        const idInput = document.getElementById('identifier');
-        if(this.value === 'guru'){
-          idInput.placeholder = 'NIP';
-          idInput.type = 'text';
-          idInput.required = true;
-        } else if(this.value === 'siswa'){
-          idInput.placeholder = 'NIS';
-          idInput.type = 'text';
-          idInput.required = true;
-        } else {
-          idInput.placeholder = 'Email';
-          idInput.type = 'email';
-          idInput.required = true;
-        }
-      });
-    });
-    // initialize
-    const checked = document.querySelector('input[name="role"]:checked');
-    if(checked) checked.dispatchEvent(new Event('change'));
   </script>
 </body>
 </html>
