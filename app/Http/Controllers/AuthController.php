@@ -82,22 +82,16 @@ public function index()
         'artikels' => Artikel::latest()->take(5)->get(),
     ]);
 }
-
-    // ✅ Menampilkan kartu anggota
     public function showCard($id)
     {
         $user = User::findOrFail($id);
         return view('auth.card', compact('user'));
     }
-    
-    // ✅ Menampilkan halaman absen
 public function showAbsenForm()
 {
     $user = Auth::user();
     return view('auth.absen', compact('user'));
 }
-
-// ✅ Menyimpan data absensi
 public function submitAbsen(Request $request)
 {
     $request->validate([
