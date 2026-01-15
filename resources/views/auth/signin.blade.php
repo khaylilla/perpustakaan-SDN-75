@@ -1,153 +1,261 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In - Sistem Informasi Perpustakaan</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up | Perpustakaan Digital SDN 75</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <style>
-    * { box-sizing: border-box; }
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:'Inter',sans-serif;
+  background:#eef2ff;
+  overflow-x:hidden;
+}
 
-    body {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      font-family: 'Poppins', sans-serif;
-      position: relative;
-    }
+/* ===== BACKGROUND SMOOTH ===== */
+.bg-layer{
+  position:fixed;
+  inset:0;
+  /* background image (place your image at public/ft.jpg) with soft tint overlays */
+  background:
+    url('{{ asset('ft.jpg') }}') center/cover no-repeat,
+    radial-gradient(circle at 15% 20%, rgba(247,147,30,.16), transparent 55%),
+    radial-gradient(circle at 85% 35%, rgba(27,42,110,.18), transparent 60%),
+    linear-gradient(135deg, rgba(238,242,255,0.6), rgba(255,247,237,0.5));
+  background-blend-mode:overlay,overlay,screen,normal;
+  z-index:0;
+}
 
-    .background-img {
-      position: fixed;
-      inset: 0;
-      background: url('{{ asset('FT.jpg') }}') center/cover no-repeat;
-      opacity: 0.6;
-      z-index: 0;
-    }
+/* subtle floating blobs */
+.shape{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(60px);
+  opacity:.35;
+  animation:float 20s ease-in-out infinite alternate;
+}
+.shape.orange{
+  width:240px;height:240px;
+  background:#f7931e;
+  top:12%;left:8%;
+}
+.shape.blue{
+  width:280px;height:280px;
+  background:#1b2a6e;
+  bottom:10%;right:10%;
+  animation-delay:6s;
+}
 
-    .triangle-left {
-      position: fixed;
-      inset: 0;
-      width: 70%;
-      background-color: #f7931e;
-      clip-path: polygon(0 0, 65% 0, 85% 100%, 0 100%);
-      z-index: 1;
-    }
+@keyframes float{
+  from{transform:translateY(0)}
+  to{transform:translateY(-35px)}
+}
 
-    .signin-box {
-      z-index: 2;
-      background: white;
-      padding: 50px;
-      border-radius: 15px;
-      width: 650px;
-      margin: 60px 0;
-      box-shadow: 0 0 25px rgba(0,0,0,0.2);
-    }
+/* ===== CARD ===== */
+.card-signup{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:430px;
+  /* translucent card so background shows through slightly */
+  background: rgba(255,255,255,0.86);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  border-radius:28px;
+  padding:40px;
+  margin:70px auto;
+  box-shadow:
+    0 30px 60px rgba(27,42,110,.14),
+    0 10px 25px rgba(247,147,30,.09);
+  border: 1px solid rgba(27,42,110,0.06);
+  animation:cardIn .8s cubic-bezier(.25,.9,.4,1);
+}
 
-    .signin-box img {
-      width: 90px;
-      margin-bottom: 10px;
-    }
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(40px)}
+  to{opacity:1;transform:none}
+}
 
-    .btn-signin {
-      background: #1b2a6e;
-      color: white;
-      width: 100%;
-      border-radius: 8px;
-      padding: 10px;
-      border: none;
-    }
+/* HEADER */
+.logo{width:52px}
+h4{
+  font-weight:700;
+  color:#1b2a6e;
+}
 
-    .btn-signin:hover {
-      background: #142257;
-    }
+/* ROLE */
+.role-toggle{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+.role-toggle input{display:none}
+.role-toggle label{
+  padding:9px;
+  border-radius:14px;
+  border:2px solid #1b2a6e;
+  font-size:.8rem;
+  font-weight:600;
+  cursor:pointer;
+  color:#1b2a6e;
+  transition:.3s;
+  text-align:center;
+}
+.role-toggle input:checked + label{
+  background:#1b2a6e;
+  color:white;
+}
 
-    /* ===== ROLE TOGGLE ===== */
-    .role-toggle {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
+/* FORM */
+label{
+  font-size:.75rem;
+  font-weight:600;
+  text-align:left;
+  color:#1b2a6e;
+}
+.form-control{
+  border-radius:14px;
+  padding:10px 14px;
+  font-size:.82rem;
+}
+.form-control:focus{
+  border-color:#f7931e;
+  box-shadow:0 0 0 .18rem rgba(247,147,30,.22);
+}
 
-    .role-toggle input {
-      display: none;
-    }
+/* smooth field animation */
+.form-section{
+  animation:fadeSlide .35s ease;
+}
+@keyframes fadeSlide{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:none}
+}
 
-    .role-toggle label {
-      flex: 1;
-      padding: 10px;
-      text-align: center;
-      border-radius: 8px;
-      border: 2px solid #1b2a6e;
-      cursor: pointer;
-      font-weight: 500;
-      color: #1b2a6e;
-      transition: .3s;
-    }
+/* PASSWORD */
+.toggle-password{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  color:#1b2a6e;
+}
 
-    .role-toggle input:checked + label {
-      background: #1b2a6e;
-      color: white;
-    }
+/* UPLOAD */
+.upload-box{
+  border:2px dashed rgba(247,147,30,.6);
+  border-radius:16px;
+  padding:14px;
+  font-size:.8rem;
+  transition:.3s;
+}
+.upload-box:hover{
+  background:#fff7ed;
+}
 
-    .toggle-password {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-    }
+/* BUTTON */
+.btn-signup{
+  width:100%;
+  border-radius:16px;
+  padding:11px;
+  background:#1b2a6e;
+  color:white;
+  font-weight:600;
+  border:none;
+  transition:.3s;
+}
+.btn-signup:hover{
+  background:#142257;
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(27,42,110,.28);
+}
 
-    .upload-box {
-      border: 2px dashed #ccc;
-      border-radius: 10px;
-      padding: 20px;
-      text-align: center;
-    }
-
-    @media (max-width: 768px) {
-      .signin-box { width: 90%; }
-      .triangle-left { width: 100%; clip-path: none; }
-    }
-  </style>
+@media(max-width:768px){
+  .card-signup{margin:40px 15px}
+}
+</style>
 </head>
 
 <body>
 
-<div class="background-img"></div>
-<div class="triangle-left"></div>
+<div class="bg-layer"></div>
+<div class="shape orange"></div>
+<div class="shape blue"></div>
 
-<div class="signin-box text-center">
+<div class="card-signup">
 
-  <img src="{{ asset('unib.jpg') }}">
-  <h3 class="fw-bold text-primary">SIGN IN</h3>
-  <p>Isi data di bawah ini</p>
+<div class="text-center mb-3">
+  <img src="{{ asset('unib.jpg') }}" class="logo mb-2">
+  <h4>Sign up for free</h4>
+  <small class="text-muted">Buat akun perpustakaan digital</small>
+</div>
 
 <form action="{{ route('signin.submit') }}" method="POST" enctype="multipart/form-data">
 @csrf
 
-<!-- ROLE -->
-<label class="text-start w-100 mb-2"><b>Daftar Sebagai</b></label>
 <div class="role-toggle">
   <input type="radio" name="role" id="guru" value="guru" checked>
   <label for="guru">Guru</label>
-
   <input type="radio" name="role" id="siswa" value="siswa">
   <label for="siswa">Siswa</label>
-
   <input type="radio" name="role" id="umum" value="umum">
   <label for="umum">Umum</label>
 </div>
 
-<div id="field-email">
-  <label class="text-start w-100"><b>Email</b></label>
+<div id="field-email" class="form-section">
+  <label>Email</label>
   <input type="email" name="email" class="form-control mb-2">
 </div>
 
-<label class="text-start w-100"><b>Password</b></label>
+<label>Nama Lengkap</label>
+<input type="text" name="nama" class="form-control mb-2" required>
+
+<div id="field-npm" class="form-section" style="display:none">
+  <label>NIS</label>
+  <input type="text" name="nis" class="form-control mb-2">
+</div>
+
+<div id="field-nip" class="form-section">
+  <label>NIP</label>
+  <input type="text" name="nip" class="form-control mb-2">
+</div>
+
+<div id="field-asal" class="form-section" style="display:none">
+  <label>Asal Sekolah</label>
+  <input type="text" name="asal_sekolah" class="form-control mb-2">
+</div>
+
+<div id="field-alamat" class="form-section">
+  <label>Alamat</label>
+  <input type="text" name="alamat" class="form-control mb-2">
+</div>
+
+<div id="field-tgl" class="form-section">
+  <label>Tanggal Lahir</label>
+  <input type="date" name="tgl_lahir" class="form-control mb-2">
+</div>
+
+<div id="field-nohp" class="form-section">
+  <label>No. HP</label>
+  <input type="text" name="nohp" class="form-control mb-2">
+</div>
+
+<label>Foto</label>
+<div class="upload-box mb-3">
+  <input type="file" name="foto" accept="image/*" required>
+</div>
+
+<!-- PASSWORD DI BAWAH -->
+<label>Password</label>
 <div class="position-relative mb-2">
   <input type="password" name="password" id="password" class="form-control" required>
   <span class="toggle-password" onclick="togglePassword('password')">
@@ -155,155 +263,31 @@
   </span>
 </div>
 
-<label class="text-start w-100"><b>Konfirmasi Password</b></label>
-<div class="position-relative mb-2">
+<label>Konfirmasi Password</label>
+<div class="position-relative mb-3">
   <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
   <span class="toggle-password" onclick="togglePassword('password_confirmation')">
     <i class="fa fa-eye" id="password_confirmation-icon"></i>
   </span>
 </div>
 
-<label class="text-start w-100"><b>Nama Lengkap</b></label>
-<input type="text" name="nama" class="form-control mb-2" required>
+<button class="btn-signup">Create Account</button>
 
-<!-- NPM (NIS) -->
-<div id="field-npm" style="display:none;">
-  <label class="text-start w-100"><b>NIS</b></label>
-  <input type="text" name="nis" class="form-control mb-2">
-  </div>
-
-<!-- NIP -->
-<div id="field-nip">
-  <label class="text-start w-100"><b>NIP</b></label>
-  <input type="text" name="nip" class="form-control mb-2">
-</div>
-
-<!-- Asal Sekolah (untuk siswa) -->
-<div id="field-asal" style="display:none;">
-  <label class="text-start w-100"><b>Asal Sekolah</b></label>
-  <input type="text" name="asal_sekolah" class="form-control mb-2">
-</div>
-
-<div id="field-alamat">
-  <label class="text-start w-100"><b>Alamat</b></label>
-  <input type="text" name="alamat" class="form-control mb-2">
-</div>
-
-<div id="field-tgl">
-  <label class="text-start w-100"><b>Tanggal Lahir</b></label>
-  <input type="date" name="tgl_lahir" class="form-control mb-2">
-</div>
-
-<div id="field-nohp">
-  <label class="text-start w-100"><b>No. HP</b></label>
-  <input type="text" name="nohp" class="form-control mb-2">
-</div>
-
-<label class="text-start w-100"><b>Foto</b></label>
-<div class="upload-box mb-3">
-  <input type="file" name="foto" accept="image/*" required>
-</div>
-
-<button class="btn-signin">Sign In</button>
-
-<small class="d-block mt-3">
+<small class="d-block text-center mt-3">
   Sudah punya akun? <a href="{{ url('/login') }}">Login</a>
 </small>
 
 </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-function togglePassword(id) {
-  const input = document.getElementById(id);
-  const icon = document.getElementById(id + '-icon');
-  if(input.type === "password") {
-    input.type = "text";
-    icon.classList.replace('fa-eye','fa-eye-slash');
-  } else {
-    input.type = "password";
-    icon.classList.replace('fa-eye-slash','fa-eye');
-  }
+function togglePassword(id){
+  const input=document.getElementById(id);
+  const icon=document.getElementById(id+'-icon');
+  input.type = input.type === "password" ? "text" : "password";
+  icon.classList.toggle('fa-eye');
+  icon.classList.toggle('fa-eye-slash');
 }
-
-// ROLE LOGIC
-const roles = document.querySelectorAll('input[name="role"]');
-const npmField = document.getElementById('field-npm');
-const nipField = document.getElementById('field-nip');
-const asalField = document.getElementById('field-asal');
-const emailField = document.getElementById('field-email');
-const alamatField = document.getElementById('field-alamat');
-const tglField = document.getElementById('field-tgl');
-const nohpField = document.getElementById('field-nohp');
-
-function setRequired(el, required) {
-  if(!el) return;
-  const inputs = el.querySelectorAll('input');
-  inputs.forEach(i => { if(required) i.setAttribute('required','required'); else i.removeAttribute('required'); });
-}
-
-function switchRole(role) {
-  if(role === 'guru') {
-    nipField.style.display = 'block';
-    npmField.style.display = 'none';
-    asalField.style.display = 'none';
-    emailField.style.display = 'block';
-    alamatField.style.display = 'block';
-    tglField.style.display = 'block';
-    nohpField.style.display = 'block';
-
-    setRequired(nipField, true);
-    setRequired(npmField, false);
-    setRequired(emailField, true);
-    setRequired(alamatField, true);
-    setRequired(tglField, true);
-    setRequired(nohpField, true);
-    setRequired(asalField, false);
-  } else if(role === 'siswa') {
-    nipField.style.display = 'none';
-    npmField.style.display = 'block';
-    asalField.style.display = 'block';
-    emailField.style.display = 'none';
-    alamatField.style.display = 'none';
-    tglField.style.display = 'none';
-    nohpField.style.display = 'none';
-
-    setRequired(nipField, false);
-    setRequired(npmField, true);
-    setRequired(asalField, true);
-    setRequired(emailField, false);
-    setRequired(alamatField, false);
-    setRequired(tglField, false);
-    setRequired(nohpField, false);
-  } else {
-    // umum
-    nipField.style.display = 'none';
-    npmField.style.display = 'none';
-    asalField.style.display = 'none';
-    emailField.style.display = 'block';
-    alamatField.style.display = 'block';
-    tglField.style.display = 'block';
-    nohpField.style.display = 'block';
-
-    setRequired(nipField, false);
-    setRequired(npmField, false);
-    setRequired(asalField, false);
-    setRequired(emailField, true);
-    setRequired(alamatField, true);
-    setRequired(tglField, true);
-    setRequired(nohpField, true);
-  }
-}
-
-roles.forEach(r => {
-  r.addEventListener('change', () => switchRole(r.value));
-});
-
-// initialize based on checked role
-const checked = document.querySelector('input[name="role"]:checked');
-if(checked) switchRole(checked.value);
 </script>
 
 </body>
