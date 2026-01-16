@@ -1,364 +1,257 @@
-<!-- =============================== -->
-<!--        HOME PAGE (CLEAN)        -->
-<!-- =============================== -->
 @extends('layouts.app')
 @section('title','Beranda')
 @section('content')
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================= */
-/*                           GLOBAL CSS                          */
+/* GLOBAL STYLING */
 /* ============================================================= */
 :root {
-  --c-navy:#0A2342; --c-orange:#FFA500; --c-white:#FFF;
-  --c-muted:#f5f7fa; --text:rgba(240, 142, 45, 0.92);
-  --muted-text:rgba(252, 252, 252, 0.6);
-  --card-bg:#fff; --shadow-soft:0 10px 30px rgba(10,35,66,0.06);
-  --radius-lg:18px; --radius-md:12px; --font-base:15px;
+    --c-navy: #001F54;
+    --c-orange: #f7931e;
+    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
-body{font-family:Inter,system-ui; background:#001F54; color:var(--text);}
-.container{max-width:1200px; margin:auto; padding:0 24px;}
-.card{background:#fff; border-radius:var(--radius-lg); box-shadow:var(--shadow-soft);}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: #f8fafc;
+    color: #334155;
+}
+
+/* Mengurangi jarak antar section agar tidak terlalu jauh */
+section { padding: 40px 0; }
+.container { max-width: 1240px; }
 
 /* ============================================================= */
-/*                   ANIMATED BORDER + GLOW                      */
+/* HERO SLIDER SECTION */
 /* ============================================================= */
-.animated-border {
+.hero-slider {
     position: relative;
+    height: 550px;
+    width: 100%;
     overflow: hidden;
 }
-
-.animated-border::before {
-    content:"";
-    position:absolute;
-    inset:0;
-    border-radius:inherit;
-    padding:3px;
-    background:linear-gradient(
-      130deg,
-      #FFA500,
-      #ff8a00,
-      #ffca38,
-      #FFA500
-    );
-    background-size:300% 300%;
-    animation:borderMove 4s linear infinite;
-    mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    mask-composite:exclude;
-    -webkit-mask-composite:destination-out;
+.hero-slider img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: brightness(0.45);
 }
-
-@keyframes borderMove {
-    0% {background-position:0% 50%;}
-    100% {background-position:100% 50%;}
+.hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(0,31,84,0.3), rgba(0,31,84,0.7));
+    z-index: 1;
 }
-
-/* Hover glow */
-.hover-glow:hover {
-    box-shadow:0 0 20px rgba(255,165,0,0.45),
-               0 0 40px rgba(255,165,0,0.25);
-    transform:translateY(-4px);
-    transition:0.25s;
+.hero-content {
+    position: absolute; top: 50%; left: 10%;
+    transform: translateY(-50%);
+    z-index: 2; color: white; max-width: 750px;
+}
+.hero-content h1 { font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
+.hero-badge {
+    display: inline-block; padding: 6px 14px;
+    background: var(--c-orange); border-radius: 50px;
+    font-weight: 700; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;
 }
 
 /* ============================================================= */
-/*                           HERO SECTION                         */
+/* CARD & SLIDER STYLING */
 /* ============================================================= */
-.hero{position:relative; height:560px; overflow:hidden;}
-.hero img.bg-hero{width:100%; height:100%; object-fit:cover; filter:saturate(.95); transform:scale(1.03);} 
-.hero .overlay{position:absolute; inset:0; background:linear-gradient(180deg,rgba(10,35,66,0.28),rgba(10,35,66,0.62));}
-.hero .content{position:absolute; top:50%; left:6%; transform:translateY(-50%); color:#fff;}
-/* ============================================================= */
-/*                   KOLEKSI BUKU TERBARU SLIDER                 */
-/* ============================================================= */
-.collection-wrap {
-    padding: 32px 0 40px;
-    margin-bottom: 40px; /* Tambahan */
-}
-.collection-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;}
-.collection-title-big{font-size:22px; font-weight:800;}
-.collection-sub{font-size:14px; color:var(--muted-text);} 
-.swiper-slide{width:360px !important;}
+.section-title { font-size: 24px; font-weight: 800; color: var(--c-navy); margin-bottom: 5px; }
+.section-header { margin-bottom: 25px; }
 
+/* Koleksi Card */
 .koleksi-card {
-    background:#fff;
-    border-radius:18px;
-    border:3px solid var(--c-orange);
-    box-shadow:var(--shadow-soft);
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
-    min-height:520px; /* dikurangi sebelumnya 600px */
-    position:relative;
+    background: white; border-radius: 20px; overflow: hidden;
+    transition: var(--transition); border: 1px solid rgba(0,0,0,0.05); height: 100%;
+}
+.koleksi-img-wrapper { height: 260px; overflow: hidden; }
+.koleksi-img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
+.koleksi-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+
+/* Favorite Card */
+.favorite-item-card {
+    background: white; border-radius: 20px; padding: 25px;
+    transition: var(--transition); border: 1.5px solid transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+.favorite-item-card:hover { border-color: var(--c-orange); transform: translateY(-5px); }
+
+/* Article Card */
+.article-card {
+    background: white; border-radius: 20px; border: none;
+    transition: var(--transition); box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 
-/* Terapkan efek animasi */
-.koleksi-card.animated-border,
-.favorite-box.animated-border,
-.article-box.animated-border,
-.footer-map.animated-border {
-    border:none;
-    position:relative;
-    overflow:hidden;
+.rank-badge {
+    width: 35px; height: 35px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.9rem;
 }
 
-/* Glow on hover */
-.koleksi-card:hover,
-.favorite-box:hover,
-.article-box:hover {
-    box-shadow:0 0 25px rgba(255,165,0,0.4);
-    transform:translateY(-4px);
-    transition:0.25s;
+.text-truncate-2 {
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
 }
 
-.koleksi-img {
-    width:100%;
-    height:260px; /* sebelumnya 330px */
-    object-fit:cover;
-    border-bottom:3px solid var(--c-orange);
+/* Button */
+.btn-primary-modern {
+    background: var(--c-navy); color: white; padding: 12px 28px;
+    border-radius: 12px; font-weight: 700; text-decoration: none; display: inline-block;
 }
-
-
-.koleksi-body {
-    padding:12px;  /* sebelumnya 18px */
-    gap:4px; /* lebih rapat */
-}
-.koleksi-title {
-    font-size:15px; /* sebelumnya 16px */
-    font-weight:700;
-}
-.koleksi-author {
-    font-size:13px;
-}
-.koleksi-cat {
-    margin-top:auto;
-    padding:5px 10px;
-    font-size:12px;
-}
-
-.koleksi-footer{padding:16px 18px 22px;}
-.btn-koleksi{width:100%; padding:12px; border-radius:10px; border:none; background:linear-gradient(90deg,var(--c-orange),#ff8a00); color:#fff; font-weight:700;}
-.swiper-button-custom{width:44px; height:44px; border-radius:12px; background:#fff; border:1px solid rgba(10,35,66,0.1); display:flex; align-items:center; justify-content:center;}
-.swiper-pagination-bullet{width:10px; height:10px; background:rgba(10,35,66,0.15);} 
-.swiper-pagination-bullet-active{background:var(--c-orange); width:28px; border-radius:999px;}
-
-/* ============================================================= */
-/*                FAVORITE BOOK (TOP 5) SECTION                  */
-/* ============================================================= */
-.favorite-box{
-  background:#fff;
-  padding:20px;
-  border-radius:18px;
-  border:3px solid var(--c-orange);
-  box-shadow:var(--shadow-soft);
-} 
-.favorite-item{display:flex; justify-content:space-between; padding:14px 16px; border:1px solid rgba(10,35,66,0.05); border-radius:12px; background:linear-gradient(#fff,#fcfdff); margin-bottom:12px;}
-.rank-badge{width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700;}
-.rank-1{background:#FFF3C7;} .rank-2{background:#E6E9FF;} .rank-3{background:#FFE3D2;} 
-.favorite-info h6{margin:0; font-size:15px; font-weight:700;}
-.favorite-info small{color:var(--muted-text);} 
-.cat-pill{padding:4px 10px; border-radius:8px; background:#e8f0ff; font-size:12px; margin-top:6px;}
-
-/* ============================================================= */
-/*                       ARTICLE SECTION                         */
-/* ============================================================= */
-.article-box{
-  background:#fff;
-  padding:20px;
-  border-radius:18px;
-  border:3px solid var(--c-orange);
-  box-shadow:var(--shadow-soft);
-} 
-.article-item{padding:16px; border-radius:12px; border:1px solid rgba(10,35,66,0.06); background:linear-gradient(#fff,#fcfdff); margin-bottom:14px;}
-.article-title{font-size:15px; font-weight:700;}
-.article-preview{font-size:14px; color:rgba(10,35,66,0.75);} 
-.blue-badge{padding:4px 10px; background:#e8f0ff; border-radius:8px; font-size:12px;}
-.article-footer{display:flex; justify-content:space-between; font-size:13px; color:var(--muted-text);} 
-
-
-/* ============================================================= */
-/*                          RESPONSIVE                           */
-/* ============================================================= */
-@media(max-width:992px){.swiper-slide{width:260px !important;}}
-@media(max-width:576px){.swiper-slide{width:220px !important;}}
+.btn-primary-modern:hover { background: var(--c-orange); color: white; }
 </style>
 
-
-<!-- ============================================================= -->
-<!--                           HERO BANNER                         -->
-<!-- ============================================================= -->
-<div class="hero">
-  <img src="{{ asset('FT.jpg') }}" class="bg-hero">
-  <div class="overlay"></div>
-
-  <div class="content">
-    <h6 style="color:var(--c-orange);">Selamat Datang</h6>
-    <h1>Perpustakaan Fakultas Teknik<br>Universitas Bengkulu</h1>
-    <p>Temukan ilmu, jelajahi pengetahuan, dan wujudkan ide inovatifmu di perpustakaan kami.</p>
-  </div>
-
-  <div class="badge-logo">
-    <img src="{{ asset('unib.jpg') }}" style="width:100%; height:100%; object-fit:cover;">
-  </div>
-</div>
-
-<!-- ============================================================= -->
-<!--                       KOLEKSI BUKU SLIDER                     -->
-<!-- ============================================================= -->
-<div class="container collection-wrap">
-
-  <div class="collection-head">
-      <div>
-          <div class="collection-title-big">Koleksi Buku Terbaru</div>
-          <div class="collection-sub">koleksi buku yang baru tersedia</div>
-      </div>
-
-      <div class="d-flex gap-3">
-          <a href="{{ route('buku.index') }}" style="padding:10px 14px; border-radius:10px; border:1px solid var(--c-orange); color:var(--c-orange); font-weight:700;">
-            Lihat Semua →
-          </a>
-      </div>
-  </div>
-
-  <div class="swiper koleksi-swiper">
-      <div class="swiper-wrapper">
-
-          @foreach($books as $book)
-          @php
-            $covers=json_decode($book->cover,true);
-            $title=$book->title ?? $book->judul ?? 'Untitled';
-            $author=$book->author ?? $book->penulis ?? '-';
-            $kategori=$book->kategori->name ?? $book->kategori ?? '-';
-          @endphp
-
-          <div class="swiper-slide">
-              <div class="koleksi-card">
-
-                  @if($covers && count($covers)>0)
-                    <img src="{{ asset('storage/'.$covers[0]) }}" class="koleksi-img">
-                  @elseif($book->cover)
-                    <img src="{{ asset('storage/'.$book->cover) }}" class="koleksi-img">
-                  @else
-                    <img src="/mnt/data/e758dbcc-bea2-49c8-9ac0-984958890e13.png" class="koleksi-img">
-                  @endif
-
-                  <div class="koleksi-body">
-                    <div class="koleksi-title">{{ $title }}</div>
-                    <div class="koleksi-author">{{ $author }}</div>
-                    <div class="koleksi-cat">{{ $kategori }}</div>
-                  </div>
-
-                  <div class="koleksi-footer">
-                    <a href="{{ route('buku.show',$book->id) }}" class="btn-koleksi">Lihat Detail</a>
-                  </div>
-
-              </div>
-          </div>
-          @endforeach
-
-      </div>
-
-      <div class="swiper-pagination"></div>
-  </div>
-</div>
-
-<!-- ============================================================= -->
-<!--                        FAVORITE BOOKS                         -->
-<!-- ============================================================= -->
-<div class="container my-5">
-  <div class="favorite-box">
-
-    <div class="d-flex justify-content-between mb-3">
-      <h5 class="section-title">Buku Paling Sering Dipinjam</h5>
+<div class="hero-slider swiper">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide">
+            <img src="{{ asset('FT.jpg') }}" alt="Gedung Teknik">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <span class="hero-badge">Digital Library</span>
+                <h1>Eksplorasi Ilmu Pengetahuan Teknik</h1>
+                <p class="mb-4 opacity-75">Akses ribuan referensi buku, jurnal, dan karya ilmiah terbaik dari Fakultas Teknik UNIB.</p>
+                <a href="{{ route('buku.index') }}" class="btn-primary-modern">Mulai Membaca</a>
+            </div>
+        </div>
+        <div class="swiper-slide">
+            <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1600" alt="Interior">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <span class="hero-badge">Resource Hub</span>
+                <h1>Dukung Riset & Inovasi Mahasiswa</h1>
+                <p class="mb-4 opacity-75">Fasilitas literasi lengkap untuk mendukung proyek masa depan Anda.</p>
+                <a href="#koleksi" class="btn-primary-modern">Lihat Koleksi</a>
+            </div>
+        </div>
     </div>
+    <div class="swiper-pagination"></div>
+</div>
 
-    @foreach($bukuFavorit as $index=>$buku)
-    <div class="favorite-item">
-
-      <div class="d-flex gap-3">
-        <div class="rank-badge rank-{{ $index+1 }}">#{{ $index+1 }}</div>
-        <div class="favorite-info">
-          <h6>{{ $buku->judul_buku }}</h6>
-          <small>{{ $buku->penulis }}</small>
+<section id="koleksi">
+    <div class="container">
+        <div class="section-header d-flex justify-content-between align-items-end">
+            <div>
+                <h2 class="section-title">Koleksi Terbaru</h2>
+                <p class="text-muted small m-0">Buku terbaru yang siap dipinjam.</p>
+            </div>
+            <a href="{{ route('buku.index') }}" class="fw-bold text-decoration-none" style="color:var(--c-orange);">Lihat Semua →</a>
         </div>
-      </div>
 
-      <div class="favorite-count">📚 {{ $buku->total }}</div>
-
+        <div class="swiper koleksi-swiper">
+            <div class="swiper-wrapper">
+                @foreach($books as $book)
+                @php
+                    $covers = json_decode($book->cover, true);
+                    $title = $book->title ?? $book->judul ?? 'Untitled';
+                @endphp
+                <div class="swiper-slide" style="width: 260px;">
+                    <div class="koleksi-card shadow-sm">
+                        <div class="koleksi-img-wrapper">
+                            @if($covers && count($covers) > 0)
+                                <img src="{{ asset('storage/'.$covers[0]) }}" class="koleksi-img">
+                            @else
+                                <img src="https://via.placeholder.com/300x400" class="koleksi-img">
+                            @endif
+                        </div>
+                        <div class="koleksi-body p-3">
+                            <small class="fw-bold text-uppercase" style="color:var(--c-orange); font-size: 10px;">{{ $book->kategori->name ?? 'Umum' }}</small>
+                            <h6 class="koleksi-title mt-1 mb-2 fw-bold text-truncate-2" style="font-size: 14px; height: 40px; color: var(--c-navy);">{{ $title }}</h6>
+                            <p class="text-muted small mb-3">{{ Str::limit($book->author ?? $book->penulis, 20) }}</p>
+                            <a href="{{ route('buku.show', $book->id) }}" class="btn btn-sm w-100" style="border: 1.5px solid var(--c-navy); color: var(--c-navy); font-weight: 700; border-radius: 10px;">Detail</a>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
     </div>
-    @endforeach
+</section>
 
-  </div>
-</div>
+<section style="background: #f1f5f9;">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Buku Terpopuler</h2>
+            <p class="text-muted small m-0">Pilihan favorit para pembaca saat ini.</p>
+        </div>
+        
+        <div class="swiper populer-swiper">
+            <div class="swiper-wrapper">
+                @foreach($bukuFavorit as $index => $buku)
+                <div class="swiper-slide" style="width: 300px;">
+                    <div class="favorite-item-card h-100 shadow-sm">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="rank-badge" style="background: {{ $index == 0 ? '#FEF3C7' : ($index == 1 ? '#F1F5F9' : '#FFEDD5') }}; color: {{ $index == 0 ? '#92400E' : '#475569' }};">
+                                {{ $index + 1 }}
+                            </div>
+                            <span class="badge rounded-pill bg-primary-subtle text-primary small">{{ $buku->total }}x Pinjam</span>
+                        </div>
+                        <h6 class="fw-bold text-truncate-2 mb-1" style="color: var(--c-navy); line-height: 1.4; height: 40px; font-size: 15px;">{{ $buku->judul_buku }}</h6>
+                        <small class="text-muted">{{ $buku->penulis }}</small>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
 
-<!-- ============================================================= -->
-<!--                           ARTICLE LIST                        -->
-<!-- ============================================================= -->
-<div class="container my-5">
-
-  <div class="d-flex justify-content-between mb-2">
-      <div>
-        <h5 class="section-title mb-1">Artikel Terbaru</h5>
-        <p style="color:rgba(10,35,66,0.65); margin:0; font-size:14px;">
-            Kumpulan artikel terbaru dari perpustakaan sebagai bahan wawasan dan referensi.
-        </p>
-      </div>
-
-      <a class="link-blue" href="{{ route('auth.artikel') }}" style="color:#2563eb; font-weight:700;">
-        Lihat Semua Artikel →
-      </a>
-  </div>
-
-  <div class="article-box">
-      @foreach($artikels as $artikel)
-      <div class="article-item">
-
-        <!-- Judul -->
-        <div class="article-title">{{ $artikel->judul }}</div>
-
-        <!-- Preview -->
-        <div class="article-preview">
-            {{ Str::limit(strip_tags($artikel->deskripsi), 140) }}
+<section>
+    <div class="container">
+        <div class="section-header d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="section-title">Wawasan Terbaru</h2>
+                <p class="text-muted small m-0">Berita dan tips terbaru seputar perpustakaan.</p>
+            </div>
+            <a href="{{ route('auth.artikel') }}" class="btn btn-sm fw-bold px-3 border-dark" style="border-radius: 10px;">Lihat Semua</a>
         </div>
 
-        <!-- Footer -->
-        <div class="article-footer mt-2">
-          <span>{{ $artikel->created_at->format('d F Y') }}</span>
+        <div class="swiper artikel-swiper">
+            <div class="swiper-wrapper">
+                @foreach($artikels as $artikel)
+                <div class="swiper-slide" style="width: 350px;">
+                    <div class="card article-card h-100 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <i class="fa-regular fa-calendar text-muted small"></i>
+                                <small class="text-muted fw-bold" style="font-size: 11px;">{{ $artikel->created_at->format('d M Y') }}</small>
+                            </div>
+                            <h5 class="fw-bold mb-3 text-truncate-2" style="color: var(--c-navy); font-size: 17px; line-height: 1.5; height: 50px;">{{ $artikel->judul }}</h5>
+                            <p class="text-muted small mb-4">
+                                {{ Str::limit(strip_tags($artikel->deskripsi), 100) }}
+                            </p>
+                            <a href="{{ route('auth.artikel') }}" class="text-decoration-none fw-bold" style="color: var(--c-orange); font-size: 14px;">
+                                Selengkapnya <i class="fa-solid fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
         </div>
+    </div>
+</section>
 
-        <!-- Tombol Selengkapnya -->
-        <div style="text-align:right; margin-top:8px;">
-            <a href="{{ route('auth.artikel') }}"
-               style="
-                 padding:6px 12px;
-                 border-radius:8px;
-                 background:#2563eb;
-                 color:white;
-                 font-size:13px;
-                 font-weight:600;
-                 text-decoration:none;
-               ">
-               Selengkapnya →
-            </a>
-        </div>
-
-      </div>
-      @endforeach
-  </div>
-
-</div>
-
-  @include('components.footer')
+@include('components.footer')
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-new Swiper('.swiper',{
-  slidesPerView:'auto', spaceBetween:22, loop:true,
-  autoplay:{delay:2600, disableOnInteraction:false},
-});
+    // Hero Slider
+    new Swiper(".hero-slider", {
+        loop: true, effect: "fade", autoplay: { delay: 5000 },
+        pagination: { el: ".swiper-pagination", clickable: true },
+    });
+
+    // Koleksi Slider
+    new Swiper(".koleksi-swiper", { slidesPerView: "auto", spaceBetween: 20, freeMode: true });
+
+    // Populer Slider
+    new Swiper(".populer-swiper", { slidesPerView: "auto", spaceBetween: 20, freeMode: true });
+
+    // Artikel Slider
+    new Swiper(".artikel-swiper", { slidesPerView: "auto", spaceBetween: 20, freeMode: true });
 </script>
 @endsection
