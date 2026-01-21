@@ -98,44 +98,77 @@
     @csrf
 
     @if($user->foto)
-      <img src="{{ asset('storage/foto/' . $user->foto) }}" alt="Foto Profil" class="profile-img">
+    <img src="/storage/foto/{{ $user->foto }}?v={{ time() }}"
+     alt="Foto Profil"
+     class="profile-img">
     @else
       <img src="{{ asset('default.jpg') }}" alt="Foto Default" class="profile-img">
     @endif
+
 
     <div class="mb-3 text-start">
       <label>Nama</label>
       <input type="text" name="nama" class="form-control" value="{{ $user->nama }}" required>
     </div>
 
-    <div class="mb-3 text-start">
-      <label>Email</label>
-      <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
-    </div>
+    {{-- SISWA: NISN, Asal Sekolah, Kelas --}}
+    @if($loginAs === 'siswa')
+      <div class="mb-3 text-start">
+        <label>NISN</label>
+        <input type="text" name="nisn" class="form-control" value="{{ $user->nisn }}" required>
+      </div>
 
-    <div class="mb-3 text-start">
-      <label>NPM</label>
-      <input type="text" name="npm" class="form-control" value="{{ $user->npm }}" required>
-    </div>
+      <div class="mb-3 text-start">
+        <label>Asal Sekolah</label>
+        <input type="text" name="asal_sekolah" class="form-control" value="{{ $user->asal_sekolah ?? '' }}">
+      </div>
 
-    <div class="mb-3 text-start">
-      <label>Alamat</label>
-      <input type="text" name="alamat" class="form-control" value="{{ $user->alamat }}" required>
-    </div>
+      <div class="mb-3 text-start">
+        <label>Kelas</label>
+        <input type="text" name="kelas" class="form-control" value="{{ $user->kelas ?? '' }}">
+      </div>
 
-    <div class="mb-3 text-start">
-      <label>No HP</label>
-      <input type="text" name="nohp" class="form-control" value="{{ $user->nohp }}" required>
-    </div>
+    {{-- GURU: NIP, Email --}}
+    @elseif($loginAs === 'guru')
+      <div class="mb-3 text-start">
+        <label>NIP</label>
+        <input type="text" name="nip" class="form-control" value="{{ $user->nip }}" required>
+      </div>
 
-    <div class="mb-3 text-start">
-      <label>Tanggal Lahir</label>
-      <input type="date" name="tgl_lahir" class="form-control" value="{{ $user->tgl_lahir }}" required>
-    </div>
+      <div class="mb-3 text-start">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
+      </div>
+
+    {{-- UMUM: Email --}}
+    @elseif($loginAs === 'umum')
+      <div class="mb-3 text-start">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
+      </div>
+    @endif
+
+    {{-- COMMON FIELDS: Alamat, No HP, Tanggal Lahir (tidak untuk siswa) --}}
+    @if($loginAs !== 'siswa')
+      <div class="mb-3 text-start">
+        <label>Alamat</label>
+        <input type="text" name="alamat" class="form-control" value="{{ $user->alamat ?? '' }}">
+      </div>
+
+      <div class="mb-3 text-start">
+        <label>No HP</label>
+        <input type="text" name="nohp" class="form-control" value="{{ $user->nohp ?? '' }}">
+      </div>
+
+      <div class="mb-3 text-start">
+        <label>Tanggal Lahir</label>
+        <input type="date" name="tgl_lahir" class="form-control" value="{{ $user->tgl_lahir ?? '' }}">
+      </div>
+    @endif
 
     <div class="mb-3 text-start">
       <label>Foto Profil</label>
-      <input type="file" name="foto" class="form-control">
+      <input type="file" name="foto" class="form-control" id="fotoInput" accept="image/*">
     </div>
 
     <button type="submit" class="btn btn-primary w-100 mb-3">Simpan Perubahan</button>

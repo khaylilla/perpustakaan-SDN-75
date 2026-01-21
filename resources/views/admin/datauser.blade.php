@@ -130,21 +130,6 @@
       </div>
     </a>
 
-    <a href="{{ route('admin.notifikasi') }}" 
-   class="text-decoration-none flex-grow-1"
-   style="max-width: 300px;">
-  <div class="card shadow-sm border-0 text-white"
-       style="background: linear-gradient(135deg, #f7931e, #ffb84d); border-radius: 16px;">
-    <div class="card-body d-flex align-items-center justify-content-between">
-      <div>
-        <h5 class="fw-bold mb-1">Notifikasi</h5>
-        <p class="mb-0 text-light small">Lihat pemberitahuan terbaru</p>
-      </div>
-      <i class="bi bi-bell-fill fs-2 opacity-75"></i>
-    </div>
-  </div>
-</a>
-
     {{-- BUTTON TAMBAH ANGGOTA --}}
   <div class="d-flex align-items-center ms-auto mb-3">
     <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#createUserModal">
@@ -153,119 +138,177 @@
   </div>
 
   {{-- SEARCH BAR (posisi di bawah tombol) --}}
-  <form action="{{ route('admin.datauser') }}" method="GET" class="search-bar w-100">
-  <i class="bi bi-search"></i>
-  <input type="text" name="keyword" id="searchInput" placeholder="Cari nama, NPM, atau email..." value="{{ request('keyword') }}">
-  <button type="submit" class="btn btn-primary btn-sm ms-2">Cari</button>
-</form>
+  <form action="{{ route('admin.datauser') }}" method="GET" class="d-flex gap-2 mb-3">
+    <div class="search-bar flex-grow-1">
+      <i class="bi bi-search"></i>
+      <input type="text" name="keyword" id="searchInput" placeholder="Cari nama atau identitas..." value="{{ request('keyword') }}">
+      <button type="submit" class="btn btn-primary btn-sm ms-2">Cari</button>
+    </div>
+    
+    <div style="width: 220px;">
+      <select name="category" id="categoryFilter" class="form-control" onchange="this.form.submit()">
+        <option value="">-- Semua Kategori --</option>
+        <option value="users" {{ request('category') === 'users' ? 'selected' : '' }}>Siswa</option>
+        <option value="umum" {{ request('category') === 'umum' ? 'selected' : '' }}>Pengunjung Umum</option>
+        <option value="guru" {{ request('category') === 'guru' ? 'selected' : '' }}>Guru</option>
+      </select>
+    </div>
+  </form>
 
   {{-- ALERT --}}
   @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
   @endif
 
-  {{-- TABEL DATA --}}
+  {{-- FILTER DATA --}}
+  @php
+    $categoryFilter = request('category');
+    $filteredUsers = $categoryFilter ? $users->filter(fn($u) => $u->type === $categoryFilter) : $users;
+  @endphp
+
+  {{-- TABEL GABUNGAN --}}
   <div class="table-container">
     <table class="table text-center align-middle mb-0">
       <thead>
-        <tr>
+        <tr style="background-color: #4a4ca4; color: white;">
           <th>No</th>
-          <th>Anggota</th>
-          <th>NPM</th>
+          <th>Kategori</th>
+          <th>Nama</th>
+          <th>Identitas (NISN/NIP/Email)</th>
           <th>Alamat</th>
-          <th>Email</th>
-          <th>Tanggal Lahir</th>
+          <th>Tgl Lahir</th>
           <th>No HP</th>
           <th>Aksi</th>
         </tr>
       </thead>
       <tbody>
-        @forelse($users as $index => $user)
+        @forelse($filteredUsers as $index => $user)
           <tr>
             <td>{{ $index + 1 }}</td>
             <td>
-             <div class="d-flex align-items-center justify-content-center">
-                  @if(!empty($user->foto))
-                    <img src="{{ asset('storage/foto/'.$user->foto) }}" 
-                        alt=" " 
-                        class="rounded-circle me-2" 
-                        style="width:40px; height:40px;">
-                  @endif
-
-                  <span>{{ $user->nama }}</span>
+              @if($user->type === 'users')
+                <span class="badge" style="background-color: #4a4ca4;">Siswa</span>
+              @elseif($user->type === 'guru')
+                <span class="badge" style="background-color: #27ae60;">Guru</span>
+              @else
+                <span class="badge" style="background-color: #f39c12;">Umum</span>
+              @endif
+            </td>
+            <td>
+              <div class="d-flex align-items-center justify-content-center">
+                @if(!empty($user->foto))
+                  <img src="{{ asset('storage/foto/'.$user->foto) }}" 
+                      alt=" " 
+                      class="rounded-circle me-2" 
+                      style="width:40px; height:40px;">
+                @endif
+                <span>{{ $user->nama }}</span>
               </div>
             </td>
-            <td>{{ $user->npm }}</td>
-            <td>{{ $user->alamat }}</td>
-            <td>{{ $user->email }}</td>
-            <td>{{ $user->tgl_lahir }}</td>
-            <td>{{ $user->nohp }}</td>
+            <td>
+              @if($user->type === 'users')
+                {{ $user->nisn ?? '-' }}
+              @elseif($user->type === 'guru')
+                {{ $user->nip ?? '-' }}
+              @else
+                {{ $user->email ?? '-' }}
+              @endif
+            </td>
+            <td>{{ $user->alamat ?? '-' }}</td>
+            <td>{{ $user->tgl_lahir ? \Carbon\Carbon::parse($user->tgl_lahir)->format('d-m-Y') : '-' }}</td>
+            <td>{{ $user->nohp ?? '-' }}</td>
             <td class="action-icons">
               <i class="bi bi-eye view" title="Lihat"></i>
-              <i class="bi bi-pencil-square edit" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->id }}" title="Edit"></i>
+              <i class="bi bi-pencil-square edit" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->type }}-{{ $user->id }}" title="Edit"></i>
               <form action="{{ route('admin.datauser.delete', $user->id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn p-0 border-0 bg-transparent" onclick="return confirm('Yakin hapus user ini?')">
+                <button type="submit" class="btn p-0 border-0 bg-transparent" onclick="return confirm('Yakin hapus data ini?')">
                   <i class="bi bi-trash delete" title="Hapus"></i>
                 </button>
               </form>
             </td>
           </tr>
-
-          {{-- MODAL EDIT --}}
-          <div class="modal fade" id="editUserModal{{ $user->id }}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header bg-warning">
-                  <h5 class="modal-title">Edit Data Anggota</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{{ route('admin.datauser.update', $user->id) }}" method="POST" enctype="multipart/form-data">
-                  @csrf
-                  @method('PUT')
-                  <div class="modal-body">
-                    <div class="mb-3"><label>Email</label>
-                      <input type="text" name="email" class="form-control" value="{{ $user->email }}" required>
-                    </div>
-                    <div class="mb-3"><label>Nama</label>
-                      <input type="text" name="nama" class="form-control" value="{{ $user->nama }}" required>
-                    </div>
-                    <div class="mb-3"><label>NPM</label>
-                      <input type="text" name="npm" class="form-control" value="{{ $user->npm }}" required>
-                    </div>
-                    <div class="mb-3"><label>Alamat</label>
-                      <input type="text" name="alamat" class="form-control" value="{{ $user->alamat }}" required>
-                    </div>
-                    <div class="mb-3"><label>Tanggal Lahir</label>
-                      <input type="date" name="tgl_lahir" class="form-control" value="{{ $user->tgl_lahir }}" required>
-                    </div>
-                    <div class="mb-3"><label>Nomor HP</label>
-                      <input type="number" name="nohp" class="form-control" value="{{ $user->nohp }}">
-                    </div>
-                    <div class="mb-3"><label>Foto</label>
-                      <input type="file" name="foto" class="form-control">
-                      @if($user->foto)
-                        <small class="text-muted">Foto saat ini: {{ $user->foto }}</small>
-                      @endif
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-warning">Simpan</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
         @empty
           <tr>
-            <td colspan="8" class="text-muted">Belum ada anggota terdaftar</td>
+            <td colspan="8" class="text-muted">Tidak ada data</td>
           </tr>
         @endforelse
       </tbody>
     </table>
   </div>
+
+  {{-- MODAL EDIT USERS --}}
+  @foreach($users as $user)
+    <div class="modal fade" id="editUserModal{{ $user->type }}-{{ $user->id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title">Edit Data</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <form action="{{ route('admin.datauser.update', $user->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+            <div class="modal-body">
+              <div class="mb-3"><label>Nama</label>
+                <input type="text" name="nama" class="form-control" value="{{ $user->nama }}" required>
+              </div>
+              
+              @if($user->type === 'users')
+                <div class="mb-3"><label>NISN</label>
+                  <input type="text" name="nisn" class="form-control" value="{{ $user->nisn ?? '' }}" required>
+                </div>
+                <div class="mb-3"><label>Asal Sekolah</label>
+                  <input type="text" name="asal_sekolah" class="form-control" value="{{ $user->asal_sekolah ?? '' }}">
+                </div>
+                <div class="mb-3"><label>Kelas</label>
+                  <input type="text" name="kelas" class="form-control" value="{{ $user->kelas ?? '' }}">
+                </div>
+              @elseif($user->type === 'umum')
+                <div class="mb-3"><label>Email</label>
+                  <input type="email" name="email" class="form-control" value="{{ $user->email ?? '' }}" required>
+                </div>
+                <div class="mb-3"><label>Alamat</label>
+                  <input type="text" name="alamat" class="form-control" value="{{ $user->alamat ?? '' }}">
+                </div>
+                <div class="mb-3"><label>Tanggal Lahir</label>
+                  <input type="date" name="tgl_lahir" class="form-control" value="{{ $user->tgl_lahir ?? '' }}">
+                </div>
+              @elseif($user->type === 'guru')
+                <div class="mb-3"><label>NIP</label>
+                  <input type="text" name="nip" class="form-control" value="{{ $user->nip ?? '' }}" required>
+                </div>
+                <div class="mb-3"><label>Email</label>
+                  <input type="email" name="email" class="form-control" value="{{ $user->email ?? '' }}">
+                </div>
+                <div class="mb-3"><label>Alamat</label>
+                  <input type="text" name="alamat" class="form-control" value="{{ $user->alamat ?? '' }}">
+                </div>
+                <div class="mb-3"><label>Tanggal Lahir</label>
+                  <input type="date" name="tgl_lahir" class="form-control" value="{{ $user->tgl_lahir ?? '' }}">
+                </div>
+              @endif
+              
+              <div class="mb-3"><label>Nomor HP</label>
+                <input type="text" name="nohp" class="form-control" value="{{ $user->nohp ?? '' }}">
+              </div>
+              <div class="mb-3"><label>Foto</label>
+                <input type="file" name="foto" class="form-control">
+                @if($user->foto)
+                  <small class="text-muted">Foto saat ini: {{ $user->foto }}</small>
+                @endif
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" class="btn btn-warning">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  @endforeach
 </div>
 
 {{-- MODAL TAMBAH USER --}}
@@ -279,23 +322,68 @@
       <form action="{{ route('admin.datauser.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="modal-body">
-          <div class="mb-3"><label>Email</label>
-            <input type="text" name="email" class="form-control" required>
+          <div class="mb-3">
+            <label>Kategori</label>
+            <select id="categorySelect" class="form-control" onchange="toggleFields()" required>
+              <option value="">-- Pilih Kategori --</option>
+              <option value="siswa">Siswa</option>
+              <option value="guru">Guru</option>
+              <option value="umum">Pengunjung Umum</option>
+            </select>
           </div>
+
           <div class="mb-3"><label>Nama</label>
             <input type="text" name="nama" class="form-control" required>
           </div>
-          <div class="mb-3"><label>NPM</label>
-            <input type="text" name="npm" class="form-control" required>
+
+          <!-- FIELD SISWA -->
+          <div id="siswaFields" style="display:none;">
+            <div class="mb-3"><label>NISN</label>
+              <input type="text" name="nisn" class="form-control">
+            </div>
+            <div class="mb-3"><label>Asal Sekolah</label>
+              <input type="text" name="asal_sekolah" class="form-control">
+            </div>
+            <div class="mb-3"><label>Kelas</label>
+              <input type="text" name="kelas" class="form-control">
+            </div>
           </div>
-          <div class="mb-3"><label>Alamat</label>
-            <input type="text" name="alamat" class="form-control" required>
+
+          <!-- FIELD GURU -->
+          <div id="guruFields" style="display:none;">
+            <div class="mb-3"><label>NIP</label>
+              <input type="text" name="nip" class="form-control">
+            </div>
+            <div class="mb-3"><label>Email</label>
+              <input type="email" name="email_guru" class="form-control">
+            </div>
+            <div class="mb-3"><label>Alamat</label>
+              <input type="text" name="alamat_guru" class="form-control">
+            </div>
+            <div class="mb-3"><label>Tanggal Lahir</label>
+              <input type="date" name="tgl_lahir_guru" class="form-control">
+            </div>
           </div>
-          <div class="mb-3"><label>Tanggal Lahir</label>
-            <input type="date" name="tgl_lahir" class="form-control" required>
+
+          <!-- FIELD UMUM -->
+          <div id="umumFields" style="display:none;">
+            <div class="mb-3"><label>Email</label>
+              <input type="email" name="email_umum" class="form-control">
+            </div>
+            <div class="mb-3"><label>Alamat</label>
+              <input type="text" name="alamat_umum" class="form-control">
+            </div>
+            <div class="mb-3"><label>Tanggal Lahir</label>
+              <input type="date" name="tgl_lahir_umum" class="form-control">
+            </div>
           </div>
+
+          <!-- FIELD UMUM (SEMUA KATEGORI) -->
           <div class="mb-3"><label>Nomor HP</label>
-            <input type="number" name="nohp" class="form-control">
+            <input type="text" name="nohp" class="form-control">
+          </div>
+          <div class="mb-3"><label>Password</label>
+            <input type="password" name="password" class="form-control" required>
           </div>
           <div class="mb-3"><label>Foto</label>
             <input type="file" name="foto" class="form-control">
@@ -309,5 +397,14 @@
     </div>
   </div>
 </div>
+
+<script>
+function toggleFields() {
+  const category = document.getElementById('categorySelect').value;
+  document.getElementById('siswaFields').style.display = category === 'siswa' ? 'block' : 'none';
+  document.getElementById('guruFields').style.display = category === 'guru' ? 'block' : 'none';
+  document.getElementById('umumFields').style.display = category === 'umum' ? 'block' : 'none';
+}
+</script>
 
 @endsection

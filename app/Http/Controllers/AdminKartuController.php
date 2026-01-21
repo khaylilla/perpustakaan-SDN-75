@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Guru;
+use App\Models\Umum;
 use Carbon\Carbon;
 
 class AdminKartuController extends Controller
@@ -11,33 +13,33 @@ class AdminKartuController extends Controller
     // Menampilkan daftar anggota
     public function index(Request $request)
     {
-        $query = User::query();
+        // Collect dari 3 tabel dengan type
+        $siswa = User::select('id', 'nama', 'nisn as identifier', \DB::raw("'siswa' as type"), 'created_at')
+            ->get();
+        
+        $guru = Guru::select('id', 'nama', 'nip as identifier', \DB::raw("'guru' as type"), 'created_at')
+            ->get();
+        
+        $umum = Umum::select('id', 'nama', 'email as identifier', \DB::raw("'umum' as type"), 'created_at')
+            ->get();
+        
+        // Merge semua data
+        $anggota = collect([])
+            ->merge($siswa)
+            ->merge($guru)
+            ->merge($umum)
+            ->sortByDesc('created_at');
 
-        // SEARCH berdasarkan nama atau npm
+        // SEARCH
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
-            $query->where(function($q) use ($keyword) {
-                $q->where('nama', 'like', "%{$keyword}%")
-                  ->orWhere('npm', 'like', "%{$keyword}%");
+            $anggota = $anggota->filter(function($item) use ($keyword) {
+                return stripos($item->nama, $keyword) !== false || 
+                       stripos($item->identifier, $keyword) !== false;
             });
         }
 
-        // FILTER berdasarkan tanggal pembuatan kartu
-        if ($request->filled('start_date') && $request->filled('end_date')) {
-            $start = Carbon::parse($request->start_date)->startOfDay();
-            $end = Carbon::parse($request->end_date)->endOfDay();
-            $query->whereBetween('created_at', [$start, $end]);
-        } elseif ($request->filled('start_date')) {
-            $start = Carbon::parse($request->start_date)->startOfDay();
-            $query->whereDate('created_at', '>=', $start);
-        } elseif ($request->filled('end_date')) {
-            $end = Carbon::parse($request->end_date)->endOfDay();
-            $query->whereDate('created_at', '<=', $end);
-        }
-
-        $users = $query->orderBy('created_at', 'desc')->get();
-
-        return view('admin.generate_kartu', compact('users'));
+        return view('admin.kartu', ['anggota' => $anggota]);
     }
 
     // Generate ulang kartu

@@ -5,9 +5,9 @@
 
       <!-- 1. LOGO & DESKRIPSI -->
       <div class="col-md-4">
-        <h4 style="font-weight:800; color:#f97316;">Sistem Perpustakaan</h4>
+        <h4 style="font-weight:800; color:#f97316;">Perpustakaan SDN 75</h4>
         <p style="margin-top:10px; color:#d1d5db;">
-          Sistem pengelolaan perpustakaan digital yang memudahkan peminjaman, pengembalian, dan pencarian koleksi buku secara cepat dan efisien.
+          Sistem pengelolaan perpustakaan digital SDN 75 yang memudahkan peminjaman, pengembalian, dan pencarian koleksi buku secara cepat dan efisien.
         </p>
       </div>
 
@@ -24,7 +24,7 @@
     <hr style="border-color:#1d2635; margin:30px 0;">
 
     <p class="text-center" style="margin:0; font-size:14px; color:#9ca3af;">
-      &copy; {{ date('Y') }} Sistem Perpustakaan – Informatika Universitas Bengkulu
+      &copy; {{ date('Y') }} Perpustakaan SDN 75 – Sekolah Dasar Negeri 75
     </p>
 
   </div>

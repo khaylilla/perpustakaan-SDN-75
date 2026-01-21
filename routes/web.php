@@ -20,104 +20,42 @@ use App\Http\Controllers\AdminKartuController;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-// ============================
-// FORM SIGN UP
-// ============================
-Route::get('/signin', [AuthController::class, 'showSignInForm'])->name('signin');
-Route::post('/signin', [AuthController::class, 'signinSubmit'])->name('signin.submit');
+// LOGIN (dengan middleware redirect jika sudah login)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', fn () => view('auth.login'))->name('login');
+    Route::post('/login', [AuthController::class, 'loginSubmit'])->name('login.submit');
 
-// ============================
-// LOGIN
-// ============================
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-Route::post('/login', function (Request $request) {
-    $request->validate([
-        'identifier' => 'required|string',
-        'password' => 'required',
-    ]);
-
-    $identifier = $request->identifier;
-    $password = $request->password;
-
-    // Login admin hardcoded (kept for compatibility)
-    if ($identifier === 'admin123' && $password === 'admin123') {
-        $request->session()->put('is_admin', true);
-        return redirect()->route('admin.dashboard');
-    }
-
-    // Determine lookup: if contains @ treat as email, otherwise try nis then nip
-    if (filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
-        $user = User::where('email', $identifier)->first();
-    } else {
-        $user = User::where('nis', $identifier)->orWhere('nip', $identifier)->first();
-    }
-
-    if ($user && Hash::check($password, $user->password)) {
-        Auth::login($user);
-        $request->session()->regenerate();
-        $request->session()->forget('is_admin');
-        return redirect()->route('home');
-    }
-
-    return back()->withErrors([
-        'identifier' => 'Kredensial tidak cocok.',
-    ])->onlyInput('identifier');
-})->name('login.submit');
-
-// ============================
-// LOGOUT
-// ============================
-Route::post('/logout', function (Request $request) {
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    return redirect()->route('landing');
-})->middleware('auth')->name('logout');
-
-
-Route::post('/admin/logout', function (Request $request) {
-    $request->session()->forget('is_admin');
-    return redirect()->route('login');
-})->name('admin.logout');
-
-// HOME PUBLIC
-Route::get('/', [AuthController::class, 'index'])->name('landing');
-
-
-// HOME SETELAH LOGIN
-Route::get('/home', function () {
-    return redirect()->route('home');
+    // SIGN UP
+    Route::get('/signin', [AuthController::class, 'showSignInForm'])->name('signin');
+    Route::post('/signin', [AuthController::class, 'signinSubmit'])->name('signin.submit');
 });
 
-// PROFILE
-Route::get('/profile', [ProfileController::class, 'show'])
-    ->middleware('auth')
-    ->name('profile');
+// LOGOUT
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/about', function () {
-    return view('auth.about');
-})->name('about');
+// ============================
+// HOME (TAMU & LOGIN)
+// ============================
+Route::get('/', [AuthController::class, 'index'])->name('home');
+Route::get('/home', [AuthController::class, 'index']);
+
 
 Route::middleware('auth')->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/return-history', [AuthController::class, 'returnHistory'])->name('auth.return-history');
+    Route::get('/borrow-history', [AuthController::class, 'borrowHistory'])->name('auth.borrow-history');
+    Route::get('/fine-history', [AuthController::class, 'fineHistory'])->name('auth.fine-history');
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-Route::middleware('guest')->group(function () {
-
-    Route::get('/login', function () {
-        return view('auth.login');
-    })->name('login');
-
-    Route::get('/signin', [AuthController::class, 'showSignInForm'])->name('signin');
-    Route::post('/signin', [AuthController::class, 'signinSubmit'])->name('signin.submit');
-
-});
+// ABOUT
+Route::get('/about', function () {
+    return view('auth.about');
+})->name('about');
 
 
 // ============================
@@ -199,7 +137,6 @@ Route::get('/fine-history', [AuthController::class, 'fineHistory'])->name('auth.
 Route::get('/notifications', [AuthController::class, 'index'])->name('notifications');
 Route::post('/notifikasi/{id}/read', [AuthController::class, 'markAsRead']);
 
-Route::get('/home', [AuthController::class, 'index'])->name('home');
 
 // ============================
 // ADMIN ROUTES (middleware check.admin)
@@ -291,7 +228,12 @@ Route::prefix('admin')->middleware('check.admin')->group(function () {
         Route::get('/pdf', [DendaController::class, 'exportPdf'])->name('pdf');
     });
 });
+
+// ============================
+// KARTU ANGGOTA
+// ============================
 // Halaman untuk lihat anggota dan generate ulang kartu
+Route::get('/admin/kartu', [AdminKartuController::class, 'index'])->name('admin.kartu');
 Route::get('/admin/kartu/generate', [AdminKartuController::class, 'index'])->name('admin.kartu.generate');
 
 // Proses generate ulang kartu

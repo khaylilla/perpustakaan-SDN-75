@@ -1,272 +1,506 @@
 @extends('admin.layout')
 
-@section('page-title', 'Scan Absen')
+@section('page-title', 'Presensi Digital')
 
 @section('content')
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
 <style>
-  /* ======= (style tetap sama seperti sebelumnya) ======= */
-  .info-boxes { display: flex; flex-wrap: wrap; gap: 25px; margin-bottom: 25px; }
-  .info-box { background: linear-gradient(135deg, #f7931e, #ffb347); color: white; border-radius: 20px; width: 250px; padding: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; text-decoration: none; transition: transform 0.25s ease; }
-  .info-box:hover { transform: translateY(-5px); box-shadow: 0 10px 22px rgba(0,0,0,0.2); }
-  .info-box i { font-size: 36px; opacity: 0.85; }
-  .info-box-content h5 { margin: 0; font-weight: 700; font-size: 16px; }
-  .info-box-content p { font-size: 13px; margin-top: 5px; }
+  body { font-family: 'Inter', sans-serif; background-color: #f4f7fa; }
+  .main-wrapper { max-width: 800px; margin: 0 auto; padding: 20px; }
 
-  .scan-container { display: flex; flex-direction: column; gap: 30px; background: #fff; padding: 40px; border-radius: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.12); max-width: 600px; margin: 0 auto; }
+  /* Info Box */
+  .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px; }
+  .stat-card { background: #ffffff; border-radius: 16px; padding: 18px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: 0.3s; }
+  .stat-card:hover { transform: translateY(-3px); border-color: #4a4ca4; }
+  .stat-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: #f0f2ff; color: #4a4ca4; }
+  .stat-info h6 { margin: 0; font-size: 13px; color: #6c757d; }
+  .stat-info span { font-weight: 700; font-size: 15px; color: #2d3436; }
 
-  .scan-box { border: 3px dashed #f7931e; border-radius: 16px; padding: 30px; text-align: center; transition: 0.3s; position: relative; }
-  .scan-box:hover { background: #fff7ef; }
-  .scan-box h5 { font-weight: 700; margin-bottom: 15px; }
+  /* Container */
+  .glass-card { background: #ffffff; border-radius: 20px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.03); border: 1px solid #eee; }
+  
+  /* Tabs */
+  .nav-tabs-custom { display: flex; background: #f1f3f9; padding: 5px; border-radius: 12px; margin-bottom: 25px; }
+  .tab-item { flex: 1; text-align: center; padding: 10px; border: none; background: none; border-radius: 8px; font-size: 14px; font-weight: 600; color: #6c757d; cursor: pointer; transition: 0.3s; }
+  .tab-item.active { background: #ffffff; color: #4a4ca4; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
 
-  .scan-input { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 15px; }
-  .toggle-btn { background: linear-gradient(135deg, #f7931e, #ffb347); border: none; color: white; padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-  .toggle-btn:hover { transform: scale(1.05); }
+  /* Upload Zone */
+  .upload-zone { border: 2px dashed #e2e8f0; border-radius: 16px; padding: 30px; text-align: center; transition: 0.3s; cursor: pointer; position: relative; }
+  .upload-zone:hover { border-color: #4a4ca4; background: #f8faff; }
+  .upload-zone i { font-size: 40px; color: #cbd5e1; margin-bottom: 10px; display: block; }
+  .upload-zone p { font-size: 14px; color: #64748b; margin: 0; }
+  #previewImage { max-width: 100%; max-height: 200px; border-radius: 12px; margin-top: 15px; display: none; margin-left: auto; margin-right: auto; border: 1px solid #ddd; }
 
-  video { width: 100%; max-width: 400px; border-radius: 12px; border: 3px solid #f7931e; margin-top: 10px; }
-  .video-wrapper { position: relative; display: inline-block; }
+  /* Result & Progress */
+  .result-box { background: #f8fafc; border-radius: 12px; padding: 15px; margin-top: 20px; display: none; border: 1px solid #e2e8f0; }
+  .progress-wrapper { margin-top: 20px; display: none; }
+  .progress-bar-bg { background: #e2e8f0; height: 8px; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+  .progress-bar-fill { background: #4a4ca4; height: 100%; width: 0%; transition: width 0.3s; }
 
-  .scanner-frame { position: absolute; top: 50%; left: 50%; width: 200px; height: 200px; transform: translate(-50%, -50%); border-radius: 16px; pointer-events: none; overflow: hidden; border: 4px solid #f7931e; box-shadow: 0 0 20px rgba(247,147,30,0.4), 0 0 30px rgba(247,147,30,0.3); animation: pulse-frame 2.5s infinite ease-in-out; }
-
-  @keyframes pulse-frame {
-    0%,100% { box-shadow: 0 0 20px rgba(247,147,30,0.4), 0 0 30px rgba(247,147,30,0.3); }
-    50% { box-shadow: 0 0 35px rgba(247,147,30,0.6), 0 0 45px rgba(247,147,30,0.5); }
-  }
-
-  .laser-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #f7931e; box-shadow: 0 0 15px #f7931e, 0 0 25px rgba(247,147,30,0.5); animation: laser-move 2s linear infinite, laser-glow 1.5s ease-in-out infinite alternate; }
-
-  @keyframes laser-move { 0% { top: 0; } 50% { top: calc(100% - 4px); } 100% { top: 0; } }
-  @keyframes laser-glow { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
-
-  .info-scan { margin-top: 12px; font-size: 15px; font-weight: 600; color: #333; }
-  .info-scan span { font-weight: 700; color: #f7931e; }
-
-  .submit-btn { text-align: center; margin-top: 20px; }
-  .submit-btn button { background: linear-gradient(135deg, #f7931e, #ffb347); border: none; color: white; font-weight: 700; padding: 14px 40px; border-radius: 10px; font-size: 16px; box-shadow: 0 6px 14px rgba(0,0,0,0.12); transition: all 0.3s; }
-  .submit-btn button:hover { transform: translateY(-3px); box-shadow: 0 10px 18px rgba(0,0,0,0.2); }
+  /* Buttons */
+  .btn-primary-modern { width: 100%; background: #4a4ca4; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+  .btn-primary-modern:hover { opacity: 0.9; transform: translateY(-1px); }
+  
+  /* Form Input */
+  .form-control { width:100%; padding:14px; border-radius:10px; border:2px solid #eef0f7; outline:none; font-family: 'Inter', sans-serif; }
+  .form-control:focus { border-color: #4a4ca4; box-shadow: 0 0 0 3px rgba(74, 76, 164, 0.1); }
 </style>
 
-<div class="container-fluid">
-  <div class="info-boxes">
-    <a href="{{ route('admin.absen.scan') }}" class="info-box">
-      <div class="info-box-content">
-        <h5>Scan Absen</h5>
-        <p>Scan kartu anggota</p>
-      </div>
-      <i class="bi bi-qr-code-scan"></i>
+<div class="main-wrapper">
+  <div class="stats-container">
+    <a href="{{ route('admin.absen.scan') }}" class="stat-card">
+      <div class="stat-icon"><i class="bi bi-qr-code-scan"></i></div>
+      <div class="stat-info"><h6>Mode</h6><span>Auto Scan</span></div>
     </a>
-
-    <a href="{{ route('admin.dataabsen') }}" class="info-box">
-      <div class="info-box-content">
-        <h5>Data Absen</h5>
-        <p>Lihat riwayat absensi</p>
-      </div>
-      <i class="bi bi-table"></i>
-    </a>
-
-    <a href="{{ route('admin.kartu.generate') }}" class="info-box">
-      <div class="info-box-content">
-        <h5>Generate Kartu</h5>
-        <p>Buat kartu anggota</p>
-      </div>
-      <i class="bi bi-credit-card-2-back-fill"></i>
+    <a href="{{ route('admin.dataabsen') }}" class="stat-card">
+      <div class="stat-icon"><i class="bi bi-journal-text"></i></div>
+      <div class="stat-info"><h6>Riwayat</h6><span>Data Absen</span></div>
     </a>
   </div>
 
-  <div class="scan-container">
-    <div class="scan-box">
-      <h5>Scan QR/NPM Anggota</h5>
-      <button class="toggle-btn" onclick="toggleScan()">Gunakan Kamera</button>
-      <div class="scan-input">
-        <input type="file" accept="image/*" onchange="handleFile(event)">
-        <input type="text" id="barcodeAnggota" placeholder="Atau input manual NPM...">
+  <div class="glass-card">
+    <div class="nav-tabs-custom">
+      <button onclick="switchTab('tab1')" class="tab-item active" id="btn-tab1">📱 Scanner</button>
+      <button onclick="switchTab('tab2')" class="tab-item" id="btn-tab2">📝 Input Manual</button>
+      <button onclick="switchTab('tab3')" class="tab-item" id="btn-tab3">📤 Import Media</button>
+    </div>
+
+    <!-- TAB 1: SCANNER -->
+    <div id="tab1" class="tab-content">
+      <div style="margin-bottom: 20px;">
+        <input type="text" id="barcodeAnggota" class="form-control" placeholder="Arahkan scanner ke barcode..." autofocus>
       </div>
-      <div class="info-scan">Nama: <span id="namaAnggota">-</span></div>
-      <div class="video-wrapper">
-        <video id="videoAnggota" autoplay playsinline hidden></video>
-        <div class="scanner-frame" id="frameAnggota" hidden>
-          <div class="laser-line"></div>
+      <div id="scanResult" class="result-box" style="display:block; border-left: 4px solid #4a4ca4;">
+        <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px;">
+          <span style="color:#64748b;">Nama Terdeteksi:</span>
+          <span id="namaAnggota" style="font-weight:700; color:#2d3436;">-</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#6c757d;">
+          <span id="identifierType">-</span>
+          <span id="identifierValue" style="font-family:monospace;">-</span>
         </div>
       </div>
-      <canvas id="canvasAnggota" hidden></canvas>
+      <button class="btn-primary-modern" onclick="simpanAbsen()">Konfirmasi Absen</button>
+    </div>
 
-      <div class="submit-btn">
-        <button onclick="simpanAbsen()">Simpan Absen</button>
+    <!-- TAB 2: MANUAL INPUT -->
+    <div id="tab2" class="tab-content" style="display:none;">
+      <div style="margin-bottom: 15px;">
+        <input type="text" id="manualIdentifier" class="form-control" placeholder="Masukkan NISN / NIP / Email...">
       </div>
+      <div id="manualResult" class="result-box" style="display:block; border-left: 4px solid #27ae60;">
+        <div style="display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px;">
+          <span style="color:#64748b;">Nama Terdeteksi:</span>
+          <span id="namaManual" style="font-weight:700; color:#2d3436;">-</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:12px; color:#6c757d;">
+          <span id="identifierTypeManual">-</span>
+          <span id="identifierValueManual" style="font-family:monospace;">-</span>
+        </div>
+      </div>
+      <button class="btn-primary-modern" onclick="cariDataManual()">Cari & Verifikasi</button>
+      <button class="btn-primary-modern" style="background:#27ae60; margin-top:8px;" onclick="simpanAbsenManual()">Simpan Data</button>
+    </div>
+
+    <!-- TAB 3: IMPORT MEDIA -->
+    <div id="tab3" class="tab-content" style="display:none;">
+      <div class="upload-zone" onclick="document.getElementById('mediaUpload').click()" style="margin-bottom:20px;">
+        <i class="bi bi-cloud-arrow-up"></i>
+        <p id="uploadText">Klik untuk upload File (.xlsx/.csv) atau Gambar Barcode</p>
+        <input type="file" id="mediaUpload" hidden accept=".csv, .xlsx, .xls, image/*">
+        <img id="previewImage">
+      </div>
+
+      <div id="fileDetail" class="result-box">
+        <div style="display:flex; justify-content:space-between; font-size:13px;">
+          <span>Berkas:</span>
+          <div>
+            <span id="fileName" style="color:#4a4ca4; font-weight:600;">-</span>
+            <span id="fileType" style="margin-left:10px; font-size:11px; padding:2px 6px; background:#ddd; border-radius:4px;">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="barcodeDetected" class="result-box" style="background:#eef2ff; border: 1px solid #4a4ca4;">
+        <p style="margin:0 0 8px 0; font-size:12px; color:#4a4ca4; font-weight:600;">Barcode Terdeteksi:</p>
+        <span id="detectedCode" style="font-size:16px; font-weight:700; color:#2d3436;">-</span>
+      </div>
+
+      <div id="importProgress" class="progress-wrapper">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:8px;">
+          <span>Memproses Antrean</span>
+          <span><span id="currProgress">0</span>/<span id="totalProgress">0</span></span>
+        </div>
+        <div class="progress-bar-bg"><div id="progressBar" class="progress-bar-fill"></div></div>
+      </div>
+
+      <button id="processBtn" class="btn-primary-modern" onclick="handleMediaProcess()">Proses Media</button>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.10.2/dist/quagga.js"></script>
 
 <script>
-let currentStream;
-let scanInterval;
+  let selectedFile = null;
 
-function toggleScan(){
-  const video = document.getElementById("videoAnggota");
-  const frame = document.getElementById("frameAnggota");
-  const button = document.querySelector(".scan-box .toggle-btn");
+  // Focus ke input saat load
+  window.addEventListener('load', function() {
+    document.getElementById('barcodeAnggota').focus();
+  });
 
-  if(!video.hidden){
-    stopCamera();
-    video.hidden = true;
-    frame.hidden = true;
-    button.textContent = "Gunakan Kamera";
-    return;
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabName).style.display = 'block';
+    document.getElementById('btn-' + tabName).classList.add('active');
+    
+    if(tabName === 'tab1') document.getElementById('barcodeAnggota').focus();
+    if(tabName === 'tab2') document.getElementById('manualIdentifier').focus();
   }
 
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-    .then(stream => {
-      video.srcObject = stream;
-      currentStream = stream;
-      video.hidden = false;
-      frame.hidden = false;
-      button.textContent = "Batalkan Kamera";
-      startScanning();
-    })
-    .catch(()=>{ alert("Kamera tidak dapat diakses"); });
-}
-
-function startScanning(){
-  const video = document.getElementById("videoAnggota");
-  const canvas = document.getElementById("canvasAnggota");
-  const ctx = canvas.getContext("2d");
-  const button = document.querySelector(".scan-box .toggle-btn");
-
-  scanInterval = setInterval(() => {
-    if(video.readyState === video.HAVE_ENOUGH_DATA){
-      canvas.height = video.videoHeight;
-      canvas.width = video.videoWidth;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const code = jsQR(ctx.getImageData(0,0,canvas.width,canvas.height).data, canvas.width, canvas.height);
-      if(code){
-        document.getElementById("barcodeAnggota").value = code.data;
-        updateInfo(code.data);
-
-        // otomatis tutup kamera setelah scan berhasil
-        stopCamera();
-        video.hidden = true;
-        document.getElementById("frameAnggota").hidden = true;
-        button.textContent = "Gunakan Kamera";
+  // ✅ SCANNER - Barcode dengan keydown
+  document.getElementById('barcodeAnggota').addEventListener('keydown', function(event) {
+    if(event.key === 'Enter'){
+      event.preventDefault();
+      const identifier = this.value.trim();
+      if(identifier){
+        setTimeout(() => {
+          updateInfo(identifier);
+          simpanAbsen();
+        }, 50);
       }
     }
-  }, 300);
-}
+  });
 
-function stopCamera(){
-  if(currentStream){
-    currentStream.getTracks().forEach(track => track.stop());
-    currentStream = null;
-  }
-  if(scanInterval){
-    clearInterval(scanInterval);
-    scanInterval = null;
-  }
-}
+  // ✅ MANUAL INPUT - Keydown untuk cari
+  document.getElementById('manualIdentifier').addEventListener('keydown', function(event) {
+    if(event.key === 'Enter'){
+      event.preventDefault();
+      cariDataManual();
+    }
+  });
 
-function handleFile(event){
-  const file = event.target.files[0]; 
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const img = new Image();
-    img.onload = function(){
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img,0,0);
-      const code = jsQR(ctx.getImageData(0,0,img.width,img.height).data, img.width, img.height);
-      if(code){
-        document.getElementById("barcodeAnggota").value = code.data;
-        updateInfo(code.data);
-      } else {
-        alert("Barcode tidak ditemukan.");
-      }
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function updateInfo(npm){
-  fetch(`/admin/absen/get-user/${npm}`)
-    .then(res=>res.json())
-    .then(data=>{
-      if(data.nama){
-        document.getElementById("namaAnggota").textContent = data.nama;
-
-        // cek masa aktif
-        const created = new Date(data.created_at);
-        const expired = new Date(created);
-        expired.setFullYear(expired.getFullYear()+2);
-        if(new Date() > expired){
-          document.getElementById("namaAnggota").textContent += " (Kartu Tidak Aktif)";
-        }
-      } else {
-        document.getElementById("namaAnggota").textContent = "Tidak ditemukan";
-      }
-    });
-}
-
-function simpanAbsen() {
-  const npm = document.getElementById("barcodeAnggota").value.trim();
-  const nama = document.getElementById("namaAnggota").textContent.trim();
-  
-  if(!npm){ 
-    Swal.fire({icon:'warning', title:'Oops!', text:'Silakan scan atau masukkan NPM anggota!'}); 
-    return; 
-  }
-
-  // cek masa aktif
-  fetch(`/admin/absen/get-user/${npm}`)
-    .then(res=>res.json())
-    .then(data=>{
-      if(!data.nama){
-        Swal.fire({icon:'error', title:'Gagal!', text:'Anggota tidak ditemukan.', confirmButtonColor:'#f7931e'});
-        return;
-      }
-
-      const created = new Date(data.created_at);
-      const expired = new Date(created);
-      expired.setFullYear(expired.getFullYear()+2);
-      if(new Date() > expired){
-        Swal.fire({icon:'error', title:'Kartu Tidak Aktif', text:'Kartu anggota sudah habis masa aktif. Generate ulang di admin.', confirmButtonColor:'#f7931e'});
-        return;
-      }
-
-      // Ambil tanggal dari device
-      const tanggal = new Date().toISOString().split('T')[0]; // format YYYY-MM-DD
-
-      fetch("{{ route('admin.absen.scan.store') }}", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-TOKEN": "{{ csrf_token() }}"
-        },
-        body: JSON.stringify({ npm, nama: data.nama, tanggal })
-      })
-      .then(res => res.json().then(data => ({status: res.status, body: data})))
-      .then(({status, body}) => {
-        if(status===200){
-          Swal.fire({
-            icon:'success', 
-            title:'Berhasil!', 
-            text:body.message, 
-            confirmButtonColor:'#f7931e'
-          }).then(() => {
-            window.location.href = "{{ route('admin.dataabsen') }}";
-          });
+  // Update info dengan badge
+  function updateInfo(identifier){
+    fetch(`/admin/absen/get-user/${identifier}`)
+      .then(res=>res.json())
+      .then(data=>{
+        if(data.nama){
+          let typeLabel = '', typeIdentifier = '';
+          if(data.type === 'users'){ typeLabel = 'NISN'; }
+          else if(data.type === 'guru'){ typeLabel = 'NIP'; }
+          else { typeLabel = 'Email'; }
+          
+          document.getElementById("namaAnggota").textContent = data.nama;
+          document.getElementById("identifierType").textContent = typeLabel;
+          document.getElementById("identifierValue").textContent = identifier;
         } else {
-          Swal.fire({icon:'error', title:'Gagal!', text:body.message, confirmButtonColor:'#f7931e'});
+          document.getElementById("namaAnggota").textContent = "Tidak ditemukan";
         }
-      })
-      .catch(() => { 
-        Swal.fire({icon:'error', title:'Gagal', text:'Gagal mengirim data ke server.', confirmButtonColor:'#f7931e'}); 
       });
+  }
 
-    });
-}
+  function updateInfoManual(identifier){
+    fetch(`/admin/absen/get-user/${identifier}`)
+      .then(res=>res.json())
+      .then(data=>{
+        if(data.nama){
+          let typeLabel = '';
+          if(data.type === 'users'){ typeLabel = 'NISN'; }
+          else if(data.type === 'guru'){ typeLabel = 'NIP'; }
+          else { typeLabel = 'Email'; }
+          
+          document.getElementById("namaManual").textContent = data.nama;
+          document.getElementById("identifierTypeManual").textContent = typeLabel;
+          document.getElementById("identifierValueManual").textContent = identifier;
+        } else {
+          document.getElementById("namaManual").textContent = "Tidak ditemukan";
+        }
+      });
+  }
+
+  function cariDataManual(){
+    const identifier = document.getElementById('manualIdentifier').value.trim();
+    if(!identifier){
+      Swal.fire({icon:'warning', title:'Oops!', text:'Masukkan NISN/NIP/Email!'});
+      return;
+    }
+    updateInfoManual(identifier);
+  }
+
+  function simpanAbsen(){
+    const identifier = document.getElementById("barcodeAnggota").value.trim();
+    if(!identifier){ 
+      Swal.fire({icon:'warning', title:'Oops!', text:'Scan barcode terlebih dahulu!'}); 
+      return; 
+    }
+
+    fetch(`/admin/absen/get-user/${identifier}`)
+      .then(res=>res.json())
+      .then(data=>{
+        if(!data.nama){
+          Swal.fire({icon:'error', title:'Gagal!', text:'Anggota tidak ditemukan.'});
+          document.getElementById('barcodeAnggota').value = '';
+          return;
+        }
+
+        const tanggal = new Date().toISOString().split('T')[0];
+
+        fetch("{{ route('admin.absen.scan.store') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+          },
+          body: JSON.stringify({ npm: identifier, nama: data.nama, tanggal })
+        })
+        .then(res => res.json())
+        .then(body => {
+          Swal.fire({icon:'success', title:'Berhasil!', text:body.message || 'Absen tersimpan.'})
+            .then(() => {
+              document.getElementById('barcodeAnggota').value = '';
+              document.getElementById("namaAnggota").textContent = '-';
+              document.getElementById("identifierType").textContent = '-';
+              document.getElementById("identifierValue").textContent = '-';
+              document.getElementById('barcodeAnggota').focus();
+            });
+        });
+      });
+  }
+
+  function simpanAbsenManual(){
+    const identifier = document.getElementById('manualIdentifier').value.trim();
+    if(!identifier){ 
+      Swal.fire({icon:'warning', title:'Oops!', text:'Masukkan NISN/NIP/Email!'}); 
+      return; 
+    }
+
+    fetch(`/admin/absen/get-user/${identifier}`)
+      .then(res=>res.json())
+      .then(data=>{
+        if(!data.nama){
+          Swal.fire({icon:'error', title:'Gagal!', text:'Anggota tidak ditemukan.'});
+          return;
+        }
+
+        const tanggal = new Date().toISOString().split('T')[0];
+
+        fetch("{{ route('admin.absen.scan.store') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+          },
+          body: JSON.stringify({ npm: identifier, nama: data.nama, tanggal })
+        })
+        .then(res => res.json())
+        .then(body => {
+          Swal.fire({icon:'success', title:'Berhasil!', text:body.message || 'Absen tersimpan.'})
+            .then(() => {
+              document.getElementById('manualIdentifier').value = '';
+              document.getElementById("namaManual").textContent = '-';
+              document.getElementById("identifierTypeManual").textContent = '-';
+              document.getElementById("identifierValueManual").textContent = '-';
+            });
+        });
+      });
+  }
+
+  // ✅ MEDIA UPLOAD - Handle file dan gambar
+  document.getElementById('mediaUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if(!file) return;
+    
+    selectedFile = file;
+    const reader = new FileReader();
+    
+    document.getElementById('previewImage').style.display = 'none';
+    document.getElementById('fileDetail').style.display = 'block';
+    document.getElementById('barcodeDetected').style.display = 'none';
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('fileType').textContent = file.type || 'File Data';
+
+    if(file.type.startsWith('image/')) {
+      reader.onload = (event) => {
+        const img = document.getElementById('previewImage');
+        img.src = event.target.result;
+        img.style.display = 'block';
+        document.getElementById('uploadText').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      document.getElementById('uploadText').innerHTML = `File: <strong>${file.name}</strong>`;
+    }
+  });
+
+  async function handleMediaProcess() {
+    if(!selectedFile) {
+      Swal.fire('Oops!', 'Pilih file atau gambar dulu.', 'warning');
+      return;
+    }
+
+    if(selectedFile.type.startsWith('image/')) {
+      // PROSES GAMBAR BARCODE
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        Quagga.decodeSingle({
+          src: e.target.result,
+          decoder: { readers: ["code_128_reader", "ean_reader", "upc_reader"] }
+        }, function(result) {
+          if(result && result.codeResult) {
+            const code = result.codeResult.code;
+            document.getElementById('barcodeDetected').style.display = 'block';
+            document.getElementById('detectedCode').textContent = code;
+            
+            Swal.fire({
+              title: 'Barcode Ditemukan!',
+              text: `Simpan absen untuk: ${code}?`,
+              icon: 'info',
+              showCancelButton: true,
+              confirmButtonText: 'Ya, Simpan'
+            }).then((res) => { 
+              if(res.isConfirmed) finalSimpan(code); 
+            });
+          } else {
+            Swal.fire('Gagal', 'Barcode tidak terbaca. Coba gambar lain.', 'error');
+          }
+        });
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      // PROSES FILE (EXCEL/CSV)
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        let data = [];
+        if(selectedFile.name.endsWith('.csv')){
+          data = e.target.result.trim().split('\n').map(r => r.trim());
+        } else {
+          const wb = XLSX.read(e.target.result, {type: 'array'});
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          data = XLSX.utils.sheet_to_json(ws, {header: 1})
+            .map(r => (r[0] || '').toString().trim())
+            .filter(r => r);
+        }
+        processBatchAbsen(data.filter(i => i));
+      };
+      if(selectedFile.name.endsWith('.csv')) reader.readAsText(selectedFile);
+      else reader.readAsArrayBuffer(selectedFile);
+    }
+  }
+
+  function processBatchAbsen(identifiers){
+    let successCount = 0;
+    let failCount = 0;
+    let current = 0;
+    const total = identifiers.length;
+    const tanggal = new Date().toISOString().split('T')[0];
+
+    document.getElementById('importProgress').style.display = 'block';
+    document.getElementById('totalProgress').textContent = total;
+
+    function processNext(){
+      if(current >= total){
+        document.getElementById('currProgress').textContent = total;
+        document.getElementById('progressBar').style.width = '100%';
+        
+        Swal.fire({
+          icon: 'info',
+          title: 'Selesai!',
+          html: `Berhasil: <strong>${successCount}</strong><br>Gagal: <strong>${failCount}</strong>`,
+          confirmButtonColor: '#4a4ca4'
+        });
+        return;
+      }
+
+      const identifier = identifiers[current].trim();
+      current++;
+      
+      document.getElementById('currProgress').textContent = current;
+      document.getElementById('progressBar').style.width = (current / total * 100) + '%';
+
+      if(!identifier){
+        failCount++;
+        processNext();
+        return;
+      }
+
+      fetch(`/admin/absen/get-user/${identifier}`)
+        .then(res => res.json())
+        .then(data => {
+          if(!data.nama){
+            failCount++;
+            processNext();
+            return;
+          }
+
+          fetch("{{ route('admin.absen.scan.store') }}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ npm: identifier, nama: data.nama, tanggal })
+          })
+          .then(res => res.json())
+          .then(body => {
+            if(body.message && body.message.includes('berhasil')){
+              successCount++;
+            } else {
+              failCount++;
+            }
+            processNext();
+          })
+          .catch(() => {
+            failCount++;
+            processNext();
+          });
+        })
+        .catch(() => {
+          failCount++;
+          processNext();
+        });
+    }
+
+    processNext();
+  }
+
+  function finalSimpan(identifier){
+    const tanggal = new Date().toISOString().split('T')[0];
+    
+    fetch(`/admin/absen/get-user/${identifier}`)
+      .then(res=>res.json())
+      .then(data=>{
+        if(!data.nama){
+          Swal.fire({icon:'error', title:'Gagal!', text:'Anggota tidak ditemukan.'});
+          return;
+        }
+
+        fetch("{{ route('admin.absen.scan.store') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}"
+          },
+          body: JSON.stringify({ npm: identifier, nama: data.nama, tanggal })
+        })
+        .then(res => res.json())
+        .then(body => {
+          Swal.fire({icon:'success', title:'Berhasil!', text:body.message || 'Absen tersimpan.'})
+            .then(() => {
+              document.getElementById('mediaUpload').value = '';
+              document.getElementById('previewImage').style.display = 'none';
+              document.getElementById('barcodeDetected').style.display = 'none';
+              document.getElementById('detectedCode').textContent = '-';
+            });
+        });
+      });
+  }
 </script>
+
 @endsection

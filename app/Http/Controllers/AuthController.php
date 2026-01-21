@@ -4,65 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Guru;
+use App\Models\Umum;
 use App\Models\Absen;
 use App\Models\Book;
 use App\Models\Artikel;
 use App\Models\Peminjaman;
-use App\Models\Denda;
-use App\Models\Notifikasi;
 use Illuminate\Support\Facades\Hash;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    // ✅ Menampilkan halaman signin
-    public function signinSubmit(Request $request)
-{
-    Auth::logout();
-
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|min:5|confirmed', 
-        'nama' => 'required',
-        'npm' => 'required',
-        'alamat' => 'required',
-        'tgl_lahir' => 'required|date',
-        'nohp' => 'required',
-        'foto' => 'required|image|max:2048',
-    ]);
-
-    // Cek email atau NPM sudah ada
-    if (User::where('email', $request->email)->exists()) {
-        return back()->with('error', 'Email ini sudah terdaftar!')->withInput();
-    }
-
-    if (User::where('npm', $request->npm)->exists()) {
-        return back()->with('error', 'NPM ini sudah terdaftar!')->withInput();
-    }
-
-    // Simpan ke storage/public/foto
-    $fotoPath = $request->file('foto')->store('public/foto');
-    $filename = basename($fotoPath);
-
-    $user = User::create([
-        'email' => $request->email,
-        'password' => bcrypt($request->password),
-        'nama' => $request->nama,
-        'npm' => $request->npm,
-        'alamat' => $request->alamat,
-        'tgl_lahir' => $request->tgl_lahir,
-        'nohp' => $request->nohp,
-        'foto' => $filename,
-    ]);
-
-    return redirect()
-        ->route('signin')
-        ->with([
-            'success' => 'Anda berhasil melakukan pendaftaran akun!',
-            'user_id' => $user->id,
-        ]);
-}
 
 public function showSignInForm()
 {
@@ -73,6 +26,7 @@ public function showSignInForm()
 public function index()
 {
     return view('auth.home', [
+        'user' => Auth::user(), // null kalau tamu
         'books' => Book::latest()->take(10)->get(),
         'bukuFavorit' => Peminjaman::selectRaw('judul_buku, COUNT(*) as total')
             ->groupBy('judul_buku')
@@ -82,77 +36,186 @@ public function index()
         'artikels' => Artikel::latest()->take(5)->get(),
     ]);
 }
+
     public function showCard($id)
     {
-        $user = User::findOrFail($id);
-        return view('auth.card', compact('user'));
+        $loginAs = session('login_as');
+        $user = null;
+
+        if ($loginAs === 'siswa') {
+            $user = User::findOrFail($id);
+        } elseif ($loginAs === 'guru') {
+            $user = Guru::findOrFail($id);
+        } elseif ($loginAs === 'umum') {
+            $user = Umum::findOrFail($id);
+        }
+
+        return view('auth.card', compact('user', 'loginAs'));
     }
 public function showAbsenForm()
 {
-    $user = Auth::user();
+    $userId = session('user_id');
+    $user = User::find($userId); // kalau siswa
     return view('auth.absen', compact('user'));
 }
+
 public function submitAbsen(Request $request)
 {
     $request->validate([
         'nama' => 'required|string|max:255',
-        'npm' => 'required|string|max:20',
-        'prodi' => 'required|string|max:100',
-    ]);
+        'npm' => 'required|string|max:20',]);
 
     Absen::create([
         'user_id' => Auth::id(),
         'nama' => $request->nama,
         'npm' => $request->npm,
-        'prodi' => $request->prodi,
         'tanggal' => now()->toDateString(),
     ]);
 
     return back()->with('success', 'Absen berhasil disimpan untuk tanggal ' . now()->format('d-m-Y') . '!');
 }
 
-    // ✅ Menampilkan halaman login
-    public function showLoginForm()
+    // ======================
+    // REGISTER (SUDAH OK)
+    // ======================
+    public function signinSubmit(Request $request)
     {
-        return view('auth.login');
-    }
-
-    // ✅ Menangani submit login
-    public function loginSubmit(Request $request)
-    {
-        $request->validate([
-            'npm' => 'required',
-            'password' => 'required',
-        ]);
-
-        // Coba autentikasi berdasarkan NPM dan password
-        if (Auth::attempt([
-            'npm' => $request->npm,
-            'password' => $request->password,
-        ])) {
-            $request->session()->regenerate();
-            return redirect()->route('home'); // arahkan ke dashboard / halaman utama
+        $foto = null;
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto')->store('foto', 'public');
         }
 
-        return back()->withErrors([
-            'npm' => 'NPM atau password salah.',
-        ])->onlyInput('npm');
+        if ($request->role === 'siswa') {
+            User::create([
+                'nama' => $request->nama,
+                'nisn' => $request->nisn,
+                'asal_sekolah' => $request->asal_sekolah,
+                'kelas' => $request->kelas,
+                'foto' => $foto,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+        elseif ($request->role === 'guru') {
+            Guru::create([
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'nip' => $request->nip,
+                'alamat' => $request->alamat,
+                'tgl_lahir' => $request->tgl_lahir,
+                'nohp' => $request->nohp,
+                'foto' => $foto,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+        elseif ($request->role === 'umum') {
+            Umum::create([
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'alamat' => $request->alamat,
+                'tgl_lahir' => $request->tgl_lahir,
+                'nohp' => $request->nohp,
+                'foto' => $foto,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+        return redirect()->route('login')->with('success', 'Akun berhasil dibuat');
     }
 
-    // ✅ Logout
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('login');
-    }
-
-      public function show($id)
+    // ======================
+    // LOGIN (INI INTINYA)
+    // ======================
+public function loginSubmit(Request $request)
 {
-    $book = Book::findOrFail($id); // ambil buku berdasarkan ID
-    return view('auth.show', compact('book'));
+    // ======================
+    // LOGIN ADMIN (HARDCODE)
+    // ======================
+    if (
+        $request->identifier === 'admin123' &&
+        $request->password === 'admin123'
+    ) {
+        session([
+            'is_admin' => true,
+            'login_as' => 'admin'
+        ]);
+
+        return redirect()->route('admin.dashboard');
+    }
+
+    $request->validate([
+        'identifier' => 'required',
+        'password'   => 'required',
+    ]);
+
+    $id = $request->identifier;
+    $password = $request->password;
+
+    // ======================
+    // SISWA
+    // ======================
+    $siswa = User::where('nisn', $id)->first();
+    if ($siswa && Hash::check($password, $siswa->password)) {
+        Auth::login($siswa);
+        $request->session()->regenerate();
+
+        session([
+            'login_as' => 'siswa',
+            'user_id'  => $siswa->id,
+        ]);
+
+        return redirect('/home');
+    }
+
+    // ======================
+    // GURU
+    // ======================
+    $guru = Guru::where('nip', $id)->first();
+    if ($guru && Hash::check($password, $guru->password)) {
+        Auth::login($guru);
+        $request->session()->regenerate();
+
+        session([
+            'login_as' => 'guru',
+            'guru_id'  => $guru->id,
+        ]);
+
+        return redirect('/home');
+    }
+
+    // ======================
+    // UMUM
+    // ======================
+    $umum = Umum::where('email', $id)->first();
+    if ($umum && Hash::check($password, $umum->password)) {
+        Auth::login($umum);
+        $request->session()->regenerate();
+
+        session([
+            'login_as' => 'umum',
+            'umum_id'  => $umum->id,
+        ]);
+
+        return redirect('/home');
+    }
+
+    return back()->withErrors([
+        'identifier' => 'Email / NISN / NIP atau password salah',
+    ]);
 }
+
+    // ======================
+    // LOGOUT
+    // ======================
+      public function logout(Request $request)
+{
+    Auth::logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect('/');
+}
+
 
 // Halaman artikel untuk user
     public function artikel(Request $request)
@@ -193,30 +256,5 @@ public function borrowHistory()
 
     return view('auth.borrow-history', compact('peminjaman'));
 }
-public function fineHistory()
-{
-    $userNpm = auth()->user()->npm;
-
-    $denda = Denda::where('npm', $userNpm)
-                ->orderBy('tanggal_kembali', 'desc')
-                ->get();
-
-    return view('auth.fine-history', compact('denda'));
-}
-public function getNotifications()
-{
-    $userId = auth()->id();
-    $notifikasis = Notifikasi::where('user_id', $userId)
-                    ->latest()
-                    ->get();
-    return response()->json($notifikasis);
-}
-public function markAsRead($id)
-{
-    $notif = Notifikasi::findOrFail($id);
-    $notif->update(['read_at' => now()]);
-    return response()->json(['success' => true]);
-}
 
 }
-

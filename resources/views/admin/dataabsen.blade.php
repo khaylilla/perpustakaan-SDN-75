@@ -123,21 +123,6 @@
       </div>
     </a>
 
-    <a href="{{ route('admin.notifikasi') }}" 
-   class="text-decoration-none flex-grow-1"
-   style="max-width: 300px;">
-  <div class="card shadow-sm border-0 text-white"
-       style="background: linear-gradient(135deg, #f7931e, #ffb84d); border-radius: 16px;">
-    <div class="card-body d-flex align-items-center justify-content-between">
-      <div>
-        <h5 class="fw-bold mb-1">Notifikasi</h5>
-        <p class="mb-0 text-light small">Lihat pemberitahuan terbaru</p>
-      </div>
-      <i class="bi bi-bell-fill fs-2 opacity-75"></i>
-    </div>
-  </div>
-</a>
-
 {{-- 3 KOTAK KECIL --}}
 <div class="d-flex flex-wrap gap-3 mb-4">
 
@@ -165,14 +150,14 @@
     </div>
   </a>
 
-  <a href="{{ route('admin.kartu.generate') }}" 
+  <a href="{{ route('admin.kartu') }}" 
      class="text-decoration-none"
      style="width: 180px;">
     <div class="card shadow-sm border-0 text-white"
          style="background: #ff9f43; border-radius: 14px;">
       <div class="card-body text-center p-3">
-        <i class="bi bi-credit-card-2-back-fill fs-2 d-block mb-2"></i>
-        <p class="fw-bold mb-0">Generate Kartu</p>
+        <i class="bi bi-credit-card fs-2 d-block mb-2"></i>
+        <p class="fw-bold mb-0">Kartu Anggota</p>
       </div>
     </div>
   </a>
@@ -190,7 +175,7 @@
   {{-- SEARCH BAR --}}
   <form action="{{ route('admin.dataabsen') }}" method="GET" class="search-bar w-100">
     <i class="bi bi-search"></i>
-    <input type="text" name="keyword" placeholder="Cari nama anggota, NPM, atau tanggal..." value="{{ request('keyword') }}">
+    <input type="text" name="keyword" placeholder="Cari nama anggota, NISN/NIP/Email, atau tanggal..." value="{{ request('keyword') }}">
     <button type="submit" class="btn btn-primary btn-sm ms-2">Cari</button>
   </form>
 
@@ -232,7 +217,7 @@
       <tr>
         <th style="width:60px;">No</th>
         <th>Nama</th>
-        <th>NPM</th>
+        <th>NISN/NIP/Email</th>
         <th>Tanggal Absen</th>
         <th style="width:120px;">Aksi</th>
       </tr>
@@ -275,7 +260,7 @@
                     <input type="text" name="nama" class="form-control" value="{{ $absen->nama }}" required>
                   </div>
                   <div class="mb-3">
-                    <label>NPM</label>
+                    <label>NISN/NIP/Email</label>
                     <input type="text" name="npm" class="form-control" value="{{ $absen->npm }}" required>
                   </div>
                   <div class="mb-3">
@@ -313,16 +298,36 @@
         @csrf
         <div class="modal-body">
           <div class="mb-3">
-            <label>Nama</label>
-            <input type="text" name="nama" class="form-control" required>
+            <label>Pilih Nama dari Database</label>
+            <select name="person_id" id="personSelect" class="form-control" required onchange="updatePersonData()">
+              <option value="">-- Pilih Nama --</option>
+              @foreach($allPersons as $person)
+                <option value="{{ $person->id }}" data-type="{{ $person->type }}" data-nama="{{ $person->nama }}" 
+                  @if($person->type === 'users')
+                    data-identifier="{{ $person->nisn ?? '' }}"
+                  @elseif($person->type === 'guru')
+                    data-identifier="{{ $person->nip ?? '' }}"
+                  @else
+                    data-identifier="{{ $person->email ?? '' }}"
+                  @endif
+                >
+                  {{ $person->nama }} 
+                  ({{ $person->type === 'users' ? 'Siswa' : ($person->type === 'guru' ? 'Guru' : 'Umum') }})
+                </option>
+              @endforeach
+            </select>
           </div>
           <div class="mb-3">
-            <label>NPM</label>
-            <input type="text" name="npm" class="form-control" required>
+            <label>Nama (Manual)</label>
+            <input type="text" name="nama" id="namaInput" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label>NISN / NIP / Email</label>
+            <input type="text" name="npm" id="npmInput" class="form-control" required>
           </div>
           <div class="mb-3">
             <label>Tanggal Absen</label>
-            <input type="date" name="tanggal" class="form-control" required>
+            <input type="date" name="tanggal" class="form-control" value="{{ date('Y-m-d') }}" required>
           </div>
         </div>
         <div class="modal-footer">
@@ -333,4 +338,21 @@
     </div>
   </div>
 </div>
+
+<script>
+function updatePersonData() {
+  const select = document.getElementById('personSelect');
+  const selectedOption = select.options[select.selectedIndex];
+  const namaInput = document.getElementById('namaInput');
+  const npmInput = document.getElementById('npmInput');
+  
+  if (selectedOption.value) {
+    namaInput.value = selectedOption.getAttribute('data-nama');
+    npmInput.value = selectedOption.getAttribute('data-identifier');
+  } else {
+    namaInput.value = '';
+    npmInput.value = '';
+  }
+}
+</script>
 @endsection

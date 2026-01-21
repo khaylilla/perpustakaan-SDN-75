@@ -1,116 +1,117 @@
-@php
-    use SimpleSoftwareIO\QrCode\Facades\QrCode;
-    use Carbon\Carbon;
-@endphp
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Kartu Anggota Library - Retro Style</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
+    <title>Kartu Anggota Perpustakaan SDN 75</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --maroon: #7C170D; 
-            --navy-deep: #141A45; 
-            --ivory: #ECE1D5; 
+            --maroon-dark: #641414; /* Warna bar bawah */
+            --maroon-text: #7C170D; /* Warna teks utama */
+            --navy: #1A2A4E; /* Warna teks sub-header & value */
             --white: #ffffff;
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #d1d5db;
+            background-color: #f3f4f6;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
 
         .card {
             position: relative;
-            width: 480px; /* Sedikit lebih lebar untuk QR besar */
-            height: 280px;
+            width: 550px; /* Ukuran proporsional sesuai gambar */
+            height: 320px;
             background-color: var(--white);
-            border-radius: 20px;
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
             display: flex;
             flex-direction: column;
         }
 
-        /* AKASEN BACKGROUND FT.JPG */
-        .card::before {
-            content: "";
+        /* Latar belakang dengan gambar FT.jpg dan overlay terang */
+        .card-bg {
             position: absolute;
             inset: 0;
             background: url('{{ asset('FT.jpg') }}') center/cover no-repeat;
-            opacity: 0.12; /* Transparan agar tidak mengganggu teks */
             z-index: 0;
         }
 
-        .top-bar {
-            height: 12px;
-            background-color: var(--navy-deep);
-            width: 100%;
-            position: relative;
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.75); /* Overlay transparan sesuai gambar */
             z-index: 1;
         }
 
+        .content-layer {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
         .header {
-            padding: 20px 25px 10px 25px;
+            padding: 25px 35px 10px 35px;
             display: flex;
             align-items: center;
             gap: 15px;
-            position: relative;
-            z-index: 1;
         }
 
         .logo-box {
-            width: 55px;
-            height: 55px;
-            background: rgba(236, 225, 213, 0.8);
+            width: 65px;
+            height: 65px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 5px;
-            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         .header-text h1 {
             margin: 0;
-            font-size: 16px;
-            color: var(--maroon);
-            font-weight: 800;
+            font-size: 22px;
+            color: var(--maroon-text);
+            font-weight: 900;
             text-transform: uppercase;
         }
 
         .header-text p {
             margin: 0;
-            font-size: 11px;
-            color: var(--navy-deep);
+            font-size: 14px;
+            color: var(--navy);
             font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
-        .content {
+        /* Main Content Area */
+        .main-body {
             display: flex;
-            padding: 15px 25px;
-            gap: 25px;
+            padding: 10px 35px;
+            gap: 30px;
+            flex-grow: 1;
             align-items: center;
-            position: relative;
-            z-index: 1;
         }
 
         .photo-frame {
-            width: 100px;
-            height: 130px;
-            border-radius: 12px;
-            border: 3px solid var(--white);
+            width: 120px;
+            height: 150px;
+            border-radius: 15px;
+            background: #fff;
+            border: 4px solid var(--white);
             overflow: hidden;
-            box-shadow: 6px 6px 0px var(--maroon);
-            background: var(--ivory);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            flex-shrink: 0;
         }
 
         .photo-frame img {
@@ -119,111 +120,150 @@
             object-fit: cover;
         }
 
-        .details {
+        .info-section {
             flex-grow: 1;
         }
 
+        .info-item {
+            margin-bottom: 12px;
+        }
+
         .label {
-            font-size: 10px;
+            font-size: 11px;
             text-transform: uppercase;
             color: #4b5563;
-            font-weight: 700;
-            margin-bottom: 2px;
+            font-weight: 800;
+            letter-spacing: 1px;
         }
 
         .value {
-            font-size: 16px;
-            font-weight: 800;
-            color: var(--navy-deep);
-            margin-bottom: 15px;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--navy);
+            text-transform: uppercase;
+            line-height: 1.2;
         }
 
-        /* QR CODE BESAR */
-        .qr-section {
-            position: absolute;
-            bottom: 50px;
-            right: 25px;
-            background: var(--white);
-            padding: 10px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 2px solid var(--ivory);
-            z-index: 2;
-        }
-
-        .footer-bar {
-            margin-top: auto;
-            background-color: var(--maroon);
+        /* Barcode di posisi kanan sesuai gambar */
+        .barcode-box {
+            background: #fff;
             padding: 12px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #f3f4f6;
         }
 
-        .footer-bar span {
-            color: var(--ivory);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 4px;
+        /* Footer Strip Merah */
+        .footer-strip {
+            height: 15px;
+            background-color: var(--maroon-dark);
+            width: 100%;
         }
 
         .btn-download {
-            margin-top: 25px;
-            background-color: var(--navy-deep);
-            color: var(--white);
-            padding: 14px 40px;
-            border-radius: 50px;
+            margin-top: 30px;
+            background-color: var(--navy);
+            color: white;
+            padding: 15px 35px;
+            border-radius: 12px;
             border: none;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(20, 26, 69, 0.3);
-            transition: 0.3s;
+            transition: transform 0.2s;
         }
 
         .btn-download:hover {
-            background-color: var(--maroon);
             transform: scale(1.05);
+        }
+
+        .btn-back {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: var(--navy);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back:hover {
+            background-color: var(--maroon-text);
+            color: white;
+            text-decoration: none;
+        }
+
+        @media print {
+            .btn-download, .btn-back { display: none; }
         }
     </style>
 </head>
 <body>
 
-<div style="display: flex; flex-direction: column; align-items: center;">
-    <div class="card">
-        <div class="top-bar"></div>
-        
-        <div class="header">
-            <div class="logo-box">
-                <img src="{{ asset('unib.jpg') }}" alt="Logo" style="width: 100%;">
-            </div>
-            <div class="header-text">
-                <h1>Perpustakaan Informatika</h1>
-                <p>FAKULTAS TEKNIK - UNIVERSITAS BENGKULU</p>
-            </div>
-        </div>
+<a href="{{ route('home') }}" class="btn-back">← Kembali ke Home</a>
 
-        <div class="content">
-            <div class="photo-area">
-                <div class="photo-frame">
-                    <img src="{{ asset('storage/foto/'.$user->foto) }}" alt="Foto">
+<div style="display:flex; flex-direction:column; align-items:center; padding: 20px;">
+    <div class="card">
+        <div class="card-bg"></div>
+        <div class="card-overlay"></div>
+
+        <div class="content-layer">
+            <div class="header">
+                <div class="logo-box">
+                    <img src="{{ asset('unib.jpg') }}" style="width:100%; height:auto;">
+                </div>
+                <div class="header-text">
+                    <h1>Perpustakaan SDN 75</h1>
+                    <p>SEKOLAH DASAR NEGERI 75</p>
                 </div>
             </div>
 
-            <div class="details">
-                <div class="label">Nama Lengkap</div>
-                <div class="value">{{ $user->nama }}</div>
-                
-                <div class="label">Nomor Pokok Mahasiswa</div>
-                <div class="value" style="font-family: monospace; font-size: 18px;">{{ $user->npm }}</div>
+            <div class="main-body">
+                <div class="photo-frame">
+                    <img src="{{ asset('storage/foto/'.$user->foto) }}" onerror="this.src='{{ asset('foto profil.png') }}'">
+                </div>
+
+                <div class="info-section">
+                    <div class="info-item">
+                        <div class="label">Nama Lengkap</div>
+                        <div class="value">{{ $user->nama }}</div>
+                    </div>
+
+                    <div class="info-item">
+                        @php
+                            $identifier = 'ID';
+                            $val = $user->id;
+                            if($loginAs === 'siswa') { $identifier = 'NISN'; $val = $user->nisn; }
+                            elseif($loginAs === 'guru') { $identifier = 'NIP'; $val = $user->nip; }
+                            else { $identifier = 'Email'; $val = $user->email; }
+                        @endphp
+                        <div class="label">{{ $identifier }}</div>
+                        <div class="value">{{ $val }}</div>
+                    </div>
+                </div>
+
+                <div class="barcode-box">
+                    @php
+                        $barcode = new \Milon\Barcode\DNS1D();
+                        $barcode->setStorPath(sys_get_temp_dir() . '/');
+                        echo $barcode->getBarcodeHTML((string)$val, 'C128', 1.8, 50);
+                    @endphp
+                </div>
             </div>
-        </div>
 
-        <div class="qr-section">
-            {!! QrCode::size(90)->margin(1)->generate($user->npm) !!}
-        </div>
-
-        <div class="footer-bar">
-            <span>MEMBER CARD DIGITAL</span>
+            <div class="footer-strip"></div>
         </div>
     </div>
 
@@ -233,14 +273,13 @@
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script>
     document.getElementById('save-png').addEventListener('click', function () {
-        const card = document.querySelector('.card');
-        html2canvas(card, {
-            scale: 3, // Agar gambar HD saat disimpan
+        html2canvas(document.querySelector('.card'), { 
+            scale: 3,
             useCORS: true,
-            allowTaint: true
+            allowTaint: true 
         }).then(canvas => {
             const link = document.createElement('a');
-            link.download = 'MemberCard_{{ $user->npm }}.png';
+            link.download = 'Kartu_Anggota_{{ $user->nama }}.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
         });

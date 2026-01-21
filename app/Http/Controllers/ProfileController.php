@@ -6,50 +6,89 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use App\Models\Guru;
+use App\Models\Umum;
 
 class ProfileController extends Controller
 {
+    // Helper method untuk mendapatkan user berdasarkan login type
+    private function getUserByLoginType()
+    {
+        $loginAs = session('login_as');
+        $user = Auth::user();
+
+        if ($loginAs === 'siswa') {
+            return User::find($user->id);
+        } elseif ($loginAs === 'guru') {
+            return Guru::find($user->id);
+        } elseif ($loginAs === 'umum') {
+            return Umum::find($user->id);
+        }
+
+        return $user;
+    }
+
     public function show()
     {
-        $user = Auth::user();
-        return view('auth.profile', compact('user'));
+        $user = $this->getUserByLoginType();
+        $loginAs = session('login_as');
+        
+        return view('auth.profile', compact('user', 'loginAs'));
     }
 
     public function update(Request $request)
-    {
-        $user = Auth::user();
+{
+    $loginAs = session('login_as');
+    $user = $this->getUserByLoginType();
 
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'email' => 'required|email',
-            'npm' => 'required|string|max:50',
-            'alamat' => 'required|string|max:255',
-            'nohp' => 'required|string|max:20',
-            'tgl_lahir' => 'required|date',
-            'foto' => 'nullable|image|max:2048',
-        ]);
+    // 1. Validasi
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'alamat' => 'nullable|string|max:255',
+        'nohp' => 'nullable|string|max:20',
+        'tgl_lahir' => 'nullable|date',
+        'foto' => 'nullable|image|max:2048', // Maksimal 2MB
+    ]);
 
-        $user->update([
-            'nama' => $request->nama,
-            'email' => $request->email,
-            'npm' => $request->npm,
-            'alamat' => $request->alamat,
-            'nohp' => $request->nohp,
-            'tgl_lahir' => $request->tgl_lahir,
-        ]);
+    // 2. Isi data manual agar lebih aman
+    $user->nama = $request->nama;
+    $user->alamat = $request->alamat;
+    $user->nohp = $request->nohp;
+    $user->tgl_lahir = $request->tgl_lahir;
 
-        if ($request->hasFile('foto')) {
-            if ($user->foto && Storage::exists('public/foto/' . $user->foto)) {
-                Storage::delete('public/foto/' . $user->foto);
-            }
+    if ($loginAs === 'siswa') {
+        $user->nisn = $request->nisn;
+        $user->asal_sekolah = $request->asal_sekolah;
+        $user->kelas = $request->kelas;
+    } else {
+        $user->email = $request->email;
+        if ($loginAs === 'guru') {
+            $user->nip = $request->nip;
+        }
+    }
 
-            $fotoPath = $request->file('foto')->store('public/foto');
-            $user->foto = basename($fotoPath);
-            $user->save();
+    // 3. Handle foto upload (Lakukan SEBELUM save utama)
+    if ($request->hasFile('foto')) {
+        // Hapus foto lama jika ada
+        if ($user->foto && Storage::exists('public/foto/' . $user->foto)) {
+            Storage::delete('public/foto/' . $user->foto);
         }
 
-        return redirect()->route('profile')->with('success', 'Profil berhasil diperbarui!');
+        // Simpan foto baru dengan nama unik
+        $file = $request->file('foto');
+        $namaFoto = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('public/foto', $namaFoto);
+
+        // Masukkan nama file ke objek user
+        $user->foto = $namaFoto;
     }
+
+    // 4. Simpan semua perubahan sekaligus
+    $user->save();
+
+    return redirect()->route('profile')->with('success', 'Profil berhasil diperbarui!');
+}
 
     // ✅ Tambahan: Ubah Password
     public function updatePassword(Request $request)

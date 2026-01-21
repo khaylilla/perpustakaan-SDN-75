@@ -4,22 +4,63 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Umum;
+use App\Models\Guru;
 use App\Models\Notifikasi;
+use Illuminate\Support\Collection;
 
 class AdminController extends Controller
 {
     public function dataUser(Request $request)
     {
-        $query = User::query();
+        $keyword = $request->has('keyword') && $request->keyword != '' ? $request->keyword : null;
+        $category = $request->get('category');
 
-        if ($request->has('keyword') && $request->keyword != '') {
-            $keyword = $request->keyword;
-            $query->where('nama', 'like', "%$keyword%")
-                  ->orWhere('npm', 'like', "%$keyword%")
+        // Ambil data dari ketiga tabel
+        $users = User::query();
+        $umum = Umum::query();
+        $guru = Guru::query();
+
+        // Filter keyword jika ada
+        if ($keyword) {
+            $users->where(function ($q) use ($keyword) {
+                $q->where('nama', 'like', "%$keyword%")
+                  ->orWhere('nisn', 'like', "%$keyword%");
+            });
+            
+            $umum->where(function ($q) use ($keyword) {
+                $q->where('nama', 'like', "%$keyword%")
                   ->orWhere('email', 'like', "%$keyword%");
+            });
+            
+            $guru->where(function ($q) use ($keyword) {
+                $q->where('nama', 'like', "%$keyword%")
+                  ->orWhere('nip', 'like', "%$keyword%")
+                  ->orWhere('email', 'like', "%$keyword%");
+            });
         }
 
-        $users = $query->get();
+        // Ambil data dengan tipe untuk membedakan dari tabel mana
+        $usersData = $users->get()->map(function($item) {
+            $item->type = 'users';
+            $item->identifier = $item->nisn ?? '';
+            return $item;
+        });
+
+        $umumData = $umum->get()->map(function($item) {
+            $item->type = 'umum';
+            $item->identifier = $item->email ?? '';
+            return $item;
+        });
+
+        $guruData = $guru->get()->map(function($item) {
+            $item->type = 'guru';
+            $item->identifier = $item->nip ?? '';
+            return $item;
+        });
+
+        // Gabung ketiga koleksi
+        $users = $usersData->concat($umumData)->concat($guruData);
 
         return view('admin.datauser', compact('users'));
     }

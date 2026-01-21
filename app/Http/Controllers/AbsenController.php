@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Absen;
+use App\Models\User;
+use App\Models\Umum;
+use App\Models\Guru;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -18,7 +21,7 @@ class AbsenController extends Controller
         $start_date = $request->get('start_date');
         $end_date   = $request->get('end_date');
 
-        // Query dasar
+        // Query dasar untuk absen
         $query = Absen::query();
 
         // Pencarian
@@ -35,10 +38,29 @@ class AbsenController extends Controller
             $query->whereBetween('tanggal', [$start_date, $end_date]);
         }
 
-        // Ambil final data
+        // Ambil data absen
         $absens = $query->orderBy('tanggal', 'desc')->get();
 
-        return view('admin.dataabsen', compact('absens'));
+        // Ambil data keseluruhan dari 3 tabel untuk referensi
+        $allUsers = User::get()->map(function($item) {
+            $item->type = 'users';
+            return $item;
+        });
+
+        $allUmum = Umum::get()->map(function($item) {
+            $item->type = 'umum';
+            return $item;
+        });
+
+        $allGuru = Guru::get()->map(function($item) {
+            $item->type = 'guru';
+            return $item;
+        });
+
+        // Gabung ketiga koleksi
+        $allPersons = $allUsers->concat($allUmum)->concat($allGuru);
+
+        return view('admin.dataabsen', compact('absens', 'allPersons'));
     }
 
     // ================================
@@ -161,17 +183,37 @@ class AbsenController extends Controller
         return view('admin.scan_absen');
     }
 
-    public function getUser($npm)
+    public function getUser($identifier)
     {
-        $user = \App\Models\User::where('npm', $npm)->first();
-
-        if (!$user) {
-            return response()->json(['nama' => null]);
+        // Cari di tabel users berdasarkan NISN
+        $user = \App\Models\User::where('nisn', $identifier)->first();
+        if ($user) {
+            return response()->json([
+                'nama' => $user->nama,
+                'type' => 'users'
+            ]);
         }
 
-        return response()->json([
-            'nama' => $user->nama,
-        ]);
+        // Cari di tabel guru berdasarkan NIP
+        $guru = \App\Models\Guru::where('nip', $identifier)->first();
+        if ($guru) {
+            return response()->json([
+                'nama' => $guru->nama,
+                'type' => 'guru'
+            ]);
+        }
+
+        // Cari di tabel umum berdasarkan Email
+        $umum = \App\Models\Umum::where('email', $identifier)->first();
+        if ($umum) {
+            return response()->json([
+                'nama' => $umum->nama,
+                'type' => 'umum'
+            ]);
+        }
+
+        // Tidak ditemukan di ketiga tabel
+        return response()->json(['nama' => null]);
     }
 
     public function storeScan(Request $request)

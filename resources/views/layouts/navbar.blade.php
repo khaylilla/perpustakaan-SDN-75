@@ -41,7 +41,27 @@
         <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle"
            data-bs-toggle="dropdown">
 
-          @php $foto = Auth::user()->foto ?? null; @endphp
+          @php
+            $loginAs = session('login_as');
+            $authUser = Auth::user();
+            $foto = null;
+            $nama = null;
+            $user = null;
+
+            // Fetch user dari tabel yang sesuai berdasarkan login type
+            if ($loginAs === 'siswa') {
+              $user = App\Models\User::find($authUser->id);
+            } elseif ($loginAs === 'guru') {
+              $user = App\Models\Guru::find($authUser->id);
+            } elseif ($loginAs === 'umum') {
+              $user = App\Models\Umum::find($authUser->id);
+            }
+
+            if ($user) {
+              $foto = $user->foto ?? null;
+              $nama = $user->nama ?? null;
+            }
+          @endphp
 
           @if ($foto && file_exists(storage_path('app/public/foto/'.$foto)))
             <img src="{{ asset('storage/foto/'.$foto) }}" width="40" height="40"
@@ -50,7 +70,7 @@
             <i class="bi bi-person-circle fs-3 me-2"></i>
           @endif
 
-          <span class="fw-bold">{{ Auth::user()->nama }}</span>
+          <span class="fw-bold">{{ $nama }}</span>
         </a>
 
         <ul class="dropdown-menu dropdown-menu-end">

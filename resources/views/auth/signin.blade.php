@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up | Perpustakaan Digital</title>
+    <title>Sign Up | Perpustakaan SDN 75</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -242,8 +242,8 @@
             </div>
 
             <div id="section-nis" class="form-section">
-                <label>NIS (Nomor Induk Siswa)</label>
-                <input type="text" name="nis" class="form-control mb-3" placeholder="Masukkan NIS">
+                <label>NISN (Nomor Induk Siswa Nasional)</label>
+                <input type="text" name="nisn" class="form-control mb-3" placeholder="Masukkan NISN">
             </div>
 
             <div id="section-sekolah" class="form-section mb-3">
@@ -280,7 +280,7 @@
             <div class="mb-3">
                 <label>Foto Profil</label>
                 <div class="upload-box">
-                    <input type="file" name="foto" class="form-control form-control-sm" accept="image/*" required>
+                    <input type="file" name="foto" class="form-control form-control-sm" accept="image/*">
                 </div>
             </div>
 

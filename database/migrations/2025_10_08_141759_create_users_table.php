@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id(); // Primary key otomatis
-            $table->string('email')->unique(); // Email unik
-            $table->string('password'); // Password (nanti disimpan dalam hash)
-            $table->string('nama'); // Nama lengkap
-            $table->string('npm'); // Nomor pokok mahasiswa
-            $table->string('alamat'); // Alamat lengkap
-            $table->date('tgl_lahir'); // Tanggal lahir
-            $table->string('nohp'); // Nomor HP
-            $table->string('foto')->nullable(); // Path foto, opsional
-            $table->timestamps(); // Kolom created_at & updated_at
+       Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama');
+            $table->string('nisn')->unique();
+            $table->string('asal_sekolah')->nullable();
+            $table->string('kelas')->nullable();
+            $table->string('foto')->nullable(); // ✅ BOLEH KOSONG
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
         });
+
     }
 
     /**

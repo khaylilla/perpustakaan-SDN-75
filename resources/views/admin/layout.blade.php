@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perpustakaan Teknik - Admin</title>
+  <title>Perpustakaan SDN 75 - Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
@@ -193,8 +193,8 @@
       <div class="brand">
         <img src="{{ asset('unib.jpg') }}" alt="Logo UNIB">
         <h4>
-          <span style="font-size:14px;">Perpustakaan Teknik</span><br>
-          <span style="font-weight:400;">Universitas Bengkulu</span>
+          <span style="font-size:14px;">Perpustakaan</span><br>
+          <span style="font-weight:400;">Sekolah Dasar Negeri 75</span>
         </h4>
       </div>
 
