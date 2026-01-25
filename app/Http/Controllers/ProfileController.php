@@ -45,25 +45,47 @@ class ProfileController extends Controller
     // 1. Validasi
     $request->validate([
         'nama' => 'required|string|max:255',
-        'alamat' => 'nullable|string|max:255',
-        'nohp' => 'nullable|string|max:20',
-        'tgl_lahir' => 'nullable|date',
         'foto' => 'nullable|image|max:2048', // Maksimal 2MB
     ]);
 
+    // Validasi dinamis berdasarkan login type
+    if ($loginAs === 'siswa') {
+        $request->validate([
+            'nisn' => 'required|string|max:20',
+            'asal_sekolah' => 'nullable|string|max:255',
+            'kelas' => 'nullable|string|max:50',
+        ]);
+    } else {
+        $request->validate([
+            'email' => 'required|email|max:255',
+            'alamat' => 'nullable|string|max:255',
+            'nohp' => 'nullable|string|max:20',
+            'tgl_lahir' => 'nullable|date',
+        ]);
+        if ($loginAs === 'guru') {
+            $request->validate([
+                'nip' => 'required|string|max:20',
+            ]);
+        }
+    }
+
     // 2. Isi data manual agar lebih aman
     $user->nama = $request->nama;
-    $user->alamat = $request->alamat;
-    $user->nohp = $request->nohp;
-    $user->tgl_lahir = $request->tgl_lahir;
 
     if ($loginAs === 'siswa') {
+        // SISWA: hanya ada nama, nisn, asal_sekolah, kelas, foto
         $user->nisn = $request->nisn;
         $user->asal_sekolah = $request->asal_sekolah;
         $user->kelas = $request->kelas;
     } else {
+        // GURU & UMUM: ada email, alamat, nohp, tgl_lahir
         $user->email = $request->email;
+        $user->alamat = $request->alamat;
+        $user->nohp = $request->nohp;
+        $user->tgl_lahir = $request->tgl_lahir;
+        
         if ($loginAs === 'guru') {
+            // GURU tambahan: nip
             $user->nip = $request->nip;
         }
     }
@@ -71,14 +93,14 @@ class ProfileController extends Controller
     // 3. Handle foto upload (Lakukan SEBELUM save utama)
     if ($request->hasFile('foto')) {
         // Hapus foto lama jika ada
-        if ($user->foto && Storage::exists('public/foto/' . $user->foto)) {
-            Storage::delete('public/foto/' . $user->foto);
+        if ($user->foto && Storage::disk('public')->exists('foto/' . $user->foto)) {
+            Storage::disk('public')->delete('foto/' . $user->foto);
         }
 
         // Simpan foto baru dengan nama unik
         $file = $request->file('foto');
         $namaFoto = time() . '_' . $user->id . '.' . $file->getClientOriginalExtension();
-        $file->storeAs('public/foto', $namaFoto);
+        $file->storeAs('foto', $namaFoto, 'public');
 
         // Masukkan nama file ke objek user
         $user->foto = $namaFoto;

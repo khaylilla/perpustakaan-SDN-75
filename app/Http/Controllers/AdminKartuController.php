@@ -13,14 +13,14 @@ class AdminKartuController extends Controller
     // Menampilkan daftar anggota
     public function index(Request $request)
     {
-        // Collect dari 3 tabel dengan type
-        $siswa = User::select('id', 'nama', 'nisn as identifier', \DB::raw("'siswa' as type"), 'created_at')
+        // Collect dari 3 tabel dengan type dan foto
+        $siswa = User::select('id', 'nama', 'nisn as identifier', \DB::raw("'siswa' as type"), 'foto', 'created_at')
             ->get();
         
-        $guru = Guru::select('id', 'nama', 'nip as identifier', \DB::raw("'guru' as type"), 'created_at')
+        $guru = Guru::select('id', 'nama', 'nip as identifier', \DB::raw("'guru' as type"), 'foto', 'created_at')
             ->get();
         
-        $umum = Umum::select('id', 'nama', 'email as identifier', \DB::raw("'umum' as type"), 'created_at')
+        $umum = Umum::select('id', 'nama', 'email as identifier', \DB::raw("'umum' as type"), 'foto', 'created_at')
             ->get();
         
         // Merge semua data
@@ -36,6 +36,14 @@ class AdminKartuController extends Controller
             $anggota = $anggota->filter(function($item) use ($keyword) {
                 return stripos($item->nama, $keyword) !== false || 
                        stripos($item->identifier, $keyword) !== false;
+            });
+        }
+
+        // FILTER BY TYPE
+        if ($request->filled('type')) {
+            $type = $request->type;
+            $anggota = $anggota->filter(function($item) use ($type) {
+                return $item->type === $type;
             });
         }
 

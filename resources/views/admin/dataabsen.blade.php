@@ -1,6 +1,6 @@
 @extends('admin.layout')
 
-@section('page-title', 'Manajemen Data Absen')
+@section('page-title', 'Manajemen Data Absen & Cetak Kartu')
 
 @section('content')
 <style>
@@ -86,12 +86,22 @@
   .action-icons .view { color:#0066ff; }
   .action-icons .edit { color:#f39c12; }
   .action-icons .delete { color:#e74c3c; }
+
+  {{-- Print Styles --}}
+  @media print {
+    body { background: none; }
+    .header-cards { display: none !important; }
+    .filters { display: none !important; }
+    .table-container { display: none !important; }
+    .btn-add { display: none !important; }
+    .modal { display: none !important; }
+  }
 </style>
 
 <div class="container-fluid">
 
   {{-- HEADER CARDS --}}
-  <div class="d-flex flex-wrap gap-3 mb-4">
+  <div class="header-cards d-flex flex-wrap gap-3 mb-4">
 
     <a href="{{ route('admin.datauser') }}" 
        class="text-decoration-none flex-grow-1"
@@ -123,46 +133,48 @@
       </div>
     </a>
 
-{{-- 3 KOTAK KECIL --}}
-<div class="d-flex flex-wrap gap-3 mb-4">
+    {{-- 3 KOTAK KECIL --}}
+    <div class="d-flex flex-wrap gap-3">
 
-  <a href="{{ route('admin.absen.scan') }}" 
-     class="text-decoration-none"
-     style="width: 180px;">
-    <div class="card shadow-sm border-0 text-white"
-         style="background: #ff9f43; border-radius: 14px;">
-      <div class="card-body text-center p-3">
-        <i class="bi bi-qr-code-scan fs-2 d-block mb-2"></i>
-        <p class="fw-bold mb-0">Scan Absen</p>
-      </div>
+      <a href="{{ route('admin.absen.scan') }}" 
+         class="text-decoration-none"
+         style="width: 180px;">
+        <div class="card shadow-sm border-0 text-white"
+             style="background: #ff9f43; border-radius: 14px;">
+          <div class="card-body text-center p-3">
+            <i class="bi bi-qr-code-scan fs-2 d-block mb-2"></i>
+            <p class="fw-bold mb-0">Scan Absen</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="{{ route('admin.dataabsen') }}" 
+         class="text-decoration-none"
+         style="width: 180px;">
+        <div class="card shadow-sm border-0 text-white"
+             style="background: #ff9f43; border-radius: 14px;">
+          <div class="card-body text-center p-3">
+            <i class="bi bi-table fs-2 d-block mb-2"></i>
+            <p class="fw-bold mb-0">Data Absen</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="{{ route('admin.kartu') }}" 
+         class="text-decoration-none"
+         style="width: 180px;">
+        <div class="card shadow-sm border-0 text-white"
+             style="background: #ff9f43; border-radius: 14px;">
+          <div class="card-body text-center p-3">
+            <i class="bi bi-credit-card fs-2 d-block mb-2"></i>
+            <p class="fw-bold mb-0">Kartu Anggota</p>
+          </div>
+        </div>
+      </a>
+
     </div>
-  </a>
 
-  <a href="{{ route('admin.dataabsen') }}" 
-     class="text-decoration-none"
-     style="width: 180px;">
-    <div class="card shadow-sm border-0 text-white"
-         style="background: #ff9f43; border-radius: 14px;">
-      <div class="card-body text-center p-3">
-        <i class="bi bi-table fs-2 d-block mb-2"></i>
-        <p class="fw-bold mb-0">Data Absen</p>
-      </div>
-    </div>
-  </a>
-
-  <a href="{{ route('admin.kartu') }}" 
-     class="text-decoration-none"
-     style="width: 180px;">
-    <div class="card shadow-sm border-0 text-white"
-         style="background: #ff9f43; border-radius: 14px;">
-      <div class="card-body text-center p-3">
-        <i class="bi bi-credit-card fs-2 d-block mb-2"></i>
-        <p class="fw-bold mb-0">Kartu Anggota</p>
-      </div>
-    </div>
-  </a>
-
-</div>
+  </div>
 
     {{-- BUTTON TAMBAH --}}
     <div class="d-flex align-items-center ms-auto mb-3">
@@ -185,9 +197,19 @@
   @endif
 
   {{-- FILTER DAN PRINT --}}
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <form action="{{ route('admin.dataabsen') }}" method="GET" class="d-flex align-items-center gap-2 mb-0">
+  <div class="filters d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <form action="{{ route('admin.dataabsen') }}" method="GET" class="d-flex align-items-center gap-2 mb-0 flex-wrap">
 
+        {{-- FILTER TIPE USER (DROPDOWN) --}}
+        <label class="fw-semibold mb-0">Filter Tipe:</label>
+        <select name="type" class="form-control form-control-sm" onchange="this.form.submit()" style="width: 140px;">
+          <option value="">-- Semua --</option>
+          <option value="siswa" {{ request('type') === 'siswa' ? 'selected' : '' }}>Siswa</option>
+          <option value="guru" {{ request('type') === 'guru' ? 'selected' : '' }}>Guru</option>
+          <option value="umum" {{ request('type') === 'umum' ? 'selected' : '' }}>Umum</option>
+        </select>
+
+        {{-- FILTER TANGGAL --}}
         <label class="fw-semibold mb-0">Filter Tanggal:</label>
 
         <input type="date" name="start_date" class="form-control form-control-sm"
@@ -204,10 +226,11 @@
 
       </form>
 
-
-    <a href="{{ route('admin.dataabsen.export', ['groupBy' => 'day']) }}" class="btn btn-danger">
-        <i class="bi bi-file-earmark-pdf"></i> Export PDF
-    </a>
+    <div class="d-flex gap-2">
+      <a href="{{ route('admin.dataabsen.export', ['groupBy' => 'day']) }}" class="btn btn-danger">
+          <i class="bi bi-file-earmark-pdf"></i> Export PDF
+      </a>
+    </div>
   </div>
 
 {{-- TABEL DATA --}}
@@ -353,6 +376,33 @@ function updatePersonData() {
     namaInput.value = '';
     npmInput.value = '';
   }
+}
+
+function printKartu() {
+  // Get current filter type
+  const urlParams = new URLSearchParams(window.location.search);
+  const type = urlParams.get('type') || '';
+  const keyword = urlParams.get('keyword') || '';
+  const startDate = urlParams.get('start_date') || '';
+  const endDate = urlParams.get('end_date') || '';
+  
+  // Build query string
+  let queryStr = '';
+  if (type) queryStr += `&type=${type}`;
+  if (keyword) queryStr += `&keyword=${keyword}`;
+  if (startDate) queryStr += `&start_date=${startDate}`;
+  if (endDate) queryStr += `&end_date=${endDate}`;
+  
+  // Open print window with kartu
+  const printWindow = window.open(
+    `{{ route('admin.kartu') }}?print=1${queryStr}`,
+    'printKartu',
+    'width=900,height=1200'
+  );
+  
+  printWindow.onload = function() {
+    printWindow.print();
+  };
 }
 </script>
 @endsection

@@ -206,6 +206,20 @@
           <p><strong>Nomor Buku:</strong> {{ $book->nomor_buku ?? '-' }}</p>
           <p><strong>Rak:</strong> {{ $book->rak ?? '-' }}</p>
           <p><strong>Jumlah:</strong> {{ $book->jumlah ?? '-' }}</p>
+          @if($book->ebook)
+            <p>
+              <strong>E-Book:</strong> 
+              @if(strpos($book->ebook, 'http') === 0)
+                <a href="{{ $book->ebook }}" target="_blank" style="color: #ffb84d; text-decoration: underline;">
+                  <i class="bi bi-file-pdf"></i> Buka Link
+                </a>
+              @else
+                <a href="{{ asset('storage/' . $book->ebook) }}" target="_blank" style="color: #ffb84d; text-decoration: underline;">
+                  <i class="bi bi-file-pdf"></i> Download PDF
+                </a>
+              @endif
+            </p>
+          @endif
         </div>
 
         <div class="book-description">

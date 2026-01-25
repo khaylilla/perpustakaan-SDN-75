@@ -63,9 +63,9 @@
             }
           @endphp
 
-          @if ($foto && file_exists(storage_path('app/public/foto/'.$foto)))
-            <img src="{{ asset('storage/foto/'.$foto) }}" width="40" height="40"
-                 class="rounded-circle border border-dark me-2">
+          @if ($foto)
+            <img src="{{ asset('storage/foto/' . $foto) }}?v={{ time() }}" width="40" height="40"
+                 class="rounded-circle border border-dark me-2" onerror="this.style.display='none'">
           @else
             <i class="bi bi-person-circle fs-3 me-2"></i>
           @endif

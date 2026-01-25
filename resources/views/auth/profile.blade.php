@@ -98,7 +98,7 @@
     @csrf
 
     @if($user->foto)
-    <img src="/storage/foto/{{ $user->foto }}?v={{ time() }}"
+    <img src="{{ asset('storage/foto/' . $user->foto) }}?v={{ time() }}"
      alt="Foto Profil"
      class="profile-img">
     @else
@@ -128,7 +128,7 @@
         <input type="text" name="kelas" class="form-control" value="{{ $user->kelas ?? '' }}">
       </div>
 
-    {{-- GURU: NIP, Email --}}
+    {{-- GURU: NIP, Email, Alamat, No HP, Tanggal Lahir --}}
     @elseif($loginAs === 'guru')
       <div class="mb-3 text-start">
         <label>NIP</label>
@@ -140,16 +140,28 @@
         <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
       </div>
 
-    {{-- UMUM: Email --}}
+      <div class="mb-3 text-start">
+        <label>Alamat</label>
+        <input type="text" name="alamat" class="form-control" value="{{ $user->alamat ?? '' }}">
+      </div>
+
+      <div class="mb-3 text-start">
+        <label>No HP</label>
+        <input type="text" name="nohp" class="form-control" value="{{ $user->nohp ?? '' }}">
+      </div>
+
+      <div class="mb-3 text-start">
+        <label>Tanggal Lahir</label>
+        <input type="date" name="tgl_lahir" class="form-control" value="{{ $user->tgl_lahir ?? '' }}">
+      </div>
+
+    {{-- UMUM: Email, Alamat, No HP, Tanggal Lahir --}}
     @elseif($loginAs === 'umum')
       <div class="mb-3 text-start">
         <label>Email</label>
         <input type="email" name="email" class="form-control" value="{{ $user->email }}" required>
       </div>
-    @endif
 
-    {{-- COMMON FIELDS: Alamat, No HP, Tanggal Lahir (tidak untuk siswa) --}}
-    @if($loginAs !== 'siswa')
       <div class="mb-3 text-start">
         <label>Alamat</label>
         <input type="text" name="alamat" class="form-control" value="{{ $user->alamat ?? '' }}">

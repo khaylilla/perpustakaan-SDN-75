@@ -166,7 +166,9 @@
       margin: 1cm;
     }
     body { background: none; padding: 0; }
-    .header-controls { display: none !important; }
+    .header-cards { display: none !important; }
+    .filter-section { display: none !important; }
+    .container-fluid { padding: 0 !important; }
     .card-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr); /* 2 kolom */
@@ -179,24 +181,70 @@
       box-shadow: none;
       border: 0.5px solid #ddd;
       -webkit-print-color-adjust: exact;
+      margin: 0;
+      page-break-inside: avoid;
     }
   }
 </style>
 
 <div class="container-fluid py-4">
-  <div class="header-controls d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
-    <div>
-      <h5 class="fw-bold mb-0">📇 Format Cetak A4 (6 Kartu)</h5>
-      <small class="text-muted">Gunakan kertas A4 untuk hasil terbaik</small>
+  {{-- HEADER CARDS --}}
+  <div class="header-cards d-flex flex-wrap gap-3 mb-4">
+    <a href="{{ route('admin.datauser') }}" class="text-decoration-none flex-grow-1" style="max-width: 300px;">
+      <div class="card shadow-sm border-0 text-white" style="background: linear-gradient(135deg, #f7931e, #ffa94d); border-radius: 16px;">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div><h5 class="fw-bold mb-1">Manajemen Data User</h5><p class="mb-0 text-light small">Kelola anggota perpustakaan</p></div>
+          <i class="bi bi-people-fill fs-2 opacity-75"></i>
+        </div>
+      </div>
+    </a>
+    <a href="{{ route('admin.dataabsen') }}" class="text-decoration-none flex-grow-1" style="max-width: 300px;">
+      <div class="card shadow-sm border-0 text-white" style="background: linear-gradient(135deg, #f7931e, #ffb84d); border-radius: 16px;">
+        <div class="card-body d-flex align-items-center justify-content-between">
+          <div><h5 class="fw-bold mb-1">Manajemen Data Absen</h5><p class="mb-0 text-light small">Pantau kehadiran anggota</p></div>
+          <i class="bi bi-calendar-check-fill fs-2 opacity-75"></i>
+        </div>
+      </div>
+    </a>
+    <div class="d-flex flex-wrap gap-3">
+      <a href="{{ route('admin.absen.scan') }}" class="text-decoration-none" style="width: 180px;">
+        <div class="card shadow-sm border-0 text-white" style="background: #ff9f43; border-radius: 14px;">
+          <div class="card-body text-center p-3"><i class="bi bi-qr-code-scan fs-2 d-block mb-2"></i><p class="fw-bold mb-0">Scan Absen</p></div>
+        </div>
+      </a>
+      <a href="{{ route('admin.dataabsen') }}" class="text-decoration-none" style="width: 180px;">
+        <div class="card shadow-sm border-0 text-white" style="background: #ff9f43; border-radius: 14px;">
+          <div class="card-body text-center p-3"><i class="bi bi-table fs-2 d-block mb-2"></i><p class="fw-bold mb-0">Data Absen</p></div>
+        </div>
+      </a>
+      <a href="{{ route('admin.kartu') }}" class="text-decoration-none" style="width: 180px;">
+        <div class="card shadow-sm border-0 text-white" style="background: #ff9f43; border-radius: 14px;">
+          <div class="card-body text-center p-3"><i class="bi bi-credit-card fs-2 d-block mb-2"></i><p class="fw-bold mb-0">Kartu Anggota</p></div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  {{-- FILTER SECTION --}}
+  <div class="filter-section d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm flex-wrap gap-3">
+    <div><h5 class="fw-bold mb-0">📇 Format Cetak A4 (6 Kartu)</h5><small class="text-muted">Gunakan kertas A4 untuk hasil terbaik</small></div>
+    <div class="d-flex align-items-center gap-2">
+      <label class="fw-semibold mb-0">Filter Tipe:</label>
+      <select id="typeFilter" class="form-control form-control-sm" style="width: 150px;" onchange="filterKartu(this.value)">
+        <option value="">-- Semua --</option>
+        <option value="siswa">Siswa</option>
+        <option value="guru">Guru</option>
+        <option value="umum">Umum</option>
+      </select>
     </div>
     <button onclick="window.print()" class="btn btn-dark px-4">
       <i class="bi bi-printer me-2"></i> Cetak Sekarang
     </button>
   </div>
 
-  <div class="card-grid">
+  <div class="card-grid" id="cardGrid">
     @foreach($anggota as $i => $item)
-      <div class="member-card">
+      <div class="member-card" data-type="{{ $item->type }}">
         <div class="card-overlay"></div>
         
         <div class="card-content">
@@ -212,7 +260,17 @@
 
           <div class="body-section">
             <div class="photo-frame">
-               <img src="{{ asset('foto profil.png') }}" style="width:100%; height:100%; object-fit:cover;">
+              @if($item->foto)
+                {{-- Gunakan asset() untuk mengakses public/storage/foto/ --}}
+                <img src="{{ asset('storage/foto/' . $item->foto) }}?v={{ time() }}" 
+                     alt="Foto {{ $item->nama }}"
+                     style="width:100%; height:100%; object-fit:cover;"
+                     onerror="this.onerror=null;this.src='{{ asset('default.jpg') }}';">
+              @else
+                <img src="{{ asset('default.jpg') }}" 
+                     alt="Foto Default"
+                     style="width:100%; height:100%; object-fit:cover;">
+              @endif
             </div>
 
             <div class="info-data">
@@ -252,5 +310,16 @@
       });
     @endforeach
   };
+
+  function filterKartu(type) {
+    const cards = document.querySelectorAll('.member-card');
+    cards.forEach(card => {
+      if (type === '') {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = card.getAttribute('data-type') === type ? 'flex' : 'none';
+      }
+    });
+  }
 </script>
 @endsection

@@ -50,11 +50,29 @@ class BookController extends Controller
             'tahun_terbit' => 'nullable|digits:4',
             'kategori' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
-            'nomor_buku' => 'required|string|max:50',
+            'ebook_url' => 'nullable|url',
+            'ebook_file' => 'nullable|mimes:pdf|max:10240',
+            'barcode' => 'required|string|max:100|unique:books,barcode',
+            'nomor_buku' => 'nullable|string|max:50',
             'rak' => 'nullable|string|max:50',
             'status' => 'nullable|string|max:100',
             'jumlah' => 'nullable|integer|min:0',
         ]);
+
+        // Generate nomor_buku dari barcode jika belum ada
+        $nomor_buku = $request->nomor_buku;
+        if (!$nomor_buku) {
+            $year = now()->year;
+            $nomor_buku = 'BK-' . $year . '-' . $request->barcode;
+        }
+
+        // Handle e-book (prioritas: file upload > URL)
+        $ebook = null;
+        if ($request->hasFile('ebook_file')) {
+            $ebook = $request->file('ebook_file')->store('ebooks', 'public');
+        } elseif ($request->ebook_url) {
+            $ebook = $request->ebook_url;
+        }
 
         $coverPaths = [];
         if ($request->hasFile('cover')) {
@@ -71,7 +89,9 @@ class BookController extends Controller
             'tahun_terbit' => $request->tahun_terbit,
             'kategori' => $request->kategori,
             'deskripsi' => $request->deskripsi,
-            'nomor_buku' => $request->nomor_buku,
+            'ebook' => $ebook,
+            'barcode' => $request->barcode,
+            'nomor_buku' => $nomor_buku,
             'rak' => $request->rak,
             'status' => $request->status,
             'jumlah' => $request->jumlah,
@@ -92,11 +112,41 @@ class BookController extends Controller
             'tahun_terbit' => 'nullable|digits:4',
             'kategori' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
+            'ebook_url' => 'nullable|url',
+            'ebook_file' => 'nullable|mimes:pdf|max:10240',
+            'barcode' => 'required|string|max:100|unique:books,barcode,' . $id,
             'nomor_buku' => 'nullable|string|max:50',
             'rak' => 'nullable|string|max:50',
             'status' => 'nullable|string|max:100',
             'jumlah' => 'nullable|integer|min:0',
         ]);
+
+        // Generate nomor_buku dari barcode jika belum ada atau jika barcode berubah
+        $nomor_buku = $request->nomor_buku;
+        if (!$nomor_buku || $book->barcode !== $request->barcode) {
+            $year = now()->year;
+            $nomor_buku = 'BK-' . $year . '-' . $request->barcode;
+        }
+
+        // Handle e-book update
+        $ebook = $book->ebook;
+        if ($request->hasFile('ebook_file')) {
+            // Hapus file lama jika ada dan bukan URL
+            if ($book->ebook && strpos($book->ebook, 'http') !== 0) {
+                if (Storage::disk('public')->exists($book->ebook)) {
+                    Storage::disk('public')->delete($book->ebook);
+                }
+            }
+            $ebook = $request->file('ebook_file')->store('ebooks', 'public');
+        } elseif ($request->ebook_url) {
+            // Hapus file lama jika ada dan user ganti dengan URL
+            if ($book->ebook && strpos($book->ebook, 'http') !== 0) {
+                if (Storage::disk('public')->exists($book->ebook)) {
+                    Storage::disk('public')->delete($book->ebook);
+                }
+            }
+            $ebook = $request->ebook_url;
+        }
 
         if ($request->hasFile('cover')) {
             $oldCovers = json_decode($book->cover, true);
@@ -114,7 +164,11 @@ class BookController extends Controller
             $book->cover = json_encode($newCovers);
         }
 
-        $book->fill($request->except(['cover']))->save();
+        $book->fill($request->except(['cover', 'nomor_buku', 'barcode', 'ebook_url', 'ebook_file']));
+        $book->nomor_buku = $nomor_buku;
+        $book->barcode = $request->barcode;
+        $book->ebook = $ebook;
+        $book->save();
 
         return redirect()->route('admin.datakoleksi')->with('success', 'Data koleksi berhasil diperbarui!');
     }
@@ -165,6 +219,12 @@ class BookController extends Controller
         $barcode = DNS1D::getBarcodeSVG($book->id, 'C128', 2, 50);
 
         return view('admin.card', compact('book', 'barcode'));
+    }
+
+    public function showBook($id)
+    {
+        $book = Book::findOrFail($id);
+        return view('auth.show', compact('book'));
     }
 
 }

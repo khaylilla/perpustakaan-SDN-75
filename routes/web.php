@@ -125,9 +125,10 @@ Route::get('/buku', [BukuController::class, 'index'])->name('buku.index');
 Route::get('/buku/kategori/{kategori}', [BukuController::class, 'kategori'])->name('buku.kategori');
 
 // Halaman detail buku
-Route::get('/buku/{id}', [AuthController::class, 'show'])->name('buku.show');
+Route::get('/buku/{id}', [BookController::class, 'showBook'])->name('buku.show');
 
 Route::get('/artikel', [AuthController::class, 'artikel'])->name('auth.artikel');
+Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
 
 Route::get('/kontak', function () {return view('auth.kontak');})->name('auth.kontak');
 
