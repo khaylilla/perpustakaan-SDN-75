@@ -31,7 +31,7 @@ class DashboardController extends Controller
         // ======== FILTER RANGE ========
         $queryRange = function($query) use ($mode, $start, $end, $kelasFilter) {
             if ($kelasFilter) {
-                $query->whereHas('user', function($q) {
+                $query->whereHas('user', function($q) use ($kelasFilter) {
                     $q->where('kelas', $kelasFilter);
                 });
             }
@@ -55,7 +55,7 @@ class DashboardController extends Controller
 
         // ======== STATISTIK ========
         $totalPengunjung = Absen::when(true, $queryRange)->count();
-        $pengunjungHarian = Absen::whereDate('created_at', now())->count();
+        $pengunjungHarian = Absen::whereDate('created_at', now()->toDateString())->count();
         
         if ($kelasFilter) {
             $totalUser = User::where('kelas', $kelasFilter)->count();
@@ -149,18 +149,19 @@ class DashboardController extends Controller
 
         if($mode == 'hari') {
             $labels = range(0,23);
+            $date = $start ? Carbon::parse($start)->toDateString() : now()->toDateString();
             foreach($labels as $i){
-                $query = Peminjaman::whereDate('created_at', $start ?? now())
-                    ->whereHour('created_at', $i);
+                $query = Peminjaman::whereDate('created_at', $date)
+                    ->whereRaw('HOUR(created_at) = ?', [$i]);
                 $grafikPeminjaman[$i] = $applyKelasFilterToQuery($query)->count();
-                
-                $queryReturn = Peminjaman::whereDate('created_at', $start ?? now())
-                    ->whereHour('created_at', $i)
+
+                $queryReturn = Peminjaman::whereDate('created_at', $date)
+                    ->whereRaw('HOUR(created_at) = ?', [$i])
                     ->where('status','dikembalikan');
                 $grafikPengembalian[$i] = $applyKelasFilterToQuery($queryReturn)->count();
-                
-                $grafikUserAktif[$i] = $getUserAktif(Peminjaman::whereDate('created_at', $start ?? now())
-                    ->whereHour('created_at', $i));
+
+                $grafikUserAktif[$i] = $getUserAktif(Peminjaman::whereDate('created_at', $date)
+                    ->whereRaw('HOUR(created_at) = ?', [$i]));
             }
         } elseif($mode == 'bulan') {
             $carbon = Carbon::parse($start ?? now());

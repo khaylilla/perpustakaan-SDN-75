@@ -1,259 +1,439 @@
 @extends('admin.layout')
-@section('page-title', 'Dashboard')
+@section('page-title', 'Dashboard Overview')
 @section('content')
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-    body {
-        background: #f5f7fb;
+    :root {
+        --primary: #4e73df;
+        --secondary: #858796;
+        --success: #1cc88a;
+        --info: #36b9cc;
+        --warning: #f6c23e;
+        --danger: #e74a3b;
+        --dark: #2e344e;
+        --light: #f8f9fc;
+        --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
     }
 
-    /* ===== Dashboard Cards ===== */
-    .dashboard-card {
-        border-radius: 16px;
-        padding: 22px;
+    body {
+        background-color: #f0f2f5;
+        font-family: 'Poppins', sans-serif;
+        color: var(--dark);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-entry {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0; /* Mulai invisible */
+    }
+    
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+
+    /* ===== FILTER BAR ===== */
+    .filter-card {
         background: white;
-        border: 0;
-        box-shadow: 0 6px 22px rgba(0,0,0,0.06);
-        transition: 0.28s;
+        padding: 15px 20px;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 25px;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .form-select-custom, .form-control-custom {
+        border: 1px solid #e3e6f0;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        transition: 0.3s;
+        background-color: #f8f9fc;
+    }
+
+    .form-select-custom:focus, .form-control-custom:focus {
+        border-color: var(--primary);
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.1);
+        outline: none;
+    }
+
+    .btn-filter {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 20px;
+        font-weight: 500;
+        transition: 0.3s;
+    }
+    
+    .btn-filter:hover {
+        background: #2e59d9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3);
+    }
+
+    /* ===== DASHBOARD CARDS (GRID SYSTEM) ===== */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
         position: relative;
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
         overflow: hidden;
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0,0,0,0.02);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--hover-shadow);
+    }
+
+    /* Decorative Circle Background */
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        right: -20px;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        opacity: 0.1;
+        transition: 0.4s;
+    }
+
+    .stat-card:hover::before {
+        transform: scale(1.5);
+    }
+
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        color: white;
+    }
+
+    .stat-title {
+        font-size: 0.85rem;
+        color: #888;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-top: 5px;
         color: #333;
     }
 
-    .dashboard-card::after {
-        content: '';
-        position: absolute;
-        width: 200%;
-        height: 200%;
-        top: -50%;
-        left: -50%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: rotate(45deg);
-        transition: 0.5s;
-    }
+    /* Card Variants */
+    .card-blue .stat-icon { background: linear-gradient(135deg, #4e73df, #224abe); box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3); }
+    .card-blue::before { background: #4e73df; }
+    
+    .card-purple .stat-icon { background: linear-gradient(135deg, #8e44ad, #6c3483); box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3); }
+    .card-purple::before { background: #8e44ad; }
 
-    .dashboard-card:hover::after {
-        top: -30%;
-        left: -30%;
-    }
+    .card-orange .stat-icon { background: linear-gradient(135deg, #f6c23e, #e67e22); box-shadow: 0 4px 10px rgba(246, 194, 62, 0.3); }
+    .card-orange::before { background: #f6c23e; }
 
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 28px rgba(0,0,0,0.15);
-    }
+    .card-green .stat-icon { background: linear-gradient(135deg, #1cc88a, #13855c); box-shadow: 0 4px 10px rgba(28, 200, 138, 0.3); }
+    .card-green::before { background: #1cc88a; }
 
-    .dashboard-card h2 {
-        font-size: 28px;
-        margin-top: 8px;
-        margin-bottom: 4px;
-    }
+    .card-red .stat-icon { background: linear-gradient(135deg, #e74a3b, #c0392b); box-shadow: 0 4px 10px rgba(231, 74, 59, 0.3); }
+    .card-red::before { background: #e74a3b; }
 
-    .dashboard-card h6 {
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 8px;
-    }
 
-    .dashboard-card small {
-        font-size: 12px;
-        color: #555;
-    }
-
-    /* ===== Chart Containers ===== */
-    .chart-container {
-        background: white;
-        padding: 24px;
-        border-radius: 18px;
-        box-shadow: 0 6px 22px rgba(0,0,0,0.06);
-        transition: 0.25s;
-        position: relative;
-    }
-
-    .chart-container:hover {
-        box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-    }
-
-    #chartKategori {
-        max-height: 260px !important;
-    }
-
-    h2, h6 {
-        font-weight: 600;
-    }
-
-    /* ===== Gradient Stat Cards ===== */
-    .bg-gradient-blue { background: linear-gradient(135deg, #4e73df, #1cc88a); color: white; }
-    .bg-gradient-orange { background: linear-gradient(135deg, #f6c23e, #f7931e); color: white; }
-    .bg-gradient-red { background: linear-gradient(135deg, #e74a3b, #f56236); color: white; }
-    .bg-gradient-purple { background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; }
-
-    /* ===== Table Styling ===== */
-    .table-container {
+    /* ===== CHART CONTAINERS ===== */
+    .chart-box {
         background: white;
         border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 6px 22px rgba(0,0,0,0.06);
-        transition: 0.25s;
+        padding: 25px;
+        box-shadow: var(--card-shadow);
+        height: 100%;
+        transition: 0.3s;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    
+    .chart-box:hover {
+        box-shadow: var(--hover-shadow);
     }
 
-    .table-container:hover {
-        box-shadow: 0 10px 26px rgba(0,0,0,0.08);
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    table th, table td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #eaeaea;
-    }
-
-    table th {
+    .section-title {
+        font-size: 1.1rem;
         font-weight: 600;
-        color: #555;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #444;
     }
+
+    /* ===== TABLE STYLING ===== */
+    .modern-table-container {
+        background: white;
+        border-radius: 16px;
+        padding: 0;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .modern-table-header {
+        padding: 20px 25px;
+        border-bottom: 1px solid #f0f0f0;
+        background: #fff;
+    }
+
+    .table-responsive {
+        padding: 0 10px 15px;
+    }
+
+    .table {
+        margin-bottom: 0;
+        width: 100%;
+        border-collapse: separate; 
+        border-spacing: 0 5px; /* Jarak antar baris */
+    }
+
+    .table thead th {
+        border: none;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: #888;
+        font-weight: 600;
+        padding: 15px 15px;
+    }
+
+    .table tbody tr {
+        background: #fff;
+        transition: 0.2s;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fc;
+        transform: scale(1.005);
+    }
+
+    .table td {
+        border: none;
+        padding: 15px;
+        vertical-align: middle;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f8f9fc;
+    }
+
+    /* Badge/Pills for Rank */
+    .rank-badge {
+        width: 25px;
+        height: 25px;
+        background: #eef2f8;
+        color: #666;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+    .rank-1 { background: #ffd700; color: #fff; box-shadow: 0 2px 5px rgba(255, 215, 0, 0.4); }
+    .rank-2 { background: #c0c0c0; color: #fff; }
+    .rank-3 { background: #cd7f32; color: #fff; }
 
 </style>
 
-<div class="container">
+<div class="container-fluid px-4 py-4">
 
-    <!-- FORM FILTER -->
-    <form method="GET" class="d-flex gap-2 mb-4">
-        <select name="mode" class="form-select form-select-sm" style="width:150px">
-            <option value="hari" {{ request('mode')=='hari' ? 'selected' : '' }}>Per Hari</option>
-            <option value="bulan" {{ request('mode')=='bulan' ? 'selected' : '' }}>Per Bulan</option>
-            <option value="tahun" {{ request('mode')=='tahun' ? 'selected' : '' }}>Per Tahun</option>
-            <option value="range_tahun" {{ request('mode')=='range_tahun' ? 'selected' : '' }}>Rentang Tahun</option>
-        </select>
+    <div class="animate-entry">
+        <form method="GET" class="filter-card">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-filter text-primary"></i>
+                <span class="fw-bold text-secondary small text-uppercase">Filter:</span>
+            </div>
+            
+            <select name="mode" class="form-select-custom" style="width:140px">
+                <option value="hari" {{ request('mode')=='hari' ? 'selected' : '' }}>Hari Ini</option>
+                <option value="bulan" {{ request('mode')=='bulan' ? 'selected' : '' }}>Bulan Ini</option>
+                <option value="tahun" {{ request('mode')=='tahun' ? 'selected' : '' }}>Tahun Ini</option>
+                <option value="range_tahun" {{ request('mode')=='range_tahun' ? 'selected' : '' }}>Rentang Tahun</option>
+            </select>
 
-        <select name="kelas" class="form-select form-select-sm" style="width:150px">
-            <option value="">-- Semua Kelas --</option>
-            @foreach($semuaKelas as $k)
-                <option value="{{ $k }}" {{ request('kelas') == $k ? 'selected' : '' }}>{{ $k }}</option>
-            @endforeach
-        </select>
+            <select name="kelas" class="form-select-custom" style="width:160px">
+                <option value="">-- Semua Kelas --</option>
+                @foreach($semuaKelas as $k)
+                    <option value="{{ $k }}" {{ request('kelas') == $k ? 'selected' : '' }}>{{ $k }}</option>
+                @endforeach
+            </select>
 
-        <input type="date" name="start" class="form-control form-control-sm" value="{{ request('start') }}" style="width:160px">
-        <input type="date" name="end" class="form-control form-control-sm" value="{{ request('end') }}" style="width:160px">
-        <button class="btn btn-primary btn-sm">Filter</button>
-    </form>
+            <input type="date" name="start" class="form-control-custom" value="{{ request('start') }}">
+            <span class="text-muted">-</span>
+            <input type="date" name="end" class="form-control-custom" value="{{ request('end') }}">
 
-    <!-- ROW 1 – STATISTIK -->
+            <button class="btn-filter"><i class="fas fa-search me-1"></i> Terapkan</button>
+        </form>
+    </div>
+
+    <div class="stats-grid animate-entry delay-1">
+        <div class="stat-card card-blue">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-title">Total Pengunjung</div>
+            <div class="stat-value">{{ number_format($totalPengunjung) }}</div>
+        </div>
+
+        <div class="stat-card card-purple">
+            <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+            <div class="stat-title">Total User</div>
+            <div class="stat-value">{{ number_format($totalUser) }}</div>
+        </div>
+
+        <div class="stat-card card-orange">
+            <div class="stat-icon"><i class="fas fa-book"></i></div>
+            <div class="stat-title">Koleksi Buku</div>
+            <div class="stat-value">{{ number_format($totalBuku) }}</div>
+        </div>
+
+        <div class="stat-card card-green">
+            <div class="stat-icon"><i class="fas fa-book-reader"></i></div>
+            <div class="stat-title">Sedang Dipinjam</div>
+            <div class="stat-value">{{ number_format($totalPeminjaman) }}</div>
+        </div>
+
+        <div class="stat-card card-red">
+            <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
+            <div class="stat-title">Dikembalikan</div>
+            <div class="stat-value">{{ number_format($totalPengembalian) }}</div>
+        </div>
+    </div>
+
     <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="dashboard-card text-center bg-gradient-blue">
-                <h6>Total Pengunjung</h6>
-                <h2>{{ $totalPengunjung }}</h2>
+        <div class="col-lg-8 mb-4 animate-entry delay-2">
+            <div class="chart-box">
+                <div class="section-title"><i class="fas fa-chart-line text-primary"></i> Tren Peminjaman & Pengembalian</div>
+                <div style="height: 300px;">
+                    <canvas id="chartPeminjaman"></canvas>
+                </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="dashboard-card text-center bg-gradient-purple">
-                <h6>Total User</h6>
-                <h2>{{ $totalUser }}</h2>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="dashboard-card text-center bg-gradient-orange">
-                <h6>Total Buku</h6>
-                <h2>{{ $totalBuku }}</h2>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="dashboard-card text-center bg-gradient-blue">
-                <h6>Buku Sedang Dipinjam</h6>
-                <h2>{{ $totalPeminjaman }}</h2>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="dashboard-card text-center bg-gradient-orange">
-                <h6>Buku Dikembalikan</h6>
-                <h2>{{ $totalPengembalian }}</h2>
+        <div class="col-lg-4 mb-4 animate-entry delay-2">
+            <div class="chart-box">
+                <div class="section-title"><i class="fas fa-chart-pie text-warning"></i> Kategori Buku</div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="chartKategori"></canvas>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ROW 2 – LINE & BAR CHART -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="chart-container">
-                <h6 class="text-center mb-2">📈 Grafik Peminjaman & Pengembalian</h6>
-                <canvas id="chartPeminjaman"></canvas>
+    <div class="row mb-4 animate-entry delay-3">
+        <div class="col-md-6 mb-4">
+            <div class="chart-box">
+                <div class="section-title"><i class="fas fa-user-clock text-success"></i> Aktivitas User</div>
+                <canvas id="chartUserAktif" height="150"></canvas>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="chart-container">
-                <h6 class="text-center mb-2">👤 Grafik User Aktif</h6>
-                <canvas id="chartUserAktif"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- ROW 3 – PIE CHART -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="chart-container">
-                <h6 class="text-center mb-2">🟣 Diagram Kategori Buku</h6>
-                <canvas id="chartKategori"></canvas>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="chart-container">
-                <h6 class="text-center mb-2">👥 Distribusi Siswa Per Kelas</h6>
-                <canvas id="chartSiswaKelas"></canvas>
+        <div class="col-md-6 mb-4">
+            <div class="chart-box">
+                <div class="section-title"><i class="fas fa-layer-group text-info"></i> Distribusi Kelas</div>
+                <canvas id="chartSiswaKelas" height="150"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- ROW 4 – TOP 5 TABLES -->
-    <!-- ROW 4 – TOP 5 TABLES -->
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="table-container">
-                <h6 class="text-center mb-3">📚 5 Buku Paling Sering Dipinjam</h6>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Judul Buku</th>
-                            <th>Jumlah Dipinjam</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($bukuFavorit as $index => $buku)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $buku->judul_buku }}</td>
-                            <td>{{ $buku->total }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+    <div class="row animate-entry delay-4">
+        <div class="col-lg-6 mb-4">
+            <div class="modern-table-container">
+                <div class="modern-table-header">
+                    <div class="section-title mb-0"><i class="fas fa-crown text-warning"></i> 5 Buku Terpopuler</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th width="10%">Rank</th>
+                                <th>Judul Buku</th>
+                                <th width="25%" class="text-end">Dipinjam</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($bukuFavorit as $index => $buku)
+                            <tr>
+                                <td>
+                                    <div class="rank-badge {{ $index == 0 ? 'rank-1' : ($index == 1 ? 'rank-2' : ($index == 2 ? 'rank-3' : '')) }}">
+                                        {{ $index + 1 }}
+                                    </div>
+                                </td>
+                                <td class="fw-bold text-dark">{{ $buku->judul_buku }}</td>
+                                <td class="text-end"><span class="badge bg-light text-dark border">{{ $buku->total }}x</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="table-container">
-                <h6 class="text-center mb-3">👤 5 User Paling Aktif</h6>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama User</th>
-                            <th>Jumlah Peminjaman</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($userAktif as $index => $user)
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $user->nama }}</td>
-                            <td>{{ $user->total }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+
+        <div class="col-lg-6 mb-4">
+            <div class="modern-table-container">
+                <div class="modern-table-header">
+                    <div class="section-title mb-0"><i class="fas fa-medal text-primary"></i> 5 User Terrajin</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th width="10%">Rank</th>
+                                <th>Nama User</th>
+                                <th width="25%" class="text-end">Aktivitas</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($userAktif as $index => $user)
+                            <tr>
+                                <td>
+                                    <div class="rank-badge {{ $index == 0 ? 'rank-1' : ($index == 1 ? 'rank-2' : ($index == 2 ? 'rank-3' : '')) }}">
+                                        {{ $index + 1 }}
+                                    </div>
+                                </td>
+                                <td class="fw-bold text-dark">{{ $user->nama }}</td>
+                                <td class="text-end"><span class="badge bg-primary bg-opacity-10 text-primary">{{ $user->total }} Transaksi</span></td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -262,117 +442,150 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const labels = @json($labels);
-const peminjamanData = @json(array_values($grafikPeminjaman));
-const pengembalianData = @json(array_values($grafikPengembalian));
-const userAktifData = @json(array_values($grafikUserAktif));
-const kategoriLabels = {!! json_encode($kategoriBuku->keys()) !!};
-const kategoriValues = {!! json_encode($kategoriBuku->values()) !!};
-const kelasLabels = {!! json_encode($siswaPerKelas->keys()) !!};
-const kelasValues = {!! json_encode($siswaPerKelas->values()) !!};
+    // Data dari Controller
+    const labels = @json($labels);
+    const peminjamanData = @json(array_values($grafikPeminjaman));
+    const pengembalianData = @json(array_values($grafikPengembalian));
+    const userAktifData = @json(array_values($grafikUserAktif));
+    const kategoriLabels = {!! json_encode($kategoriBuku->keys()) !!};
+    const kategoriValues = {!! json_encode($kategoriBuku->values()) !!};
+    const kelasLabels = {!! json_encode($siswaPerKelas->keys()) !!};
+    const kelasValues = {!! json_encode($siswaPerKelas->values()) !!};
+    const bulanDefault = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 
-const bulanDefault = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+    // Global Option: Font Family
+    Chart.defaults.font.family = "'Poppins', sans-serif";
+    Chart.defaults.color = '#858796';
 
-// ===== 1) LINE CHART PEMINJAMAN & PENGEMBALIAN =====
-new Chart(document.getElementById('chartPeminjaman'), {
-    type: 'line',
-    data: {
-        labels: labels.length ? labels : bulanDefault,
-        datasets: [
-            {
-                label: "Peminjaman",
-                data: peminjamanData,
-                borderColor: "#2d4bf0",
-                backgroundColor: "rgba(45,75,240,0.15)",
-                tension: 0.35,
-                borderWidth: 3,
-                pointRadius: 4,
-                pointBackgroundColor: "#2d4bf0"
-            },
-            {
-                label: "Pengembalian",
-                data: pengembalianData,
-                borderColor: "#f15a29",
-                backgroundColor: "rgba(241,90,41,0.15)",
-                tension: 0.35,
-                borderWidth: 3,
-                pointRadius: 4,
-                pointBackgroundColor: "#f15a29"
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: "bottom", labels: { usePointStyle: true } },
-            tooltip: { mode: 'index', intersect: false }
+    // 1. AREA CHART (Lebih cantik daripada line biasa)
+    new Chart(document.getElementById('chartPeminjaman'), {
+        type: 'line',
+        data: {
+            labels: labels.length ? labels : bulanDefault,
+            datasets: [
+                {
+                    label: "Peminjaman",
+                    data: peminjamanData,
+                    borderColor: "#4e73df",
+                    backgroundColor: "rgba(78, 115, 223, 0.05)",
+                    pointBackgroundColor: "#4e73df",
+                    pointBorderColor: "#fff",
+                    pointHoverBackgroundColor: "#fff",
+                    pointHoverBorderColor: "#4e73df",
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3
+                },
+                {
+                    label: "Pengembalian",
+                    data: pengembalianData,
+                    borderColor: "#e74a3b", // Warna merah lebih kontras
+                    backgroundColor: "rgba(231, 74, 59, 0.05)",
+                    pointBackgroundColor: "#e74a3b",
+                    pointBorderColor: "#fff",
+                    pointHoverBackgroundColor: "#fff",
+                    pointHoverBorderColor: "#e74a3b",
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3
+                }
+            ]
         },
-        scales: {
-            x: { grid: { display: false }, ticks: { color: "#666" } },
-            y: { beginAtZero: true, ticks: { color: "#666" } }
+        options: {
+            maintainAspectRatio: false,
+            layout: { padding: { left: 10, right: 25, top: 25, bottom: 0 } },
+            plugins: {
+                legend: { display: true, position: 'top', align: 'end' },
+                tooltip: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyColor: "#858796",
+                    titleColor: "#6e707e",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                },
+            },
+            scales: {
+                x: { grid: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 7 } },
+                y: { ticks: { maxTicksLimit: 5, padding: 10 }, grid: { color: "rgb(234, 236, 244)", zeroLineColor: "rgb(234, 236, 244)", drawBorder: false } }
+            }
         }
-    }
-});
+    });
 
-// ===== 2) BAR CHART USER AKTIF =====
-new Chart(document.getElementById('chartUserAktif'), {
-    type: 'bar',
-    data: {
-        labels: labels.length ? labels : bulanDefault,
-        datasets: [{
-            label: "User Aktif",
-            data: userAktifData,
-            backgroundColor: "rgba(34,197,94,0.85)",
-            borderRadius: 12,
-            maxBarThickness: 40
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: { legend: { position: "bottom" } },
-        scales: {
-            x: { grid: { display: false }, ticks: { color: "#444" } },
-            y: { beginAtZero: true, ticks: { precision: 0 } }
+    // 2. DOUGHNUT CHART (Modern Style)
+    new Chart(document.getElementById('chartKategori'), {
+        type: 'doughnut',
+        data: {
+            labels: kategoriLabels,
+            datasets: [{
+                data: kategoriValues,
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+                borderWidth: 5, // Tebal putih di tengah
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '70%', // Lubang tengah lebih besar
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
         }
-    }
-});
+    });
 
-// ===== 3) PIE CHART KATEGORI BUKU =====
-new Chart(document.getElementById('chartKategori'), {
-    type: 'doughnut',
-    data: {
-        labels: kategoriLabels,
-        datasets: [{
-            data: kategoriValues,
-            backgroundColor: ["#4e73df", "#1cc88a", "#36b9cc", "#f6c23e", "#e74a3b"],
-            borderWidth: 0
-        }]
-    },
-    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-});
-
-// ===== 4) BAR CHART SISWA PER KELAS =====
-new Chart(document.getElementById('chartSiswaKelas'), {
-    type: 'bar',
-    data: {
-        labels: kelasLabels,
-        datasets: [{
-            label: "Jumlah Siswa",
-            data: kelasValues,
-            backgroundColor: "rgba(156,39,176,0.85)",
-            borderRadius: 12,
-            maxBarThickness: 50
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: { legend: { position: "bottom" } },
-        scales: {
-            x: { grid: { display: false }, ticks: { color: "#444" } },
-            y: { beginAtZero: true, ticks: { precision: 0 } }
+    // 3. BAR CHART - USER AKTIF
+    new Chart(document.getElementById('chartUserAktif'), {
+        type: 'bar',
+        data: {
+            labels: labels.length ? labels : bulanDefault,
+            datasets: [{
+                label: "User Aktif",
+                data: userAktifData,
+                backgroundColor: "#1cc88a",
+                hoverBackgroundColor: "#17a673",
+                borderRadius: 5,
+                barPercentage: 0.6,
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { borderDash: [2] }, beginAtZero: true }
+            }
         }
-    }
-});
+    });
+
+    // 4. BAR CHART - DISTRIBUSI KELAS
+    new Chart(document.getElementById('chartSiswaKelas'), {
+        type: 'bar',
+        data: {
+            labels: kelasLabels,
+            datasets: [{
+                label: "Jumlah Siswa",
+                data: kelasValues,
+                backgroundColor: "#36b9cc",
+                hoverBackgroundColor: "#2c9faf",
+                borderRadius: 5,
+                barPercentage: 0.6,
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { borderDash: [2] }, beginAtZero: true }
+            }
+        }
+    });
 </script>
 
 @endsection
