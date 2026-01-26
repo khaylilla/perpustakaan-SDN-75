@@ -175,6 +175,7 @@
           <th>Kategori</th>
           <th>Nama</th>
           <th>Identitas (NISN/NIP/Email)</th>
+          <th>Kelas</th>
           <th>Alamat</th>
           <th>Tgl Lahir</th>
           <th>No HP</th>
@@ -214,6 +215,13 @@
                 {{ $user->email ?? '-' }}
               @endif
             </td>
+            <td>
+              @if($user->type === 'users')
+                {{ $user->kelas ?? '-' }}
+              @else
+                -
+              @endif
+            </td>
             <td>{{ $user->alamat ?? '-' }}</td>
             <td>{{ $user->tgl_lahir ? \Carbon\Carbon::parse($user->tgl_lahir)->format('d-m-Y') : '-' }}</td>
             <td>{{ $user->nohp ?? '-' }}</td>
@@ -231,7 +239,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="8" class="text-muted">Tidak ada data</td>
+            <td colspan="9" class="text-muted">Tidak ada data</td>
           </tr>
         @endforelse
       </tbody>

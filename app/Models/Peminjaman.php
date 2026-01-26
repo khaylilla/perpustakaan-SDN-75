@@ -16,6 +16,8 @@ class Peminjaman extends Model
         'npm',
         'judul_buku',
         'nomor_buku',
+        'jumlah',
+        'jumlah_kembali',
         'tanggal_pinjam',
         'tanggal_kembali',
         'status',

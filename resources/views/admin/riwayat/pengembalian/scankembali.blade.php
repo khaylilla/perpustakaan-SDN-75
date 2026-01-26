@@ -4,40 +4,123 @@
 
 @section('content')
 <style>
-  /* --- Styles sama seperti sebelumnya --- */
-  .info-boxes { display: flex; flex-wrap: wrap; gap: 25px; margin-bottom: 25px; }
-  .info-box { background: linear-gradient(135deg, #f7931e, #ffb347); color: white; border-radius: 20px; width: 320px; padding: 25px 30px; box-shadow: 0 6px 18px rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: space-between; text-decoration: none; transition: transform 0.25s ease, box-shadow 0.25s ease; }
-  .info-box:hover { transform: translateY(-5px); box-shadow: 0 10px 22px rgba(0,0,0,0.2); }
-  .info-box i { font-size: 42px; opacity: 0.85; }
-  .info-box-content h5 { margin: 0; font-weight: 700; font-size: 18px; }
-  .info-box-content p { font-size: 14px; margin-top: 5px; }
+  .info-boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 25px;
+  }
 
-  .scan-container { display: flex; flex-direction: column; gap: 30px; background: #fff; padding: 50px; border-radius: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.12); max-width: 850px; margin: 0 auto; }
-  .scan-box { border: 3px dashed #f7931e; border-radius: 16px; padding: 35px; text-align: center; transition: 0.3s; position: relative; }
-  .scan-box:hover { background: #fff7ef; }
-  .scan-box h5 { font-weight: 700; margin-bottom: 15px; }
-  .scan-input { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 15px; }
-  .toggle-btn { background: linear-gradient(135deg, #f7931e, #ffb347); border: none; color: white; padding: 10px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-  .toggle-btn:hover { transform: scale(1.05); }
-  video { width: 100%; max-width: 600px; border-radius: 15px; border: 3px solid #f7931e; margin-top: 10px; position: relative; }
-  .video-wrapper { position: relative; display: inline-block; }
-  .scanner-frame { position: absolute; top: 50%; left: 50%; width: 220px; height: 220px; transform: translate(-50%, -50%); border-radius: 16px; pointer-events: none; overflow: hidden; border: 4px solid #f7931e; box-shadow: 0 0 20px rgba(247, 147, 30, 0.4), 0 0 30px rgba(247, 147, 30, 0.3); animation: pulse-frame 2.5s infinite ease-in-out; }
-  @keyframes pulse-frame { 0%,100% { box-shadow: 0 0 20px rgba(247,147,30,0.4), 0 0 30px rgba(247,147,30,0.3); } 50% { box-shadow: 0 0 35px rgba(247,147,30,0.6), 0 0 45px rgba(247,147,30,0.5); } }
-  .laser-line { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: #f7931e; box-shadow: 0 0 15px #f7931e, 0 0 25px rgba(247,147,30,0.5); animation: laser-move 2s linear infinite, laser-glow 1.5s ease-in-out infinite alternate; }
-  @keyframes laser-move { 0% { top: 0; } 50% { top: calc(100% - 4px); } 100% { top: 0; } }
-  @keyframes laser-glow { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
-  .submit-btn { text-align: center; }
-  .submit-btn button { background: linear-gradient(135deg, #f7931e, #ffb347); border: none; color: white; font-weight: 700; padding: 14px 40px; border-radius: 10px; font-size: 16px; box-shadow: 0 6px 14px rgba(0,0,0,0.12); transition: all 0.3s; }
-  .submit-btn button:hover { transform: translateY(-3px); box-shadow: 0 10px 18px rgba(0,0,0,0.2); }
-  .info-scan { margin-top: 12px; font-size: 15px; font-weight: 600; color: #333; }
-  .info-scan span { font-weight: 700; color: #f7931e; }
+  .info-box {
+    background: linear-gradient(135deg, #f7931e, #ffa94d);
+    color: white;
+    border-radius: 16px;
+    width: 300px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+  }
+
+  .info-box:hover { transform: translateY(-3px); }
+  .info-box i { font-size: 32px; opacity: 0.7; }
+  .info-box-content h5 { margin: 0; font-weight: 700; font-size: 16px; }
+  .info-box-content p { font-size: 13px; margin: 3px 0 0 0; }
+
+  .scan-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    padding: 40px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .scan-box {
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .scan-box:last-child { border-bottom: none; }
+
+  .scan-box h5 {
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .scan-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .scan-input input {
+    flex: 1;
+    min-width: 250px;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+  }
+
+  .scan-input input:focus {
+    outline: none;
+    border-color: #f7931e;
+    box-shadow: 0 0 8px rgba(247, 147, 30, 0.2);
+  }
+
+  .info-scan {
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+  }
+
+  .info-scan span {
+    font-weight: 700;
+    color: #f7931e;
+  }
+
+  .submit-btn {
+    text-align: center;
+    margin-top: 30px;
+  }
+
+  .submit-btn button {
+    background: linear-gradient(135deg, #f7931e, #ffa94d);
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 14px 50px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(247, 147, 30, 0.3);
+  }
+
+  .submit-btn button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(247, 147, 30, 0.4);
+  }
+
+  .submit-btn button:active {
+    transform: translateY(0);
+  }
 </style>
 
 <div class="container-fluid">
+  {{-- INFO BOXES --}}
   <div class="info-boxes">
     <a href="{{ route('admin.riwayat.pengembalian.scankembali') }}" class="info-box">
       <div class="info-box-content">
-        <h5>Scan Pengembalian Buku</h5>
+        <h5>Scan Pengembalian</h5>
         <p>Scan barcode anggota & buku</p>
       </div>
       <i class="bi bi-upc-scan"></i>
@@ -45,200 +128,203 @@
 
     <a href="{{ route('admin.riwayat.pengembalian.pengembalian') }}" class="info-box">
       <div class="info-box-content">
-        <h5>Data Pengembalian Buku</h5>
+        <h5>Data Pengembalian</h5>
         <p>Daftar buku yang dikembalikan</p>
       </div>
       <i class="bi bi-book-half"></i>
     </a>
   </div>
 
+  {{-- SCAN FORM --}}
   <div class="scan-container">
     {{-- Scan NPM Anggota --}}
-    <div class="scan-box" id="scanAnggotaBox">
-      <h5>Scan QR/NPM Anggota</h5>
-      <button class="toggle-btn" onclick="toggleScan('anggota', event)">Gunakan Kamera</button>
-      <div id="inputAnggota" class="scan-input">
-        <input type="file" accept="image/*" onchange="handleFile('anggota', event)">
-        <input type="text" id="barcodeAnggota" placeholder="Atau input manual NPM...">
+    <div class="scan-box">
+      <h5>Scan/Input NPM Anggota</h5>
+      <div class="scan-input">
+        <input type="text" id="npm" placeholder="Scan kartu atau ketik NPM..." onkeydown="handleEnterNpm(event)">
       </div>
-      <div class="info-scan" id="infoAnggota">Nama: <span id="namaAnggota">-</span></div>
-      <div class="video-wrapper">
-        <video id="videoAnggota" autoplay playsinline hidden></video>
-        <div class="scanner-frame" id="frameAnggota" hidden>
-          <div class="laser-line"></div>
-        </div>
-      </div>
-      <canvas id="canvasAnggota" hidden></canvas>
+      <div class="info-scan" id="infoNpm">Nama: <span id="namaNpm">-</span></div>
     </div>
 
     {{-- Scan Nomor Buku --}}
-    <div class="scan-box" id="scanBukuBox">
-      <h5>Scan Barcode Nomor Buku</h5>
-      <button class="toggle-btn" onclick="toggleScan('buku', event)">Gunakan Kamera</button>
-      <div id="inputBuku" class="scan-input">
-        <input type="file" accept="image/*" onchange="handleFile('buku', event)">
-        <input type="text" id="barcodeBuku" placeholder="Atau input manual nomor buku...">
+    <div class="scan-box">
+      <h5>Scan/Input Nomor Buku</h5>
+      <div class="scan-input">
+        <input type="text" id="nomorBuku" placeholder="Scan barcode atau ketik nomor buku..." onkeydown="handleEnterBuku(event)">
       </div>
-      <div class="info-scan" id="infoBuku">Judul Buku: <span id="judulBuku">-</span></div>
-      <div class="video-wrapper">
-        <video id="videoBuku" autoplay playsinline hidden></video>
-        <div class="scanner-frame" id="frameBuku" hidden>
-          <div class="laser-line"></div>
-        </div>
-      </div>
-      <canvas id="canvasBuku" hidden></canvas>
+      <div class="info-scan" id="infoBuku">Judul: <span id="judulBuku">-</span>, Stok: <span id="stokBuku">-</span></div>
     </div>
 
+    {{-- Submit Button --}}
     <div class="submit-btn">
       <button onclick="prosesPengembalian()">Simpan & Proses Pengembalian</button>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-let currentStream = {};
-let scanInterval = {};
-
-function capitalize(str){ return str.charAt(0).toUpperCase() + str.slice(1); }
-function toggleScan(type,event){
-  const video=document.getElementById(`video${capitalize(type)}`);
-  const frame=document.getElementById(`frame${capitalize(type)}`);
-  const input=document.getElementById(`input${capitalize(type)}`);
-  const button=event.target;
-
-  if(!video.hidden){ stopCamera(type); video.hidden=true; frame.hidden=true; input.hidden=false; button.textContent="Gunakan Kamera"; return; }
-
-  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
-    .then(stream => {
-      video.srcObject=stream; currentStream[type]=stream;
-      video.hidden=false; frame.hidden=false; input.hidden=true; button.textContent="Batalkan Kamera";
-      startScanning(type);
-    }).catch(()=>alert("Kamera tidak dapat diakses. Pastikan izin kamera diaktifkan."));
+function handleEnterNpm(e) {
+  if (e.key === 'Enter') {
+    updateInfo('npm');
+  }
 }
 
-function startScanning(type){
-  const video=document.getElementById(`video${capitalize(type)}`);
-  const canvas=document.getElementById(`canvas${capitalize(type)}`);
-  const ctx=canvas.getContext("2d");
-
-  scanInterval[type]=setInterval(()=>{
-    if(video.readyState===video.HAVE_ENOUGH_DATA){
-      canvas.height=video.videoHeight; canvas.width=video.videoWidth;
-      ctx.drawImage(video,0,0,canvas.width,canvas.height);
-      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-      const code=jsQR(imageData.data,imageData.width,imageData.height);
-      if(code){
-        document.getElementById(`barcode${capitalize(type)}`).value=code.data;
-        stopCamera(type);
-        document.querySelector(`#scan${capitalize(type)}Box .toggle-btn`).textContent="Gunakan Kamera";
-        video.hidden=true; document.getElementById(`frame${capitalize(type)}`).hidden=true; document.getElementById(`input${capitalize(type)}`).hidden=false;
-        updateInfo(type, code.data);
-      }
-    }
-  },300);
+function handleEnterBuku(e) {
+  if (e.key === 'Enter') {
+    updateInfo('buku');
+  }
 }
 
-function stopCamera(type){
-  if(currentStream[type]){ currentStream[type].getTracks().forEach(track=>track.stop()); delete currentStream[type]; }
-  if(scanInterval[type]){ clearInterval(scanInterval[type]); delete scanInterval[type]; }
-}
+function updateInfo(type) {
+  if (type === 'npm') {
+    const npm = document.getElementById('npm').value.trim();
+    if (!npm) return;
 
-function handleFile(type,event){
-  const file=event.target.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const img=new Image();
-    img.onload=function(){
-      const canvas=document.createElement("canvas");
-      const ctx=canvas.getContext("2d");
-      canvas.width=img.width; canvas.height=img.height;
-      ctx.drawImage(img,0,0);
-      const imageData=ctx.getImageData(0,0,img.width,img.height);
-      const code=jsQR(imageData.data,imageData.width,imageData.height);
-      if(code){ 
-        document.getElementById(`barcode${capitalize(type)}`).value=code.data; 
-        updateInfo(type, code.data); 
-      } else alert("Tidak ditemukan barcode pada gambar ini.");
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function updateInfo(type, value){
-  if(type==="anggota"){
-    fetch(`/admin/riwayat/peminjaman/get-user/${value}`)
-      .then(res=>res.json())
-      .then(data=>{
-        document.getElementById("namaAnggota").textContent = data.nama ?? "Tidak ditemukan";
+    fetch(`/admin/riwayat/peminjaman/get-user/${npm}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.nama) {
+          document.getElementById('namaNpm').textContent = data.nama;
+        } else {
+          document.getElementById('namaNpm').textContent = 'Tidak ditemukan';
+        }
+      })
+      .catch(() => {
+        document.getElementById('namaNpm').textContent = 'Error';
       });
   }
-  if(type==="buku"){
-    fetch(`/admin/riwayat/peminjaman/get-book/${value}`)
-      .then(res=>res.json())
-      .then(data=>{
-        document.getElementById("judulBuku").textContent = data.judul ?? "-";
+
+  if (type === 'buku') {
+    const nomorBuku = document.getElementById('nomorBuku').value.trim();
+    if (!nomorBuku) return;
+
+    fetch(`/admin/riwayat/peminjaman/get-book/${nomorBuku}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.judul) {
+          document.getElementById('judulBuku').textContent = data.judul;
+          document.getElementById('stokBuku').textContent = data.jumlah ?? 0;
+        } else {
+          document.getElementById('judulBuku').textContent = 'Tidak ditemukan';
+          document.getElementById('stokBuku').textContent = '-';
+        }
+      })
+      .catch(() => {
+        document.getElementById('judulBuku').textContent = 'Error';
+        document.getElementById('stokBuku').textContent = '-';
       });
   }
 }
 
-function prosesPengembalian(){
-  const npm = document.getElementById("barcodeAnggota").value.trim();
-  const nomorBuku = document.getElementById("barcodeBuku").value.trim();
+function prosesPengembalian() {
+  const npm = document.getElementById('npm').value.trim();
+  const nomorBuku = document.getElementById('nomorBuku').value.trim();
 
-  if(!npm || !nomorBuku){ 
+  if (!npm || !nomorBuku) {
     Swal.fire({
-      icon:'warning', 
-      title:'Oops!', 
-      text:'Pastikan kedua barcode telah di-scan!'
-    }); 
-    return; 
+      icon: 'warning',
+      title: 'Data Tidak Lengkap',
+      text: 'Pastikan NPM dan Nomor Buku telah diisi.',
+      confirmButtonColor: '#f7931e'
+    });
+    return;
   }
 
-  fetch("{{ route('admin.riwayat.pengembalian.proses') }}",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "X-CSRF-TOKEN":"{{ csrf_token() }}"
-    },
-    body:JSON.stringify({npm:npm, nomor_buku:nomorBuku})
-  })
-  .then(res => res.json())
-  .then(data => {
-    if(data.status === "error"){ // stok habis atau gagal lainnya
+  // ✨ CEK TIPE USER untuk menentukan apakah perlu popup
+  fetch(`/admin/riwayat/peminjaman/get-user/${npm}`)
+    .then(res => res.json())
+    .then(data => {
+      const peminjamTipe = data.peminjam_tipe || 'umum';
+      
+      if (peminjamTipe === 'guru') {
+        // GURU: Popup input jumlah
+        Swal.fire({
+          title: 'Jumlah Buku Dikembalikan',
+          input: 'number',
+          inputValue: 1,
+          inputAttributes: {
+            min: 1,
+            step: 1
+          },
+          showCancelButton: true,
+          confirmButtonColor: '#f7931e',
+          confirmButtonText: 'Proses',
+          cancelButtonText: 'Batal',
+          preConfirm: (jumlah) => {
+            if (!jumlah || jumlah < 1) {
+              Swal.showValidationMessage('Jumlah harus minimal 1');
+            }
+            return jumlah;
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            submitPengembalianAdmin(npm, nomorBuku, result.value);
+          }
+        });
+      } else {
+        // SISWA/UMUM: Auto 1 buku, langsung proses tanpa popup
+        submitPengembalianAdmin(npm, nomorBuku, 1);
+      }
+    })
+    .catch(err => {
       Swal.fire({
         icon: 'error',
         title: 'Gagal!',
-        text: data.message ?? "Stok buku habis / gagal memproses.",
+        text: 'Tidak dapat mengambil data user',
         confirmButtonColor: '#f7931e'
       });
-    } else { // sukses
+    });
+}
+
+function submitPengembalianAdmin(npm, nomorBuku, jumlah) {
+  fetch("{{ route('admin.riwayat.pengembalian.proses') }}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': "{{ csrf_token() }}"
+    },
+    body: JSON.stringify({
+      npm: npm,
+      nomor_buku: nomorBuku,
+      jumlah: jumlah
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.message && data.message.includes('berhasil')) {
       Swal.fire({
         icon: 'success',
         title: 'Berhasil!',
-        text: data.message ?? "Buku berhasil dikembalikan.",
+        text: data.message,
         confirmButtonColor: '#f7931e'
       }).then(() => {
-        window.location.href = "{{ route('admin.riwayat.pengembalian.pengembalian') }}";
+        // Reset form
+        document.getElementById('npm').value = '';
+        document.getElementById('nomorBuku').value = '';
+        document.getElementById('namaNpm').textContent = '-';
+        document.getElementById('judulBuku').textContent = '-';
+        document.getElementById('stokBuku').textContent = '-';
       });
-
-      // reset form
-      document.getElementById("barcodeAnggota").value="";
-      document.getElementById("barcodeBuku").value="";
-      document.getElementById("namaAnggota").textContent="-";
-      document.getElementById("judulBuku").textContent="-";
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: data.message || 'Gagal memproses pengembalian.',
+        confirmButtonColor: '#f7931e'
+      });
     }
   })
-  .catch(()=>Swal.fire({
-    icon:'error', 
-    title:'Gagal', 
-    text:'Gagal mengirim data ke server.', 
-    confirmButtonColor:'#f7931e'
-  }));
+  .catch(err => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Gagal mengirim data ke server.',
+      confirmButtonColor: '#f7931e'
+    });
+  });
 }
-
 </script>
+
 @endsection

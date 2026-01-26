@@ -351,7 +351,8 @@
 
             <div class="col-md-12">
               <label class="form-label">Upload Cover</label>
-              <input type="file" name="cover[]" class="form-control" multiple required>
+              <input type="file" name="cover[]" class="form-control" multiple accept="image/*" required>
+              <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 2MB per gambar). Bisa upload multiple file sekaligus.</small>
               <div class="invalid-feedback">Cover wajib diunggah.</div>
             </div>
           </div>
@@ -457,8 +458,8 @@
 
             <div class="col-md-12">
               <label class="form-label">Upload Cover Baru (Opsional)</label>
-              <input type="file" name="cover[]" class="form-control" multiple>
-              <div class="small text-muted mt-1">Kosongkan jika tidak ingin mengganti cover.</div>
+              <input type="file" name="cover[]" class="form-control" multiple accept="image/*">
+              <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 2MB per gambar). Kosongkan jika tidak ingin mengganti cover.</small>
             </div>
           </div>
         </div>

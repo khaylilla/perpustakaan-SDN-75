@@ -129,6 +129,13 @@
             <option value="range_tahun" {{ request('mode')=='range_tahun' ? 'selected' : '' }}>Rentang Tahun</option>
         </select>
 
+        <select name="kelas" class="form-select form-select-sm" style="width:150px">
+            <option value="">-- Semua Kelas --</option>
+            @foreach($semuaKelas as $k)
+                <option value="{{ $k }}" {{ request('kelas') == $k ? 'selected' : '' }}>{{ $k }}</option>
+            @endforeach
+        </select>
+
         <input type="date" name="start" class="form-control form-control-sm" value="{{ request('start') }}" style="width:160px">
         <input type="date" name="end" class="form-control form-control-sm" value="{{ request('end') }}" style="width:160px">
         <button class="btn btn-primary btn-sm">Filter</button>
@@ -186,10 +193,16 @@
 
     <!-- ROW 3 – PIE CHART -->
     <div class="row mb-4">
-        <div class="col-md-12">
+        <div class="col-md-6">
             <div class="chart-container">
                 <h6 class="text-center mb-2">🟣 Diagram Kategori Buku</h6>
                 <canvas id="chartKategori"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h6 class="text-center mb-2">👥 Distribusi Siswa Per Kelas</h6>
+                <canvas id="chartSiswaKelas"></canvas>
             </div>
         </div>
     </div>
@@ -255,6 +268,8 @@ const pengembalianData = @json(array_values($grafikPengembalian));
 const userAktifData = @json(array_values($grafikUserAktif));
 const kategoriLabels = {!! json_encode($kategoriBuku->keys()) !!};
 const kategoriValues = {!! json_encode($kategoriBuku->values()) !!};
+const kelasLabels = {!! json_encode($siswaPerKelas->keys()) !!};
+const kelasValues = {!! json_encode($siswaPerKelas->values()) !!};
 
 const bulanDefault = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 
@@ -334,6 +349,29 @@ new Chart(document.getElementById('chartKategori'), {
         }]
     },
     options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+});
+
+// ===== 4) BAR CHART SISWA PER KELAS =====
+new Chart(document.getElementById('chartSiswaKelas'), {
+    type: 'bar',
+    data: {
+        labels: kelasLabels,
+        datasets: [{
+            label: "Jumlah Siswa",
+            data: kelasValues,
+            backgroundColor: "rgba(156,39,176,0.85)",
+            borderRadius: 12,
+            maxBarThickness: 50
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: "bottom" } },
+        scales: {
+            x: { grid: { display: false }, ticks: { color: "#444" } },
+            y: { beginAtZero: true, ticks: { precision: 0 } }
+        }
+    }
 });
 </script>
 

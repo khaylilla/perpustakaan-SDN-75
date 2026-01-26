@@ -100,38 +100,22 @@
   <div class="scan-container">
     {{-- Scan Kartu Anggota --}}
     <div class="scan-box" id="scanAnggotaBox">
-      <h5>Scan QR/NPM Anggota</h5>
-      <button class="toggle-btn" onclick="toggleScan('anggota', event)">Gunakan Kamera</button>
-      <div id="inputAnggota" class="scan-input">
-        <input type="file" accept="image/*" onchange="handleFile('anggota', event)">
-        <input type="text" id="barcodeAnggota" placeholder="Atau input manual NPM...">
+      <h5>Scan Kartu Anggota</h5>
+      <div id="inputAnggota" class="scan-input" style="flex-direction: column; align-items: stretch;">
+        <input type="text" id="barcodeAnggota" placeholder="Scan / input NIP / NPM..." onkeydown="handleEnter('anggota', event)" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+        <small style="color: #666; margin-top: 8px;">💡 Gunakan scanner barcode atau input manual, lalu tekan Enter</small>
       </div>
       <div class="info-scan" id="infoAnggota">Nama: <span id="namaAnggota">-</span></div>
-      <div class="video-wrapper">
-        <video id="videoAnggota" autoplay playsinline hidden></video>
-        <div class="scanner-frame" id="frameAnggota" hidden>
-          <div class="laser-line"></div>
-        </div>
-      </div>
-      <canvas id="canvasAnggota" hidden></canvas>
     </div>
 
     {{-- Scan Nomor Buku --}}
     <div class="scan-box" id="scanBukuBox">
-      <h5>Scan Barcode Nomor Buku</h5>
-      <button class="toggle-btn" onclick="toggleScan('buku', event)">Gunakan Kamera</button>
-      <div id="inputBuku" class="scan-input">
-        <input type="file" accept="image/*" onchange="handleFile('buku', event)">
-        <input type="text" id="barcodeBuku" placeholder="Atau input manual nomor buku...">
+      <h5>Scan Nomor Buku</h5>
+      <div id="inputBuku" class="scan-input" style="flex-direction: column; align-items: stretch;">
+        <input type="text" id="barcodeBuku" placeholder="Scan / input nomor buku..." onkeydown="handleEnter('buku', event)" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+        <small style="color: #666; margin-top: 8px;">💡 Gunakan scanner barcode atau input manual, lalu tekan Enter</small>
       </div>
       <div class="info-scan" id="infoBuku">Judul Buku: <span id="judulBuku">-</span> | Stok: <span id="stokBuku">-</span></div>
-      <div class="video-wrapper">
-        <video id="videoBuku" autoplay playsinline hidden></video>
-        <div class="scanner-frame" id="frameBuku" hidden>
-          <div class="laser-line"></div>
-        </div>
-      </div>
-      <canvas id="canvasBuku" hidden></canvas>
     </div>
 
     <div class="submit-btn">
@@ -140,7 +124,6 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -149,69 +132,15 @@ let scanInterval = {};
 
 function capitalize(str){ return str.charAt(0).toUpperCase() + str.slice(1); }
 
-async function toggleScan(type,event){
-  const video=document.getElementById(`video${capitalize(type)}`);
-  const frame=document.getElementById(`frame${capitalize(type)}`);
-  const input=document.getElementById(`input${capitalize(type)}`);
-  const button=event.target;
-
-  if(!video.hidden){ stopCamera(type); video.hidden=true; frame.hidden=true; input.hidden=false; button.textContent="Gunakan Kamera"; return; }
-
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
-    video.srcObject=stream; currentStream[type]=stream;
-    video.hidden=false; frame.hidden=false; input.hidden=true; button.textContent="Batalkan Kamera";
-    startScanning(type);
-  }catch(err){ alert("Kamera tidak dapat diakses. Pastikan izin kamera diaktifkan."); }
-}
-
-function startScanning(type){
-  const video=document.getElementById(`video${capitalize(type)}`);
-  const canvas=document.getElementById(`canvas${capitalize(type)}`);
-  const ctx=canvas.getContext("2d");
-
-  scanInterval[type]=setInterval(()=>{
-    if(video.readyState===video.HAVE_ENOUGH_DATA){
-      canvas.height=video.videoHeight; canvas.width=video.videoWidth;
-      ctx.drawImage(video,0,0,canvas.width,canvas.height);
-      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-      const code=jsQR(imageData.data,imageData.width,imageData.height);
-      if(code){
-        document.getElementById(`barcode${capitalize(type)}`).value=code.data;
-        stopCamera(type);
-        document.querySelector(`#scan${capitalize(type)}Box .toggle-btn`).textContent="Gunakan Kamera";
-        video.hidden=true; document.getElementById(`frame${capitalize(type)}`).hidden=true; document.getElementById(`input${capitalize(type)}`).hidden=false;
-        updateInfo(type, code.data);
-      }
+// ✨ Handle Enter key dari scanner atau input manual
+function handleEnter(type, event){
+  if(event.key === "Enter"){
+    event.preventDefault();
+    const value = event.target.value.trim();
+    if(value){
+      updateInfo(type, value);
     }
-  },300);
-}
-
-function stopCamera(type){
-  if(currentStream[type]){ currentStream[type].getTracks().forEach(track=>track.stop()); delete currentStream[type]; }
-  if(scanInterval[type]){ clearInterval(scanInterval[type]); delete scanInterval[type]; }
-}
-
-function handleFile(type,event){
-  const file=event.target.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const img=new Image();
-    img.onload=function(){
-      const canvas=document.createElement("canvas");
-      const ctx=canvas.getContext("2d");
-      canvas.width=img.width; canvas.height=img.height;
-      ctx.drawImage(img,0,0);
-      const imageData=ctx.getImageData(0,0,img.width,img.height);
-      const code=jsQR(imageData.data,imageData.width,imageData.height);
-      if(code){ 
-        document.getElementById(`barcode${capitalize(type)}`).value=code.data; 
-        updateInfo(type, code.data); 
-      } else alert("Tidak ditemukan barcode pada gambar ini.");
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
+  }
 }
 
 function updateInfo(type, value){
@@ -220,6 +149,9 @@ function updateInfo(type, value){
       .then(res=>res.json())
       .then(data=>{
         document.getElementById("namaAnggota").textContent = data.nama ?? "Tidak ditemukan";
+      })
+      .catch(err => {
+        document.getElementById("namaAnggota").textContent = "Tidak ditemukan";
       });
   }
   if(type==="buku"){
@@ -228,6 +160,10 @@ function updateInfo(type, value){
       .then(data=>{
         document.getElementById("judulBuku").textContent = data.judul ?? "-";
         document.getElementById("stokBuku").textContent = data.jumlah ?? "-";
+      })
+      .catch(err => {
+        document.getElementById("judulBuku").textContent = "-";
+        document.getElementById("stokBuku").textContent = "-";
       });
   }
 }
@@ -241,42 +177,102 @@ function prosesPeminjaman(){
     return; 
   }
 
+  // ✨ CEK TIPE USER untuk menentukan limit jumlah buku
+  fetch(`/admin/riwayat/peminjaman/get-user/${npm}`)
+    .then(res => res.json())
+    .then(data => {
+      const peminjamTipe = data.peminjam_tipe || 'umum';
+      
+      if (peminjamTipe === 'guru') {
+        // GURU: Popup input jumlah (unlimited)
+        Swal.fire({
+          title: '📚 Jumlah Buku',
+          text: 'Berapa buku yang ingin dipinjam? (Tanpa batas)',
+          input: 'number',
+          inputAttributes: {
+            min: 1,
+            step: 1
+          },
+          inputValue: 1,
+          showCancelButton: true,
+          confirmButtonText: 'Proses',
+          confirmButtonColor: '#f7931e',
+          cancelButtonColor: '#6c757d',
+          preConfirm: (jumlah) => {
+            if (!jumlah || jumlah < 1) {
+              Swal.showValidationMessage('Minimal 1 buku');
+              return false;
+            }
+            return jumlah;
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            submitPeminjamanAdmin(npm, nomorBuku, result.value);
+          }
+        });
+      } else {
+        // UMUM/SISWA: Auto 1 buku, langsung proses
+        Swal.fire({
+          title: '📚 Jumlah Buku',
+          text: peminjamTipe.charAt(0).toUpperCase() + peminjamTipe.slice(1) + ' hanya boleh meminjam 1 buku. Lanjutkan?',
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonText: 'Proses',
+          confirmButtonColor: '#f7931e',
+          cancelButtonColor: '#6c757d'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            submitPeminjamanAdmin(npm, nomorBuku, 1);
+          }
+        });
+      }
+    })
+    .catch(err => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal!',
+        text: 'Tidak dapat mengambil data user',
+        confirmButtonColor: '#f7931e'
+      });
+    });
+}
+
+// ✨ SUBMIT PEMINJAMAN KE BACKEND
+function submitPeminjamanAdmin(npm, nomorBuku, jumlah){
   fetch("{{ route('admin.riwayat.peminjaman.proses') }}", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "X-CSRF-TOKEN": "{{ csrf_token() }}"
     },
-    body: JSON.stringify({npm:npm, nomor_buku:nomorBuku})
+    body: JSON.stringify({npm: npm, nomor_buku: nomorBuku, jumlah: jumlah})
   })
   .then(res => res.json().then(data => ({ status: res.status, body: data })))
   .then(({status, body}) => {
     if (status === 200) {
-  // jika pesan dari server berisi kata "habis" atau "stok 0", ubah jadi error
-  if (body.message.toLowerCase().includes('habis') || body.message.toLowerCase().includes('stok 0')) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Gagal!',
-      text: body.message,
-      confirmButtonColor: '#f7931e'
-    });
-  } else {
-    Swal.fire({
-      icon: 'success',
-      title: 'Berhasil!',
-      text: body.message,
-      confirmButtonColor: '#f7931e'
-    }).then(() => {
-      window.location.reload();
-    });
-  }
-
-  document.getElementById("barcodeAnggota").value="";
-  document.getElementById("barcodeBuku").value="";
-  document.getElementById("namaAnggota").textContent="-";
-  document.getElementById("judulBuku").textContent="-";
-}
- else {
+      if (body.message.toLowerCase().includes('habis') || body.message.toLowerCase().includes('stok 0')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal!',
+          text: body.message,
+          confirmButtonColor: '#f7931e'
+        });
+      } else {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: body.message,
+          confirmButtonColor: '#f7931e'
+        }).then(() => {
+          document.getElementById("barcodeAnggota").value="";
+          document.getElementById("barcodeBuku").value="";
+          document.getElementById("namaAnggota").textContent="-";
+          document.getElementById("judulBuku").textContent="-";
+          document.getElementById("stokBuku").textContent="-";
+          document.getElementById("barcodeAnggota").focus();
+        });
+      }
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'Gagal!',
@@ -285,12 +281,12 @@ function prosesPeminjaman(){
       });
     }
   })
-  .catch(()=>{
+  .catch(() => {
     Swal.fire({
-      icon:'error', 
-      title:'Gagal', 
-      text:'Gagal mengirim data ke server.', 
-      confirmButtonColor:'#f7931e'
+      icon: 'error', 
+      title: 'Gagal', 
+      text: 'Gagal mengirim data ke server.', 
+      confirmButtonColor: '#f7931e'
     });
   });
 }

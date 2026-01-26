@@ -80,7 +80,23 @@
 
   {{-- INFO BOXES --}}
   <div class="info-boxes">
-    <a href="{{ route('admin.riwayat.peminjaman.scan') }}" class="info-box" style="background: linear-gradient(135deg, #f7931e, #ffa94d); color:white; width: 320px; padding: 20px 24px;">
+    <a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}" class="info-box" style="background: linear-gradient(135deg, #f7931e, #ffa94d); color:white; width: 300px; padding: 20px 24px;">
+      <div class="info-box-content">
+        <h5>Peminjaman</h5>
+        <p>Kelola data peminjaman buku</p>
+      </div>
+      <i class="bi bi-book-half"></i>
+    </a>
+
+    <a href="{{ route('admin.riwayat.pengembalian.pengembalian') }}" class="info-box" style="background: linear-gradient(135deg, #f7931e, #ffa94d); color:white; width: 300px; padding: 20px 24px;">
+      <div class="info-box-content">
+        <h5>Pengembalian</h5>
+        <p>Kelola data pengembalian buku</p>
+      </div>
+      <i class="bi bi-arrow-counterclockwise"></i>
+    </a>
+
+    <a href="{{ route('admin.riwayat.peminjaman.scan') }}" class="info-box" style="background: linear-gradient(135deg, #4a7dff, #6c9dff); color:white; width: 320px; padding: 20px 24px;">
       <div class="info-box-content">
         <h5>Scan Peminjaman Buku</h5>
         <p>Scan barcode anggota & buku</p>
@@ -88,7 +104,7 @@
       <i class="bi bi-upc-scan"></i>
     </a>
 
-    <a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}" class="info-box" style="background: linear-gradient(135deg, #f7931e, #ffa94d); color:white; width: 320px; padding: 20px 24px;">
+    <a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}" class="info-box" style="background: linear-gradient(135deg, #4a7dff, #6c9dff); color:white; width: 320px; padding: 20px 24px;">
       <div class="info-box-content">
         <h5>Data Peminjaman Buku</h5>
         <p>Daftar peminjaman yang sedang berlangsung</p>
@@ -122,6 +138,7 @@
           <th>NPM</th>
           <th>Judul Buku</th>
           <th>Nomor Buku</th>
+          <th>Jumlah</th>
           <th>Tanggal Pinjam</th>
           <th>Tanggal Kembali</th>
           <th>Status</th>
@@ -142,6 +159,7 @@
             <td>{{ $p->npm }}</td>
             <td>{{ $p->judul_buku }}</td>
             <td>{{ $p->nomor_buku }}</td>
+            <td><strong>{{ $p->jumlah ?? 1 }}</strong></td>
             <td>{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</td>
             <td>
               @if($p->tanggal_kembali)
@@ -167,6 +185,7 @@
                 data-npm="{{ $p->npm }}"
                 data-judul="{{ $p->judul_buku }}"
                 data-nomor="{{ $p->nomor_buku }}"
+                data-jumlah="{{ $p->jumlah ?? 1 }}"
                 data-status="{{ $p->status }}"
                 title="Edit Peminjaman">
                   <i class="bi bi-pencil"></i>
@@ -219,9 +238,13 @@
               <input type="text" name="nomor_buku" class="form-control" required>
             </div>
             <div class="mb-2">
+              <label>Jumlah Buku</label>
+              <input type="number" name="jumlah" class="form-control" min="1" required>
+            </div>
+            <div class="mb-2">
               <label>Status</label>
               <select name="status" class="form-select">
-                <option value="Dipinjam">Dipinjam</option>
+                <option value="dipinjam">Dipinjam</option>
                 <option value="dikembalikan">Dikembalikan</option>
               </select>
             </div>
@@ -248,44 +271,37 @@ document.addEventListener('DOMContentLoaded', function () {
     btn.addEventListener('click', function () {
       const data = this.dataset;
       editForm.action = `/admin/riwayat/peminjaman/update/${data.id}`;
-      editForm.nama.value = data.nama;
-      editForm.npm.value = data.npm;
-      editForm.judul_buku.value = data.judul;
-      editForm.nomor_buku.value = data.nomor;
-      editForm.status.value = data.status;
+      editForm.querySelector('input[name="nama"]').value = data.nama;
+      editForm.querySelector('input[name="npm"]').value = data.npm;
+      editForm.querySelector('input[name="judul_buku"]').value = data.judul;
+      editForm.querySelector('input[name="nomor_buku"]').value = data.nomor;
+      editForm.querySelector('input[name="jumlah"]').value = data.jumlah;
+      editForm.querySelector('select[name="status"]').value = data.status;
       new bootstrap.Modal(document.getElementById('editModal')).show();
     });
   });
 
-  // Filter berdasarkan tanggal dan status + Cetak PDF
+  // Filter berdasarkan tanggal
   const dateInput = document.getElementById('filter-date');
   const downloadPdf = document.getElementById('downloadPdf');
 
   function applyFilters() {
     const rows = document.querySelectorAll('tbody tr');
     const selectedDate = dateInput.value ? new Date(dateInput.value) : null;
-    const selectedStatus = statusSelect.value.toLowerCase();
     let visibleCount = 0;
 
     rows.forEach(row => {
-      // Abaikan row "tidak ada data" jika sudah ada
       if (row.classList.contains('no-data-row')) return;
 
       const rowDate = new Date(row.dataset.date);
-      const rowStatus = row.dataset.status;
       let visible = true;
 
-      // Filter tanggal
       if (selectedDate && rowDate.toDateString() !== selectedDate.toDateString()) visible = false;
-      // Filter status
-      if (selectedStatus && rowStatus !== selectedStatus) visible = false;
 
       row.style.display = visible ? '' : 'none';
-
       if (visible) visibleCount++;
     });
 
-    // Tambahkan row "Tidak ada data yang ditemukan" jika tidak ada baris yang terlihat
     let tbody = document.querySelector('tbody');
     let noDataRow = tbody.querySelector('.no-data-row');
 
@@ -293,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!noDataRow) {
         noDataRow = document.createElement('tr');
         noDataRow.classList.add('no-data-row');
-        noDataRow.innerHTML = `<td colspan="9" class="text-center text-muted">Tidak ada data yang ditemukan</td>`;
+        noDataRow.innerHTML = `<td colspan="10" class="text-center text-muted">Tidak ada data yang ditemukan</td>`;
         tbody.appendChild(noDataRow);
       }
     } else {
@@ -301,18 +317,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Jalankan filter saat tanggal/status diubah
   dateInput.addEventListener('change', applyFilters);
-  statusSelect.addEventListener('change', applyFilters);
 
   // Tombol download PDF
   downloadPdf.addEventListener('click', function () {
-  const date = dateInput.value;
-  let url = `{{ route('admin.riwayat.peminjaman.pdf') }}?filter_date=${date}`;
-  window.open(url, '_blank');
-});
+    const date = dateInput.value;
+    let url = `{{ route('admin.riwayat.peminjaman.pdf') }}?filter_date=${date}`;
+    window.open(url, '_blank');
+  });
 
-  // Jalankan filter awal saat halaman dimuat
   applyFilters();
 });
 </script>

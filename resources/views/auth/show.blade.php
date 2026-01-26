@@ -228,9 +228,18 @@
         </div>
       </div>
 
-      {{-- Tombol kembali --}}
-      <div class="back-button">
-        <a href="{{ route('buku.index') }}">← Kembali</a>
+      {{-- Tombol Pinjam & Kembali --}}
+      <div class="back-button" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        @if(auth()->check())
+          <button 
+            class="btn btn-warning fw-bold"
+            onclick="pinjamBuku({{ $book->id }})">
+            📚 Pinjam Buku
+          </button>
+        @else
+          <a href="{{ route('login') }}" class="btn btn-warning fw-bold">📚 Login untuk Pinjam</a>
+        @endif
+        <a href="{{ route('buku.index') }}" class="btn btn-secondary fw-bold">← Kembali</a>
       </div>
     </div>
   </div>
@@ -269,5 +278,102 @@
       }, 3000); // Ganti setiap 4 detik
     }
   });
+</script>
+
+{{-- SweetAlert untuk Popup Peminjaman --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function pinjamBuku(bookId) {
+    // ✨ CEK TIPE LOGIN (multi-auth system)
+    const isGuru = {{ auth()->guard('guru')->check() ? 'true' : 'false' }};
+    const isUser = {{ auth()->guard('user')->check() ? 'true' : 'false' }};
+    const isUmum = {{ auth()->guard('umum')->check() ? 'true' : 'false' }};
+
+    if (isGuru) {
+        // GURU: Boleh pinjam lebih dari 1
+        Swal.fire({
+            title: '📚 Pinjam Buku',
+            text: 'Berapa buku yang ingin Anda pinjam?',
+            input: 'number',
+            inputAttributes: {
+                min: 1,
+                max: 10,
+                step: 1
+            },
+            inputValue: 1,
+            showCancelButton: true,
+            confirmButtonText: 'Pinjam',
+            confirmButtonColor: '#ffc107',
+            cancelButtonColor: '#6c757d',
+            preConfirm: (jumlah) => {
+                if (!jumlah || jumlah < 1) {
+                    Swal.showValidationMessage('Minimal 1 buku');
+                    return false;
+                }
+                if (jumlah > 10) {
+                    Swal.showValidationMessage('Maksimal 10 buku');
+                    return false;
+                }
+                return jumlah;
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                submitPinjam(bookId, result.value);
+            }
+        });
+    } else {
+        // USER / UMUM: Otomatis pinjam 1
+        Swal.fire({
+            title: '📚 Pinjam Buku',
+            text: 'Anda akan meminjam 1 buku',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Pinjam',
+            confirmButtonColor: '#ffc107',
+            cancelButtonColor: '#6c757d',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                submitPinjam(bookId, 1);
+            }
+        });
+    }
+}
+
+function submitPinjam(bookId, jumlah) {
+    fetch(`/pinjam/${bookId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ jumlah: jumlah })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: data.message,
+                confirmButtonColor: '#ffc107'
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: data.message,
+                confirmButtonColor: '#ffc107'
+            });
+        }
+    })
+    .catch(() => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal',
+            text: 'Terjadi kesalahan saat memproses peminjaman',
+            confirmButtonColor: '#ffc107'
+        });
+    });
+}
 </script>
 @endsection

@@ -81,7 +81,23 @@
 
   {{-- INFO BOXES --}}
   <div class="info-boxes">
-    <a href="{{ route('admin.riwayat.pengembalian.scankembali') }}" class="info-box" style="background: linear-gradient(135deg, #f7931e, #ffa94d); color:white; width: 320px; padding: 20px 24px;">
+    <a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}" class="info-box" style="background: linear-gradient(135deg, #f7931e, #ffa94d); color:white; width: 300px; padding: 20px 24px;">
+      <div class="info-box-content">
+        <h5>Peminjaman</h5>
+        <p>Kelola data peminjaman buku</p>
+      </div>
+      <i class="bi bi-book-half"></i>
+    </a>
+
+    <a href="{{ route('admin.riwayat.pengembalian.pengembalian') }}" class="info-box" style="background: linear-gradient(135deg, #f7931e, #ffa94d); color:white; width: 300px; padding: 20px 24px;">
+      <div class="info-box-content">
+        <h5>Pengembalian</h5>
+        <p>Kelola data pengembalian buku</p>
+      </div>
+      <i class="bi bi-arrow-counterclockwise"></i>
+    </a>
+
+    <a href="{{ route('admin.riwayat.pengembalian.scankembali') }}" class="info-box" style="background: linear-gradient(135deg, #4a7dff, #6c9dff); color:white; width: 320px; padding: 20px 24px;">
       <div class="info-box-content">
         <h5>Scan Pengembalian Buku</h5>
         <p>Scan barcode anggota & buku</p>
@@ -89,7 +105,7 @@
       <i class="bi bi-upc-scan"></i>
     </a>
 
-    <a href="{{ route('admin.riwayat.pengembalian.pengembalian') }}" class="info-box" style="background: linear-gradient(135deg, #f7931e, #ffa94d); color:white; width: 320px; padding: 20px 24px;">
+    <a href="{{ route('admin.riwayat.pengembalian.pengembalian') }}" class="info-box" style="background: linear-gradient(135deg, #4a7dff, #6c9dff); color:white; width: 320px; padding: 20px 24px;">
       <div class="info-box-content">
         <h5>Data Pengembalian Buku</h5>
         <p>Daftar pengembalian yang sedang berlangsung</p>
@@ -105,13 +121,11 @@
         <button type="submit" class="btn btn-primary btn-sm ms-2">Cari</button>
     </form>
 
-{{-- SORT & FILTER BAR --}}
+  {{-- SORT & FILTER BAR --}}
   <div class="sort-filter-bar">
     <label for="filter-date" class="fw-semibold">Pilih Tanggal:</label>
     <input type="date" id="filter-date" class="form-control"><br>
-
     <a href="{{ route('admin.riwayat.pengembalian.pdfkembali') }}" id="downloadPdf" class="btn btn-success">Download PDF</a>
-</div>
   </div>
 
   {{-- TABEL PENGEMBALIAN --}}
@@ -124,6 +138,7 @@
           <th>NPM</th>
           <th>Judul Buku</th>
           <th>Nomor Buku</th>
+          <th>Jumlah Kembali</th>
           <th>Tanggal Pinjam</th>
           <th>Tanggal Kembali</th>
           <th>Status</th>
@@ -138,6 +153,7 @@
           <td>{{ $p->npm }}</td>
           <td>{{ $p->judul_buku }}</td>
           <td>{{ $p->nomor_buku }}</td>
+          <td><strong>{{ $p->jumlah_kembali ?? 0 }}</strong></td>
           <td data-date="{{ $p->tanggal_pinjam }}">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</td>
           <td>
             @if($p->tanggal_kembali)
@@ -161,6 +177,7 @@
               data-npm="{{ $p->npm }}"
               data-judul="{{ $p->judul_buku }}"
               data-nomor="{{ $p->nomor_buku }}"
+              data-jumlah_kembali="{{ $p->jumlah_kembali ?? 0 }}"
               data-status="{{ $p->status }}"
               title="Edit Pengembalian">
                 <i class="bi bi-pencil"></i>
@@ -176,7 +193,7 @@
         </tr>
         @empty
         <tr>
-          <td colspan="9" class="text-center text-muted">Belum ada data pengembalian</td>
+        <tr><td colspan="10" class="text-center text-muted">Belum ada data pengembalian</td></tr>
         </tr>
         @endforelse
       </tbody>
@@ -212,9 +229,13 @@
               <input type="text" name="nomor_buku" class="form-control" required>
             </div>
             <div class="mb-2">
+              <label>Jumlah Kembali</label>
+              <input type="number" name="jumlah_kembali" class="form-control" min="0" required>
+            </div>
+            <div class="mb-2">
               <label>Status</label>
               <select name="status" class="form-select">
-                <option value="Dipinjam">Dipinjam</option>
+                <option value="dipinjam">Dipinjam</option>
                 <option value="dikembalikan">Dikembalikan</option>
               </select>
             </div>
@@ -235,34 +256,31 @@
 document.addEventListener('DOMContentLoaded', function () {
   const table = document.getElementById('tablePengembalian');
   const dateInput = document.getElementById('filter-date');
-  const statusFilter = document.getElementById('status-filter');
   const pdfButton = document.getElementById('downloadPdf');
 
-  // FILTER LOGIC
+  // FILTER LOGIC BY DATE
   function applyFilters() {
     const selectedDate = dateInput.value ? new Date(dateInput.value) : null;
-    const selectedStatus = statusFilter.value.toLowerCase();
 
     table.querySelectorAll('tbody tr').forEach(row => {
-      const rowDate = new Date(row.dataset.date);
-      const rowStatus = row.dataset.status;
+      const dateCell = row.querySelector('td[data-date]');
+      if (!dateCell) return;
+      
+      const rowDate = new Date(dateCell.dataset.date);
       let visible = true;
 
       if (selectedDate && rowDate.toDateString() !== selectedDate.toDateString()) visible = false;
-      if (selectedStatus && rowStatus !== selectedStatus) visible = false;
 
       row.style.display = visible ? '' : 'none';
     });
   }
 
   dateInput.addEventListener('change', applyFilters);
-  statusFilter.addEventListener('change', applyFilters);
 
   // CETAK PDF
   pdfButton.addEventListener('click', function () {
     const date = dateInput.value;
-    const status = statusFilter.value;
-    const url = `{{ route('admin.riwayat.pengembalian.pdfkembali') }}?filter_date=${date}&filter_status=${status}`;
+    const url = `{{ route('admin.riwayat.pengembalian.pdfkembali') }}?filter_date=${date}`;
     window.open(url, '_blank');
   });
 
@@ -272,11 +290,12 @@ document.addEventListener('DOMContentLoaded', function () {
       const data = this.dataset;
       const form = document.getElementById('editForm');
       form.action = `/admin/riwayat/pengembalian/update/${data.id}`;
-      form.nama.value = data.nama;
-      form.npm.value = data.npm;
-      form.judul_buku.value = data.judul;
-      form.nomor_buku.value = data.nomor;
-      form.status.value = data.status;
+      form.querySelector('input[name="nama"]').value = data.nama;
+      form.querySelector('input[name="npm"]').value = data.npm;
+      form.querySelector('input[name="judul_buku"]').value = data.judul;
+      form.querySelector('input[name="nomor_buku"]').value = data.nomor;
+      form.querySelector('input[name="jumlah_kembali"]').value = data.jumlah_kembali;
+      form.querySelector('select[name="status"]').value = data.status;
       new bootstrap.Modal(document.getElementById('editModal')).show();
     });
   });

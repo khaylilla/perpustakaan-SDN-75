@@ -63,7 +63,7 @@ class BookController extends Controller
         $nomor_buku = $request->nomor_buku;
         if (!$nomor_buku) {
             $year = now()->year;
-            $nomor_buku = 'BK-' . $year . '-' . $request->barcode;
+            $nomor_buku = $request->barcode;
         }
 
         // Handle e-book (prioritas: file upload > URL)
@@ -125,7 +125,7 @@ class BookController extends Controller
         $nomor_buku = $request->nomor_buku;
         if (!$nomor_buku || $book->barcode !== $request->barcode) {
             $year = now()->year;
-            $nomor_buku = 'BK-' . $year . '-' . $request->barcode;
+            $nomor_buku = $request->barcode;
         }
 
         // Handle e-book update
@@ -148,15 +148,27 @@ class BookController extends Controller
             $ebook = $request->ebook_url;
         }
 
+        // Isi data umum dulu
+        $book->fill($request->except(['cover', 'nomor_buku', 'barcode', 'ebook_url', 'ebook_file']));
+        $book->nomor_buku = $nomor_buku;
+        $book->barcode = $request->barcode;
+        $book->ebook = $ebook;
+
+        // HANDLE COVER TERAKHIR (setelah fill, agar tidak ke-reset)
         if ($request->hasFile('cover')) {
-            $oldCovers = json_decode($book->cover, true);
-            if ($oldCovers) {
-                foreach ($oldCovers as $oldCover) {
-                    if (Storage::disk('public')->exists($oldCover)) {
-                        Storage::disk('public')->delete($oldCover);
+            // Hapus cover lama
+            if ($book->cover) {
+                $oldCovers = json_decode($book->cover, true);
+                if ($oldCovers) {
+                    foreach ($oldCovers as $oldCover) {
+                        if (Storage::disk('public')->exists($oldCover)) {
+                            Storage::disk('public')->delete($oldCover);
+                        }
                     }
                 }
             }
+            
+            // Upload cover baru
             $newCovers = [];
             foreach ($request->file('cover') as $file) {
                 $newCovers[] = $file->store('covers', 'public');
@@ -164,10 +176,6 @@ class BookController extends Controller
             $book->cover = json_encode($newCovers);
         }
 
-        $book->fill($request->except(['cover', 'nomor_buku', 'barcode', 'ebook_url', 'ebook_file']));
-        $book->nomor_buku = $nomor_buku;
-        $book->barcode = $request->barcode;
-        $book->ebook = $ebook;
         $book->save();
 
         return redirect()->route('admin.datakoleksi')->with('success', 'Data koleksi berhasil diperbarui!');

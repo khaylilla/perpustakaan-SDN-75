@@ -127,6 +127,9 @@ Route::get('/buku/kategori/{kategori}', [BukuController::class, 'kategori'])->na
 // Halaman detail buku
 Route::get('/buku/{id}', [BookController::class, 'showBook'])->name('buku.show');
 
+// ✨ ROUTE PEMINJAMAN BUKU (User/Guru/Umum)
+Route::post('/pinjam/{book}', [PeminjamanController::class, 'store'])->middleware('auth');
+
 Route::get('/artikel', [AuthController::class, 'artikel'])->name('auth.artikel');
 Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
 
@@ -187,7 +190,7 @@ Route::prefix('admin')->middleware('check.admin')->group(function () {
   // ======== Manajemen Riwayat ========
     Route::prefix('riwayat')->group(function () {
 
-    Route::get('/', [RiwayatController::class, 'datariwayat'])->name('admin.datariwayat');
+    Route::get('/', [RiwayatController::class, 'indexPeminjaman'])->name('admin.riwayat.peminjaman.peminjaman');
 
     // ========== PEMINJAMAN ==========
     Route::prefix('peminjaman')->group(function () {

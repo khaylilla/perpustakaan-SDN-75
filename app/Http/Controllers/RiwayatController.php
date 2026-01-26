@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Guru;
+use App\Models\Umum;
 use App\Models\User;
 use App\Models\Book;
 use App\Models\Peminjaman;
@@ -22,11 +24,38 @@ class RiwayatController extends Controller
         return view('admin.riwayat.pengembalian.scankembali');
     }
 
-    // Ambil info user (ajax)
-    public function getUser($npm)
+    // Ambil info user (ajax) - cek Guru & Umum & User
+    public function getUser($kode)
     {
-        $user = User::where('npm', $npm)->first();
-        return response()->json($user ? ['nama' => $user->nama] : []);
+        // Cek tabel guru berdasarkan NIP
+        $guru = Guru::where('nip', $kode)->first();
+        if ($guru) {
+            return response()->json([
+                'nama' => $guru->nama,
+                'peminjam_tipe' => 'guru'
+            ]);
+        }
+
+        // Cek tabel umum berdasarkan email
+        $umum = Umum::where('email', $kode)->first();
+
+        if ($umum) {
+            return response()->json([
+                'nama' => $umum->nama,
+                'peminjam_tipe' => 'umum'
+            ]);
+        }
+
+        // Cek tabel user (siswa) berdasarkan NISN
+        $siswa = User::where('nisn', $kode)->first();
+        if ($siswa) {
+            return response()->json([
+                'nama' => $siswa->nama,
+                'peminjam_tipe' => 'user'
+            ]);
+        }
+
+        return response()->json([]);
     }
 
     // Ambil info buku (ajax peminjaman)
@@ -54,35 +83,95 @@ class RiwayatController extends Controller
     public function prosesPeminjaman(Request $request)
     {
         $request->validate([
-            'npm' => 'required|exists:users,npm',
+            'npm' => 'required',
             'nomor_buku' => 'required|exists:books,nomor_buku',
+            'jumlah' => 'nullable|integer|min:1',
         ]);
 
-        $user = User::where('npm', $request->npm)->first();
+        $jumlah = $request->jumlah ?? 1;
+        $identitas = $request->npm;
+
+        // ✨ CEK TABEL GURU berdasarkan NIP
+        $guru = Guru::where('nip', $identitas)->first();
+        if ($guru) {
+            $user = $guru;
+            $peminjamTipe = 'guru';
+        } else {
+            // CEK TABEL UMUM berdasarkan email
+            $umum = Umum::where('email', $identitas)->first();
+
+            if ($umum) {
+                $user = $umum;
+                $peminjamTipe = 'umum';
+            } else {
+                // CEK TABEL USER (siswa) berdasarkan NISN
+                $siswa = User::where('nisn', $identitas)->first();
+                if ($siswa) {
+                    $user = $siswa;
+                    $peminjamTipe = 'user';
+                }
+            }
+        }
+
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
+        }
+
         $book = Book::where('nomor_buku', $request->nomor_buku)->first();
 
-        if ($book->jumlah <= 0) {
-            return response()->json(['message' => 'Buku ini sedang habis/stok 0'], 400);
+        if (!$book || $book->jumlah < $jumlah) {
+            return response()->json(['message' => 'Buku ini sedang habis/stok tidak mencukupi. Stok tersedia: ' . ($book->jumlah ?? 0)], 400);
+        }
+
+        // ✨ BATASAN PEMINJAMAN: Guru boleh unlimited, Siswa & Umum hanya 1
+        if ($peminjamTipe !== 'guru') {
+            // Siswa & Umum dibatasi 1 buku total (bukan 1 jumlah)
+            $kodeIdentitas = $peminjamTipe === 'user' ? $user->nisn : $user->email;
+            
+            $jumlahPinjam = Peminjaman::where('npm', $kodeIdentitas)
+                ->where('status', 'dipinjam')
+                ->count();
+
+            if ($jumlahPinjam >= 1) {
+                return response()->json([
+                    'message' => 'Peminjaman gagal. ' . ucfirst($peminjamTipe) . ' hanya boleh meminjam 1 buku sekaligus.'
+                ], 400);
+            }
+            
+            // Force jumlah = 1 untuk non-guru
+            $jumlah = 1;
         }
 
         $tanggalPinjam = Carbon::now();
         $tanggalKembali = $tanggalPinjam->copy()->addDays(7);
 
+        // Simpan ke peminjaman - Guru pakai NIP, Umum pakai email, Siswa pakai NISN
+        if ($peminjamTipe === 'guru') {
+            $kodeIdentitas = $user->nip;
+        } elseif ($peminjamTipe === 'umum') {
+            $kodeIdentitas = $user->email;
+        } else {
+            $kodeIdentitas = $user->nisn;
+        }
+
+        // Buat 1 record peminjaman dengan jumlah
         Peminjaman::create([
             'nama' => $user->nama,
-            'npm' => $user->npm,
+            'npm' => $kodeIdentitas,
             'judul_buku' => $book->judul,
             'nomor_buku' => $book->nomor_buku,
+            'jumlah' => $jumlah,
             'tanggal_pinjam' => $tanggalPinjam,
             'tanggal_kembali' => $tanggalKembali,
             'status' => 'dipinjam',
         ]);
 
-        $book->jumlah -= 1;
+        // Kurangi stok buku
+        $book->decrement('jumlah', $jumlah);
         $book->status = $book->jumlah <= 0 ? 'dipinjam' : 'tersedia';
         $book->save();
 
-        return response()->json(['message' => 'Peminjaman berhasil diproses!']);
+        return response()->json(['message' => 'Peminjaman berhasil diproses! ' . $jumlah . ' buku dipinjam sampai ' . $tanggalKembali->format('d/m/Y')]);
     }
 
     // Proses pengembalian
@@ -91,57 +180,53 @@ class RiwayatController extends Controller
         $request->validate([
             'npm' => 'required',
             'nomor_buku' => 'required',
+            'jumlah' => 'nullable|integer|min:1',
         ]);
 
         $npm = $request->npm;
         $nomorBuku = $request->nomor_buku;
+        $jumlah = $request->jumlah ?? 1;
 
-        $user = User::where('npm', $npm)->first();
-        if (!$user) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User tidak ditemukan.'
-            ], 404);
-        }
-
+        // Cek book exists
         $book = Book::where('nomor_buku', $nomorBuku)->first();
         if (!$book) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Buku tidak ditemukan.'
-            ], 404);
+            return response()->json(['message' => 'Buku tidak ditemukan.'], 404);
         }
 
+        // Cari peminjaman yang aktif (dipinjam) untuk npm ini
         $peminjaman = Peminjaman::where('npm', $npm)
             ->where('nomor_buku', $nomorBuku)
             ->where('status', 'dipinjam')
             ->first();
 
         if (!$peminjaman) {
+            return response()->json(['message' => 'Buku ini tidak sedang dipinjam oleh anggota ini.'], 400);
+        }
+
+        // ✨ BATASAN PENGEMBALIAN: Siswa & Umum hanya boleh mengembalikan 1 buku
+        // Cek tipe peminjam berdasarkan npm (email untuk umum, nisn untuk siswa, nip untuk guru)
+        $guru = Guru::where('nip', $npm)->first();
+        $umum = Umum::where('email', $npm)->first();
+        $siswa = User::where('nisn', $npm)->first();
+
+        if (($umum || $siswa) && $jumlah > 1) {
             return response()->json([
-                'status' => 'error',
-                'message' => 'Buku ini tidak sedang dipinjam oleh anggota.'
+                'message' => 'Pengembalian gagal. Siswa dan Umum hanya boleh mengembalikan maksimal 1 buku.'
             ], 400);
         }
 
-        $book->jumlah += 1;
-        $book->status = 'tersedia';
-        $book->save();
-
+        // Update peminjaman status menjadi dikembalikan dan set jumlah_kembali
         $peminjaman->status = 'dikembalikan';
+        $peminjaman->jumlah_kembali = $jumlah;
         $peminjaman->tanggal_kembali = now();
         $peminjaman->save();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Buku berhasil dikembalikan.'
-        ]);
-    }
+        // Increment stock buku sesuai jumlah yang dikembalikan
+        $book->increment('jumlah', $jumlah);
+        $book->status = $book->jumlah > 0 ? 'tersedia' : 'dipinjam';
+        $book->save();
 
-    // Halaman manajemen riwayat (3 kotak)
-    public function datariwayat()
-    {
-        return view('admin.datariwayat');
+        return response()->json(['message' => 'Pengembalian berhasil diproses! ' . $jumlah . ' buku dikembalikan.']);
     }
 
     // Halaman daftar peminjaman
@@ -270,68 +355,11 @@ class RiwayatController extends Controller
         return redirect()->route('admin.riwayat.peminjaman.peminjaman')->with('success', 'Data peminjaman berhasil diperbarui!');
     }
 
-    // Halaman denda
-    public function denda()
-    {
-        return view('admin.riwayat.denda');
-    }
-
     // Export PDF peminjaman
     public function exportPdf(Request $request)
     {
         $peminjaman = Peminjaman::where('status', 'Dipinjam')->get();
         $pdf = \PDF::loadView('admin.riwayat.peminjaman.pdf', compact('peminjaman'));
         return $pdf->download('peminjaman_dipinjam.pdf');
-    }
-
-    // =========================
-//  AUTO PINDAH DENDA
-// =========================
-public function cekDanPindahDenda()
-{
-    $hariIni = Carbon::now()->toDateString();
-
-    // Ambil peminjaman yang masih dipinjam tapi sudah lewat tanggal kembali
-    $peminjamanTerlambat = Peminjaman::where('status', 'dipinjam')
-        ->where('tanggal_kembali', '<', $hariIni)
-        ->get();
-
-    foreach ($peminjamanTerlambat as $peminjaman) {
-
-        $hariTerlambat = Carbon::parse($peminjaman->tanggal_kembali)
-            ->diffInDays(Carbon::now());
-
-        $nominalPerHari = 1000;
-        $totalDenda = $hariTerlambat * $nominalPerHari;
-
-        // Pindahkan/Update ke tabel denda
-        \App\Models\Denda::updateOrCreate(
-            [
-                'npm' => $peminjaman->npm,
-                'nomor_buku' => $peminjaman->nomor_buku,
-            ],
-            [
-                'nama' => $peminjaman->nama,
-                'judul_buku' => $peminjaman->judul_buku,
-                'tanggal_pinjam' => $peminjaman->tanggal_pinjam,
-                'tanggal_kembali' => $peminjaman->tanggal_kembali,
-                'hari_terlambat' => $hariTerlambat,
-                'total_denda' => $totalDenda,
-            ]
-        );
-
-        // Update status peminjaman jadi 'terlambat'
-        $peminjaman->status = 'terlambat';
-        $peminjaman->save();
-    }
-}
-
-    // Export PDF pengembalian
-    public function exportPdfPengembalian(Request $request)
-    {
-        $peminjaman = Peminjaman::where('status', 'dikembalikan')->get();
-        $pdf = \PDF::loadView('admin.riwayat.pengembalian.pdfkembali', compact('peminjaman'))
-          ->setPaper('a4', 'landscape');
-        return $pdf->download('data_pengembalian.pdf');
     }
 }

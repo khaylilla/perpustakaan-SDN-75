@@ -202,7 +202,7 @@
         <li><a href="{{ route('admin.dashboard') }}" ><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
         <li><a href="{{ route('admin.datauser') }}"><i class="bi bi-people me-2"></i>Manajemen Data User</a></li>
         <li><a href="{{ route('admin.datakoleksi') }}"><i class="bi bi-book me-2"></i>Manajemen Koleksi</a></li>
-        <li><a href="{{ route('admin.datariwayat') }}"><i class="bi bi-journal-text me-2"></i>Manajemen Riwayat</a></li>
+        <li><a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}"><i class="bi bi-journal-text me-2"></i>Manajemen Riwayat</a></li>
       </ul>
     </div>
 
