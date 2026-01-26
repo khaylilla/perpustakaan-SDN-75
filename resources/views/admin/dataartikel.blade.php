@@ -3,361 +3,418 @@
 @section('page-title', 'Manajemen Data Artikel')
 
 @section('content')
+
 <style>
-  /* === HEADER BOX === */
-  .info-boxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 25px;
-  }
-  .info-box {
-    background: linear-gradient(135deg, #f7931e, #ffa94d);
-    color: white;
-    border-radius: 16px;
-    width: 260px;
-    padding: 16px 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-decoration: none;
-    transition: all 0.2s ease;
-  }
-  .info-box:hover { transform: translateY(-4px); }
-  .info-box i { font-size: 32px; opacity: 0.8; }
-  .info-box-content h5 { margin: 0; font-weight: 700; font-size: 16px; }
-  .info-box-content p { font-size: 13px; margin: 3px 0 0; }
+    /* === THEME CUSTOMIZATION === */
+    :root {
+        --primary-navy: #020617;
+        --accent-gold: #f7931e;
+        --soft-gold: rgba(247, 147, 30, 0.1);
+        --white: #ffffff;
+    }
 
-  /* === SEARCH BAR === */
-  .search-bar {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    margin-bottom: 15px;
-    width: 100%;
-    max-width: 750px;
-  }
-  .search-bar i {
-    color: #666;
-    font-size: 18px;
-  }
-  .search-bar input {
-    border: none;
-    outline: none;
-    flex: 1;
-    font-size: 14px;
-    padding-left: 10px;
-  }
-  .search-bar .btn {
-    white-space: nowrap;
-    font-size: 14px;
-    border-radius: 8px;
-    padding: 6px 14px;
-  }
+    /* === STAT CARDS === */
+    .stat-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        height: 100%;
+    }
 
-  /* === TABLE === */
-  .table-container {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    overflow-x: auto;
-    margin-top: 10px;
-    padding: 10px;
-    max-height: 650px;
-  }
-  table {
-    margin-bottom: 0;
-    min-width: 1100px;
-    width: 100%;
-    border-collapse: collapse;
-  }
-  table th, table td {
-    vertical-align: middle !important;
-    text-align: center;
-    font-size: 13px;
-    padding: 10px 8px;
-    border: 1px solid #ddd;
-  }
-  table th {
-    background-color: #f2f2f2;
-    color: #333;
-    font-weight: 600;
-  }
-  .table tbody tr:hover { background-color: #f8f9ff; }
+    .stat-card:hover { transform: translateY(-5px); }
 
-  /* === Badge Kategori === */
-  .badge-kategori {
-    padding: 5px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-block;
-  }
-  .badge-informasi { background-color: #3498db; color: white; }
-  .badge-berita { background-color: #e74c3c; color: white; }
-  .badge-artikel { background-color: #27ae60; color: white; }
+    .stat-card .icon-box {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
 
-  /* === ACTION ICONS === */
-  .action-icons i {
-    font-size: 18px;
-    cursor: pointer;
-    margin: 0 6px;
-    transition: color 0.2s;
-  }
-  .action-icons .edit { color: #f39c12; }
-  .action-icons .edit:hover { color: #d68910; }
-  .action-icons .delete { color: #e74c3c; }
-  .action-icons .delete:hover { color: #c0392b; }
+    .bg-soft-gold { background: var(--soft-gold); color: var(--accent-gold); }
+    .bg-soft-navy { background: rgba(2, 6, 23, 0.05); color: var(--primary-navy); }
 
-  /* === BUTTON ADD === */
-  .btn-add {
-    background-color: #4a4ca4;
-    color: #fff;
-    border-radius: 8px;
-    font-weight: 600;
-    padding: 8px 14px;
-    transition: 0.2s;
-  }
-  .btn-add:hover { background-color: #3c3f91; color: #fff; }
+    /* === MANAGEMENT CONTAINER === */
+    .management-card {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: none;
+        padding: 25px;
+        margin-top: 20px;
+    }
 
-  @media (max-width: 768px) {
-    .info-boxes { flex-direction: column; align-items: stretch; }
-    .info-box { width: 100%; }
-  }
+    /* === FILTER/SEARCH SECTION === */
+    .filter-section {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .search-input-group {
+        position: relative;
+        flex-grow: 1;
+    }
+
+    .search-input-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    .search-input-group input {
+        padding-left: 45px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* === TABLE STYLE === */
+    .custom-table-container {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .table thead {
+        background: var(--primary-navy);
+        color: white;
+    }
+
+    .table thead th {
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        padding: 15px;
+        border: none;
+    }
+
+    .table tbody td {
+        padding: 15px;
+        vertical-align: middle;
+        font-size: 13.5px;
+        color: #475569;
+    }
+
+    .artikel-img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* === BADGES === */
+    .badge-kat {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 11px;
+    }
+    .kat-informasi { background: #e0f2fe; color: #0369a1; }
+    .kat-berita { background: #fef2f2; color: #991b1b; }
+    .kat-artikel { background: #dcfce7; color: #166534; }
+
+    /* === BUTTONS === */
+    .btn-gold {
+        background: var(--accent-gold);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 10px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-gold:hover {
+        background: #e68516;
+        color: white;
+        box-shadow: 0 4px 12px rgba(247, 147, 30, 0.3);
+    }
+
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin: 0 2px;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    .btn-edit { background: #fef3c7; color: #d97706; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-view { background: #e0f2fe; color: #0369a1; }
+    .btn-edit:hover { background: #fcd34d; }
+    .btn-delete:hover { background: #fecaca; }
+
+    /* === MODAL STYLE === */
+    .modal-content { border-radius: 20px; border: none; overflow: hidden; }
+    .modal-header { padding: 20px 30px; border: none; }
+    .form-control, .form-select { border-radius: 10px; padding: 10px 15px; }
 </style>
 
-<div class="container-fluid">
-  {{-- HEADER BAR --}}
-  <div class="info-boxes">
-    <a href="{{ route('admin.datakoleksi') }}" class="info-box">
-      <div class="info-box-content">
-        <h5>Manajemen Koleksi</h5>
-        <p>Buku & Artikel</p>
-      </div>
-      <i class="bi bi-journal-bookmark-fill"></i>
-    </a>
-    <a href="{{ route('admin.dataartikel') }}" class="info-box">
-      <div class="info-box-content">
-        <h5>Manajemen Artikel</h5>
-        <p>Artikel Informasi</p>
-      </div>
-      <i class="bi bi-file-text-fill"></i>
-    </a>
-    <button class="btn btn-add ms-auto" data-bs-toggle="modal" data-bs-target="#addModal">
-      <i class="bi bi-plus-lg me-1"></i> Tambah Artikel
-    </button>
-  </div>
+<div class="container-fluid py-3">
 
-  {{-- SEARCH --}}
-  <form action="{{ route('admin.dataartikel') }}" method="GET" class="search-bar mb-3">
-    <i class="bi bi-search"></i>
-    <input type="text" name="keyword" placeholder="Cari judul artikel..." value="{{ request('keyword') }}">
-    <button type="submit" class="btn btn-primary btn-sm ms-2">Cari</button>
-  </form>
-
-  {{-- ALERT --}}
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-
-  {{-- TABLE --}}
-  <div class="table-container">
-    <table class="table align-middle mb-0">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Kategori</th>
-          <th>Judul</th>
-          <th>Sub Judul</th>
-          <th>Isi</th>
-          <th>Foto</th>
-          <th>Link</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        @forelse ($artikels as $artikel)
-        <tr>
-          <td>{{ $loop->iteration }}</td>
-          <td>
-            @php
-              $kategoriBadge = [
-                'Informasi/Pengumuman' => 'badge-informasi',
-                'Berita' => 'badge-berita',
-                'Artikel' => 'badge-artikel'
-              ];
-            @endphp
-            <span class="badge-kategori {{ $kategoriBadge[$artikel->kategori] ?? 'badge-informasi' }}">
-              {{ $artikel->kategori }}
-            </span>
-          </td>
-          <td style="text-align: left;"><strong>{{ $artikel->judul }}</strong></td>
-          <td style="text-align: left;">{{ $artikel->subjudul ?? '-' }}</td>
-          <td style="text-align: left;">{{ Str::limit($artikel->isi, 50) }}</td>
-          <td>
-            @if($artikel->foto)
-              <img src="{{ asset('storage/' . $artikel->foto) }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
-            @else
-              <span class="text-muted">-</span>
-            @endif
-          </td>
-          <td>
-            @if($artikel->link)
-              <a href="{{ $artikel->link }}" target="_blank" class="text-primary">
-                <i class="bi bi-link-45deg"></i>
-              </a>
-            @else
-              <span class="text-muted">-</span>
-            @endif
-          </td>
-          <td class="action-icons">
-            <i class="bi bi-pencil-square edit" data-bs-toggle="modal" data-bs-target="#editModal{{ $artikel->id }}" title="Edit"></i>
-            <i class="bi bi-trash delete" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $artikel->id }}" title="Hapus"></i>
-            <a href="{{ route('artikel.show', $artikel->id) }}" target="_blank" class="text-info" title="Lihat">
-              <i class="bi bi-eye"></i>
-            </a>
-          </td>
-        </tr>
-
-        {{-- Modal Edit --}}
-        <div class="modal fade" id="editModal{{ $artikel->id }}" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <form method="POST" action="{{ route('admin.dataartikel.update', $artikel->id) }}" enctype="multipart/form-data">
-              @csrf
-              @method('PUT')
-              <div class="modal-content">
-                <div class="modal-header bg-warning">
-                  <h5 class="modal-title">Edit Artikel</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="row g-3 mb-4">
+        <div class="col-md-8">
+            <div class="stat-card">
+                <div class="icon-box bg-soft-navy">
+                    <i class="bi bi-file-text"></i>
                 </div>
-                <div class="modal-body">
-                  <div class="row g-3">
-                    <div class="col-md-6">
-                      <label>Kategori <span class="text-danger">*</span></label>
-                      <select name="kategori" class="form-select" required>
-                        <option value="">-- Pilih Kategori --</option>
-                        <option value="Informasi/Pengumuman" {{ $artikel->kategori == 'Informasi/Pengumuman' ? 'selected' : '' }}>Informasi/Pengumuman</option>
-                        <option value="Berita" {{ $artikel->kategori == 'Berita' ? 'selected' : '' }}>Berita</option>
-                        <option value="Artikel" {{ $artikel->kategori == 'Artikel' ? 'selected' : '' }}>Artikel</option>
-                      </select>
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div>
+                        <h6 class="mb-1 fw-bold">Manajemen Data Artikel</h6>
+                        <p class="text-muted small mb-0">Kelola berita, pengumuman, dan artikel literasi sekolah.</p>
                     </div>
-                    <div class="col-md-6">
-                      <label>Judul <span class="text-danger">*</span></label>
-                      <input type="text" name="judul" value="{{ $artikel->judul }}" class="form-control" required>
+                    <div class="text-end">
+                        <span class="fs-4 fw-bold text-dark">{{ $artikels->count() }}</span>
+                        <small class="d-block text-muted" style="font-size: 10px; text-transform: uppercase;">Total Konten</small>
                     </div>
-                    <div class="col-md-6">
-                      <label>Sub Judul (Opsional)</label>
-                      <input type="text" name="subjudul" value="{{ $artikel->subjudul ?? '' }}" class="form-control">
-                    </div>
-                    <div class="col-md-6">
-                      <label>Link Artikel (Opsional)</label>
-                      <input type="url" name="link" value="{{ $artikel->link ?? '' }}" class="form-control" placeholder="https://...">
-                    </div>
-                    <div class="col-md-12">
-                      <label>Isi Artikel <span class="text-danger">*</span></label>
-                      <textarea name="isi" rows="5" class="form-control" required>{{ $artikel->isi }}</textarea>
-                    </div>
-                    <div class="col-md-12">
-                      <label>Foto (Opsional)</label>
-                      <input type="file" name="foto" class="form-control" accept="image/*">
-                      @if($artikel->foto)
-                        <small class="text-muted">Foto saat ini: <a href="{{ asset('storage/' . $artikel->foto) }}" target="_blank">Lihat</a></small>
-                      @endif
-                    </div>
-                  </div>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                  <button type="submit" class="btn btn-warning text-white">Simpan</button>
-                </div>
-              </div>
-            </form>
-          </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-gold w-100 h-100 py-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-circle-fill fs-5"></i>
+                <span class="fs-6">Tambah Artikel Baru</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="management-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0"><i class="bi bi-card-text me-2 text-warning"></i> Daftar Artikel & Berita</h5>
         </div>
 
-        {{-- Modal Hapus --}}
-        <div class="modal fade" id="deleteModal{{ $artikel->id }}" tabindex="-1" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <form method="POST" action="{{ route('admin.dataartikel.destroy', $artikel->id) }}">
-              @csrf
-              @method('DELETE')
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h5 class="modal-title text-danger">Hapus Artikel</h5>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="filter-section">
+            <form action="{{ route('admin.dataartikel') }}" method="GET" class="row g-3">
+                <div class="col-lg-10 col-md-9">
+                    <div class="search-input-group">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="keyword" class="form-control" placeholder="Cari judul artikel..." value="{{ request('keyword') }}">
+                    </div>
                 </div>
-                <div class="modal-body">
-                  Apakah kamu yakin ingin menghapus <strong>{{ $artikel->judul }}</strong>?
+                <div class="col-lg-2 col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel me-1"></i> Filter
+                    </button>
                 </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                  <button type="submit" class="btn btn-danger">Hapus</button>
-                </div>
-              </div>
             </form>
-          </div>
         </div>
-        @empty
-          <tr><td colspan="8" class="text-muted">Belum ada artikel yang ditambahkan.</td></tr>
-        @endforelse
-      </tbody>
-    </table>
-  </div>
+
+        @if(session('success'))
+            <div class="alert alert-success border-0 shadow-sm mb-4">{{ session('success') }}</div>
+        @endif
+
+        <div class="custom-table-container">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th>Media</th>
+                            <th>Informasi Artikel</th>
+                            <th>Kategori</th>
+                            <th>Ringkasan</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($artikels as $artikel)
+                        <tr>
+                            <td class="text-center text-muted">{{ $loop->iteration }}</td>
+                            <td>
+                                @if($artikel->foto)
+                                    <img src="{{ asset('storage/' . $artikel->foto) }}" class="artikel-img" alt="foto">
+                                @else
+                                    <div class="artikel-img bg-light d-flex align-items-center justify-content-center text-muted" style="font-size: 10px;">No Image</div>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ $artikel->judul }}</div>
+                                <small class="text-muted">{{ $artikel->subjudul ?? '-' }}</small>
+                                @if($artikel->link)
+                                <div class="mt-1">
+                                    <a href="{{ $artikel->link }}" target="_blank" class="text-primary text-decoration-none" style="font-size: 11px;">
+                                        <i class="bi bi-link-45deg"></i> Lihat Sumber
+                                    </a>
+                                </div>
+                                @endif
+                            </td>
+                            <td>
+                                @php
+                                    $badgeClass = [
+                                        'Informasi/Pengumuman' => 'kat-informasi',
+                                        'Berita' => 'kat-berita',
+                                        'Artikel' => 'kat-artikel'
+                                    ];
+                                @endphp
+                                <span class="badge-kat {{ $badgeClass[$artikel->kategori] ?? 'kat-informasi' }}">
+                                    {{ $artikel->kategori }}
+                                </span>
+                            </td>
+                            <td style="max-width: 250px;">
+                                <div class="text-truncate text-muted" style="font-size: 12px;">
+                                    {{ Str::limit($artikel->isi, 80) }}
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center">
+                                    <a href="{{ route('artikel.show', $artikel->id) }}" target="_blank" class="action-btn btn-view" title="Lihat">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" class="action-btn btn-edit" data-bs-toggle="modal" data-bs-target="#editModal{{ $artikel->id }}" title="Edit">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" class="action-btn btn-delete" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $artikel->id }}" title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        {{-- Modal Edit (Reuse current structure with better styling) --}}
+                        <div class="modal fade" id="editModal{{ $artikel->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <form method="POST" action="{{ route('admin.dataartikel.update', $artikel->id) }}" enctype="multipart/form-data">
+                                    @csrf @method('PUT')
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-warning">
+                                            <h5 class="modal-title fw-bold text-white">Edit Artikel</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body p-4">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Kategori</label>
+                                                    <select name="kategori" class="form-select" required>
+                                                        <option value="Informasi/Pengumuman" {{ $artikel->kategori == 'Informasi/Pengumuman' ? 'selected' : '' }}>Informasi/Pengumuman</option>
+                                                        <option value="Berita" {{ $artikel->kategori == 'Berita' ? 'selected' : '' }}>Berita</option>
+                                                        <option value="Artikel" {{ $artikel->kategori == 'Artikel' ? 'selected' : '' }}>Artikel</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Judul</label>
+                                                    <input type="text" name="judul" value="{{ $artikel->judul }}" class="form-control" required>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label">Isi Artikel</label>
+                                                    <textarea name="isi" rows="5" class="form-control" required>{{ $artikel->isi }}</textarea>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label">Update Foto (Kosongkan jika tidak diubah)</label>
+                                                    <input type="file" name="foto" class="form-control" accept="image/*">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-warning text-white fw-bold px-4">Simpan Perubahan</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        {{-- Modal Delete --}}
+                        <div class="modal fade" id="deleteModal{{ $artikel->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <form method="POST" action="{{ route('admin.dataartikel.destroy', $artikel->id) }}">
+                                    @csrf @method('DELETE')
+                                    <div class="modal-content">
+                                        <div class="modal-body text-center p-5">
+                                            <i class="bi bi-exclamation-circle text-danger display-1 mb-4"></i>
+                                            <h4 class="fw-bold">Hapus Artikel?</h4>
+                                            <p class="text-muted">Artikel "<strong>{{ $artikel->judul }}</strong>" akan dihapus secara permanen.</p>
+                                            <div class="mt-4">
+                                                <button type="button" class="btn btn-light px-4 me-2" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-danger px-4">Ya, Hapus</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Belum ada artikel yang ditambahkan.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{-- Modal Tambah --}}
 <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <form method="POST" action="{{ route('admin.dataartikel.store') }}" enctype="multipart/form-data">
-      @csrf
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title">Tambah Artikel</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label>Kategori <span class="text-danger">*</span></label>
-              <select name="kategori" class="form-select" required>
-                <option value="">-- Pilih Kategori --</option>
-                <option value="Informasi/Pengumuman">Informasi/Pengumuman</option>
-                <option value="Berita">Berita</option>
-                <option value="Artikel">Artikel</option>
-              </select>
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form method="POST" action="{{ route('admin.dataartikel.store') }}" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header bg-navy text-white" style="background: var(--primary-navy);">
+                    <h5 class="modal-title fw-bold">Buat Artikel Baru</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Kategori</label>
+                            <select name="kategori" class="form-select" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                <option value="Informasi/Pengumuman">Informasi/Pengumuman</option>
+                                <option value="Berita">Berita</option>
+                                <option value="Artikel">Artikel</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Judul</label>
+                            <input type="text" name="judul" class="form-control" placeholder="Masukkan judul..." required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Sub Judul (Opsional)</label>
+                            <input type="text" name="subjudul" class="form-control" placeholder="Keterangan singkat...">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Isi Artikel</label>
+                            <textarea name="isi" rows="6" class="form-control" placeholder="Tulis konten artikel di sini..." required></textarea>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Unggah Foto Utama</label>
+                            <input type="file" name="foto" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-gold px-4">Publikasikan Artikel</button>
+                </div>
             </div>
-            <div class="col-md-6">
-              <label>Judul <span class="text-danger">*</span></label>
-              <input type="text" name="judul" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label>Sub Judul (Opsional)</label>
-              <input type="text" name="subjudul" class="form-control">
-            </div>
-            <div class="col-md-6">
-              <label>Link Artikel (Opsional)</label>
-              <input type="url" name="link" class="form-control" placeholder="https://...">
-            </div>
-            <div class="col-md-12">
-              <label>Isi Artikel <span class="text-danger">*</span></label>
-              <textarea name="isi" rows="5" class="form-control" required></textarea>
-            </div>
-            <div class="col-md-12">
-              <label>Foto (Opsional)</label>
-              <input type="file" name="foto" class="form-control" accept="image/*">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-primary">Simpan</button>
-        </div>
-      </div>
-    </form>
-  </div>
+        </form>
+    </div>
 </div>
 @endsection

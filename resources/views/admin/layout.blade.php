@@ -4,231 +4,246 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Perpustakaan SDN 75 - Admin</title>
+  
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
+    :root {
+      --side-bg: #020617; 
+      --accent: #f7931e;  
+      --text-muted: #94a3b8;
+      --sidebar-width: 280px;
+      --sidebar-collapsed-width: 85px;
+    }
+
     body {
       font-family: 'Poppins', sans-serif;
-      background-color: #f8f9fc;
+      background-color: #f0f2f5;
       margin: 0;
       overflow-x: hidden;
     }
 
-    /* Sidebar */
+    /* === SIDEBAR STYLE === */
     .sidebar {
-      background: linear-gradient(180deg, #4a4ca4, #575b8d);
-      width: 250px;
-      min-height: 100vh;
+      background-color: var(--side-bg);
+      width: var(--sidebar-width);
+      height: 100vh;
       position: fixed;
       top: 0;
       left: 0;
-      color: white;
+      z-index: 3000;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar.collapsed {
-      width: 0; 
-      overflow: hidden; 
-    }
-
-    .sidebar.collapsed .brand,
-    .sidebar.collapsed ul,
-    .sidebar.collapsed .admin-info {
-      display: none;
+      box-shadow: 4px 0 15px rgba(0,0,0,0.3);
     }
 
     .sidebar .brand {
+      padding: 25px 20px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 20px;
+      gap: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .sidebar .brand img {
       width: 45px;
       height: 45px;
+      object-fit: contain;
     }
 
-    .sidebar .brand h4 {
-      font-size: 15px;
-      line-height: 1.2;
+    .sidebar .brand-text h4 {
+      font-size: 14px;
+      color: white;
       margin: 0;
+      font-weight: 600;
+      white-space: nowrap;
     }
 
     .sidebar ul {
       list-style: none;
-      padding: 0;
-      margin-top: 20px;
+      padding: 15px 12px;
+      margin: 0;
+      flex-grow: 1;
     }
 
     .sidebar ul li a {
-      display: block;
-      color: #fff;
+      display: flex;
+      align-items: center;
+      color: var(--text-muted);
       text-decoration: none;
-      padding: 12px 20px;
-      border-radius: 10px;
-      transition: 0.3s;
-    }
-
-    .sidebar ul li a:hover,
-    .sidebar ul li a.active {
-      background-color: #f7931e;
-      color: #222;
-      font-weight: 600;
-    }
-
-    /* Admin info dropdown */
-    .sidebar .admin-info {
-      position: absolute;
-      bottom: 30px;
-      left: 20px;
-      background: rgba(255, 255, 255, 0.1);
+      padding: 12px 15px;
       border-radius: 12px;
-      width: calc(100% - 40px);
-      transition: background 0.3s;
-    }
-
-    .sidebar .admin-info:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .sidebar .admin-info a.dropdown-toggle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 16px;
-      color: #fff;
-      text-decoration: none;
-      width: 100%;
-    }
-
-    /* Dropdown items hover untuk Profile & Logout */
-    .sidebar .admin-info .dropdown-menu a,
-    .sidebar .admin-info .dropdown-menu button.dropdown-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 16px;
-      color: #222;
-      text-decoration: none;
-      background-color: transparent;
-      border: none;
-      width: 100%;
       transition: 0.3s;
-      cursor: pointer;
+      white-space: nowrap;
+      margin-bottom: 5px;
     }
 
-    .sidebar .admin-info .dropdown-menu a:hover,
-    .sidebar .admin-info .dropdown-menu button.dropdown-item:hover {
-      background-color: #f7931e;
-      color: #222;
+    .sidebar ul li a i { font-size: 1.3rem; min-width: 35px; }
+
+    .sidebar ul li a:hover {
+      background: rgba(247, 147, 30, 0.1);
+      color: var(--accent);
+    }
+
+    .sidebar ul li a.active {
+      background: var(--accent);
+      color: #000;
       font-weight: 600;
     }
 
-    .sidebar.collapsed .admin-info span {
-      display: none;
+    /* Admin Profile Section */
+    .sidebar .admin-profile {
+      padding: 15px;
+      background: rgba(255,255,255,0.03);
+      margin: 15px;
+      border-radius: 12px;
     }
 
-    /* Konten utama */
-    .main-content {
-      margin-left: 250px;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar.collapsed ~ .main-content {
-      margin-left: 0;
-    }
-
-    /* Navbar atas */
-    .topbar {
-      background-color: white;
-      border-bottom: 2px solid #f7931e;
+    .admin-profile .nav-link {
+      color: white;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 10px;
+    }
+
+    /* === TOPBAR & CONTENT === */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      transition: all 0.3s ease;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: white;
       padding: 15px 25px;
+      display: flex;
+      align-items: center;
       position: sticky;
       top: 0;
-      z-index: 1000;
+      z-index: 1000; 
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
 
     .menu-toggle {
-      font-size: 24px;
+      font-size: 1.6rem;
       cursor: pointer;
-      color: #4a4ca4;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      background: #f0f2f5;
+      color: var(--side-bg);
+      transition: 0.2s;
     }
 
-    .topbar .title {
-      font-weight: 600;
-      font-size: 18px;
-      color: #333;
-      margin-left: 10px;
+    .menu-toggle:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    /* === RESPONSIVE STATES === */
+    @media (min-width: 769px) {
+      .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+      .sidebar.collapsed .brand-text,
+      .sidebar.collapsed ul li a span,
+      .sidebar.collapsed .admin-profile span,
+      .sidebar.collapsed .admin-profile i:last-child { 
+        display: none; 
+      }
+      .main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
     }
 
     @media (max-width: 768px) {
-      .sidebar {
+      .sidebar { left: calc(-1 * var(--sidebar-width)); }
+      .sidebar.active { left: 0 !important; }
+      .main-content { margin-left: 0 !important; }
+      .sidebar-overlay {
         position: fixed;
-        z-index: 2000;
-        left: -250px;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(2px);
+        z-index: 2500;
+        display: none;
       }
-      .sidebar.active {
-        left: 0;
-      }
-      .main-content {
-        margin-left: 0;
-      }
+      .sidebar-overlay.show { display: block; }
     }
   </style>
 </head>
-
-<script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
-
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div>
-      <div class="brand">
-        <img src="{{ asset('unib.jpg') }}" alt="Logo UNIB">
-        <h4>
-          <span style="font-size:14px;">Perpustakaan</span><br>
-          <span style="font-weight:400;">Sekolah Dasar Negeri 75</span>
-        </h4>
-      </div>
 
-      <ul>
-        <li><a href="{{ route('admin.dashboard') }}" ><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-        <li><a href="{{ route('admin.datauser') }}"><i class="bi bi-people me-2"></i>Manajemen Data User</a></li>
-        <li><a href="{{ route('admin.datakoleksi') }}"><i class="bi bi-book me-2"></i>Manajemen Koleksi</a></li>
-        <li><a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}"><i class="bi bi-journal-text me-2"></i>Manajemen Riwayat</a></li>
-      </ul>
+  <div class="sidebar-overlay" id="overlay"></div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="brand">
+      <img src="{{ asset('unib.jpg') }}" alt="Logo">
+      <div class="brand-text">
+        <h4>Perpustakaan<br><span style="font-weight: 300; font-size: 11px; color: var(--text-muted)">SDN 75 Kota Bengkulu</span></h4>
+      </div>
     </div>
 
-    <!-- Admin info dropdown -->
-    <div class="admin-info dropdown">
-      <a href="#" class="d-flex align-items-center dropdown-toggle" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-person-circle fs-4"></i>
-        <span>Admin</span>
-      </a>
-      <ul class="dropdown-menu">
-          <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
-          </form>
-        </li>
-      </ul>
+    <ul>
+      <li>
+        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+          <i class="bi bi-grid-fill"></i><span>Dashboard</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="{{ route('admin.datauser') }}" class="{{ request()->routeIs('admin.datauser') ? 'active' : '' }}">
+          <i class="bi bi-people-fill"></i><span>Data User</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="{{ route('admin.datakoleksi') }}" class="{{ request()->routeIs('admin.datakoleksi*') ? 'active' : '' }}">
+          <i class="bi bi-journal-bookmark-fill"></i><span>Koleksi Buku</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="{{ route('admin.dataartikel') }}" class="{{ request()->routeIs('admin.dataartikel*') ? 'active' : '' }}">
+          <i class="bi bi-file-text-fill"></i><span>Manajemen Artikel</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}" class="{{ request()->routeIs('admin.riwayat*') ? 'active' : '' }}">
+          <i class="bi bi-clock-history"></i><span>Riwayat</span>
+        </a>
+      </li>
+    </ul>
+
+    <div class="admin-profile">
+      <div class="dropdown">
+        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-person-circle fs-4"></i>
+          <span class="flex-grow-1">Administrator</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark shadow border-0 w-100">
+          <li>
+            <form method="POST" action="{{ route('logout') }}">
+              @csrf
+              <button type="submit" class="dropdown-item py-2 text-danger fw-bold">
+                <i class="bi bi-box-arrow-right me-2"></i> Logout
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 
-  <!-- Main Content -->
-  <div class="main-content">
+  <div class="main-content" id="main-content">
     <div class="topbar">
-      <div class="d-flex align-items-center">
-        <i class="bi bi-list menu-toggle" id="menu-toggle"></i>
-        <span class="title">@yield('page-title')</span>
+      <div class="menu-toggle" id="btn-hamburger">
+        <i class="bi bi-list"></i>
       </div>
+      <h5 class="ms-3 mb-0 fw-bold">@yield('page-title', 'Dashboard')</h5>
     </div>
 
     <div class="p-4">
@@ -236,15 +251,40 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
   <script>
-    const toggleBtn = document.getElementById('menu-toggle');
-    const sidebar = document.getElementById('sidebar');
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('main-content');
+      const overlay = document.getElementById('overlay');
+      const btnHamburger = document.getElementById('btn-hamburger');
 
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
+      if (btnHamburger) {
+        btnHamburger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('show');
+          } else {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+          }
+        });
+      }
+
+      overlay.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('show');
+      });
+
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+          sidebar.classList.remove('active');
+          overlay.classList.remove('show');
+        }
+      });
     });
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

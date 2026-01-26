@@ -225,7 +225,7 @@ public function loginSubmit(Request $request)
 
         if ($request->has('keyword') && $request->keyword != '') {
             $query->where('judul', 'like', '%' . $request->keyword . '%')
-                  ->orWhere('deskripsi', 'like', '%' . $request->keyword . '%');
+                  ->orWhere('isi', 'like', '%' . $request->keyword . '%');
         }
 
         $artikels = $query->latest()->paginate(6); // tampil 6 per halaman

@@ -55,7 +55,7 @@ class ArtikelController extends Controller
     public function show($id)
     {
         $artikel = Artikel::findOrFail($id);
-        return view('auth.show_artikel', compact('artikel'));
+        return view('auth.artikel_detail', compact('artikel'));
     }
 
     public function update(Request $request, $id)

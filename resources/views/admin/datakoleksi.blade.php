@@ -3,545 +3,335 @@
 @section('page-title', 'Manajemen Data Koleksi')
 
 @section('content')
-@php
-  // pastikan variabel $books tidak ditampilkan otomatis
-  if (isset($books) && $books instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-      $books->withPath(request()->url());
-  }
-@endphp
 
 <style>
-  /* === KOTAK INFO === */
-  .info-boxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 25px;
-    align-items: center;
-  }
-  .info-box {
-    background: linear-gradient(135deg, #f7931e, #ffa94d);
-    color: white;
-    border-radius: 16px;
-    width: 280px;
-    padding: 16px 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-decoration: none;
-    transition: transform 0.2s ease;
-  }
-  .info-box:hover { transform: translateY(-3px); }
-  .info-box i { font-size: 32px; opacity: 0.7; }
-  .info-box-content h5 { margin: 0; font-weight: 700; font-size: 16px; }
-  .info-box-content p { font-size: 13px; margin: 3px 0 0 0; }
+    /* === THEME CUSTOMIZATION === */
+    :root {
+        --primary-navy: #020617;
+        --accent-gold: #f7931e;
+        --soft-gold: rgba(247, 147, 30, 0.1);
+        --white: #ffffff;
+    }
 
-  .btn-add {
-    background-color: #4a4ca4;
-    color: #fff;
-    border-radius: 8px;
-    font-weight: 600;
-    padding: 8px 14px;
-  }
-  .btn-add:hover { background-color: #3c3f91; color: #fff; }
+    /* === STAT CARDS === */
+    .stat-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        height: 100%;
+    }
 
-  /* === FILTER BAR === */
-  .filter-bar {
-    background: #fff;
-    padding: 10px 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    display: inline-block;
-  }
-  .filter-bar form { flex-wrap: nowrap !important; }
-  .filter-select { width: 160px; }
-  @media (max-width: 768px) {
-    .filter-bar form { flex-wrap: wrap !important; }
-    .filter-select { width: 100%; }
-  }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        color: inherit;
+    }
 
-  .search-bar {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    margin-bottom: 15px;
-    width: 100%;
-    max-width: 750px;
-  }
-  .search-bar input { border: none; outline: none; flex: 1; font-size: 14px; padding-left: 8px; }
-  .search-bar .btn { white-space: nowrap; }
+    .stat-card .icon-box {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
 
-   /* === TABEL === */
-  .table-container {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    overflow-x: auto;
-    margin-top: 10px;
-    max-height: 650px; /* batasi tinggi tabel agar scroll jika > 10 baris */
-  }
+    .bg-soft-gold { background: var(--soft-gold); color: var(--accent-gold); }
 
-  table { margin-bottom: 0; min-width: 1000px; width: 100%; border-collapse: collapse; }
-  table th, table td {
-    vertical-align: top !important;
-    white-space: normal;
-    text-align: left;
-    font-size: 13px;
-    padding: 8px 6px;
-    border: 1px solid #ddd;
-  }
-  table th { background-color: #f2f2f2; }
+    /* === MANAGEMENT CONTAINER === */
+    .management-card {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        border: none;
+        padding: 25px;
+        margin-top: 20px;
+    }
 
-  table th.cover-col, table td.cover-col { width: 70px; text-align: center; }
-  table th.qr-col, table td.qr-col { width: 110px; text-align: center; }
+    /* === FILTER SECTION === */
+    .filter-section {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+    }
 
-  .table tbody tr:hover { background-color: #f6f6ff; }
-  .action-icons i { font-size: 18px; cursor: pointer; margin: 0 6px; }
-  .action-icons .edit { color: #f39c12; }
-  .action-icons .delete { color: #e74c3c; }
-  .cover-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; margin-right: 4px; }
-  .qr-preview { width: 100px !important; height: 100px !important; margin: auto; }
+    .search-input-group {
+        position: relative;
+        flex-grow: 1;
+    }
 
-  /* 🔴 Tambahan highlight merah */
-  input.is-invalid, select.is-invalid, textarea.is-invalid {
-    border-color: #dc3545 !important;
-    box-shadow: 0 0 0 0.2rem rgba(220,53,69,0.25);
-  }
+    .search-input-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    .search-input-group input {
+        padding-left: 45px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* === TABLE STYLE === */
+    .custom-table-container {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .table thead {
+        background: var(--primary-navy);
+        color: white;
+    }
+
+    .table thead th {
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.5px;
+        padding: 15px;
+        border: none;
+    }
+
+    .table tbody td {
+        padding: 12px 15px;
+        vertical-align: middle;
+        font-size: 13.5px;
+        color: #475569;
+    }
+
+    .cover-img {
+        width: 50px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* === BADGES === */
+    .badge-status {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 11px;
+    }
+    .status-tersedia { background: #dcfce7; color: #166534; }
+    .status-dipinjam { background: #fee2e2; color: #991b1b; }
+    .bg-soft-navy { background: rgba(2, 6, 23, 0.05); color: var(--primary-navy); }
+
+    /* === BUTTONS === */
+    .btn-gold {
+        background: var(--accent-gold);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 10px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-gold:hover {
+        background: #e68516;
+        color: white;
+        box-shadow: 0 4px 12px rgba(247, 147, 30, 0.3);
+    }
+
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin: 0 2px;
+        transition: 0.3s;
+    }
+    .btn-edit { background: #fef3c7; color: #d97706; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-edit:hover { background: #fcd34d; }
+    .btn-delete:hover { background: #fecaca; }
+
+    /* === MODAL STYLE === */
+    .modal-content { border-radius: 20px; border: none; overflow: hidden; }
+    .modal-header { border-bottom: none; padding: 25px 30px; }
+    .modal-body { padding: 0 30px 30px 30px; }
+    .form-label { font-weight: 500; font-size: 14px; color: #475569; }
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 10px 15px;
+        border: 1px solid #e2e8f0;
+    }
+    .form-control:focus {
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 0 3px var(--soft-gold);
+    }
 </style>
 
-<div class="container-fluid">
+<div class="container-fluid py-3">
 
-  {{-- HEADER BAR --}}
-  <div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
-    <a href="{{ route('admin.datakoleksi') }}" class="info-box">
-      <div class="info-box-content">
-        <h5>Manajemen Data Koleksi</h5>
-        <p>Buku & Artikel</p>
-      </div>
-      <i class="bi bi-journal-bookmark-fill"></i>
-    </a>
-    <a href="{{ route('admin.dataartikel') }}" class="info-box">
-      <div class="info-box-content">
-        <h5>Manajemen Data Artikel</h5>
-        <p>Artikel terbaru</p>
-      </div>
-      <i class="bi bi-file-text-fill"></i>
-    </a>
-    <div class="ms-auto d-flex gap-2 align-items-center">
-      <button class="btn btn-add" data-bs-toggle="modal" data-bs-target="#addModal">+ Tambah Koleksi</button>
-      <a href="{{ route('admin.datakoleksi.pdf', request()->all()) }}" target="_blank" class="btn btn-success">
-        <i class="bi bi-file-earmark-pdf-fill"></i> Cetak PDF
-      </a>
-    </div>
-  </div>
-
-  {{-- SEARCH BAR --}}
-  <form action="{{ route('admin.datakoleksi') }}" method="GET" class="search-bar mb-3">
-    <i class="bi bi-search"></i>
-    <input type="text" name="keyword" placeholder="Cari judul, penulis, atau kategori..." value="{{ request('keyword') }}">
-    <button type="submit" class="btn btn-primary btn-sm ms-2">Cari</button>
-  </form>
-
- {{-- FILTER --}}
-<div class="filter-bar mb-3">
-  <form action="{{ route('admin.datakoleksi') }}" method="GET" class="d-flex flex-wrap gap-2 align-items-center">
-    <select name="filter_kategori" class="form-select form-select-sm filter-select">
-      <option value="">-- Semua Kategori --</option>
-      <option value="Bacaan" {{ request('filter_kategori') == 'Bacaan' ? 'selected' : '' }}>Bacaan</option>
-      <option value="Skripsi" {{ request('filter_kategori') == 'Skripsi' ? 'selected' : '' }}>Skripsi</option>
-      <option value="Referensi" {{ request('filter_kategori') == 'Referensi' ? 'selected' : '' }}>Referensi</option>
-    </select>
-
-   <input type="date" name="filter_tanggal" class="form-select form-select-sm filter-select"
-       value="{{ request('filter_tanggal') }}">
-
-       <select name="filter_status" class="form-select form-select-sm filter-select">
-      <option value="">-- Semua Status --</option>
-      <option value="Tersedia" {{ request('filter_status') == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
-      <option value="Dipinjam" {{ request('filter_status') == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
-    </select>
-
-    <button type="submit" class="btn btn-primary btn-sm">Filter</button>
-  </form>
-</div>
-
-  {{-- ALERT --}}
-  @if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
-  @endif
-
-  {{-- TABEL DATA --}}
-<div class="table-container">
-  <table class="table text-center align-middle mb-0">
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Cover</th>
-        <th>Judul</th>
-        <th>Penulis</th>
-        <th>Penerbit</th>
-        <th>Tahun Terbit</th>
-        <th>Kategori</th>
-        <th>Nomor Buku</th>
-        <th>Rak</th>
-        <th>Barcode</th>
-        <th>Status</th>
-        <th>Jumlah</th>
-        <th>E-Book</th>
-        <th>Deskripsi</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody>
-      @forelse($books as $index => $book)
-        <tr>
-          <td>{{ $loop->iteration }}</td>
-          <td>
-            @if($book->cover)
-              @foreach(json_decode($book->cover, true) as $path)
-                <img src="{{ asset('storage/' . $path) }}" class="cover-preview" alt="cover">
-              @endforeach
-            @else
-              -
-            @endif
-          </td>
-          <td>{{ $book->judul }}</td>
-          <td>{{ $book->penulis }}</td>
-          <td>{{ $book->penerbit }}</td>
-          <td>{{ $book->tahun_terbit }}</td>
-          <td>{{ $book->kategori }}</td>
-          <td>{{ $book->nomor_buku }}</td>
-          <td>{{ $book->rak }}</td>
-          <td>
-            @if($book->barcode)
-              <span class="badge bg-dark" title="Barcode: {{ $book->barcode }}">{{ $book->barcode }}</span>
-            @else
-              <span class="text-muted">-</span>
-            @endif
-          </td>
-          <td>{{ $book->status ?? '-' }}</td>
-          <td>{{ $book->jumlah ?? 0 }}</td>
-          <td>
-            @if($book->ebook)
-              <a href="{{ $book->ebook }}" target="_blank" class="badge bg-success">
-                <i class="bi bi-file-pdf"></i> PDF
-              </a>
-            @else
-              <span class="text-muted">-</span>
-            @endif
-          </td>
-          <td>{{ Str::limit($book->deskripsi, 50) }}</td>
-          <td class="action-icons">
-            <i class="bi bi-pencil-square edit" data-bs-toggle="modal" data-bs-target="#editModal{{ $book->id }}"></i>
-            <form action="{{ route('admin.datakoleksi.delete', $book->id) }}" method="POST" class="d-inline">
-              @csrf
-              @method('DELETE')
-              <button type="submit" class="btn p-0 border-0 bg-transparent" onclick="return confirm('Yakin ingin menghapus koleksi ini?')">
-                <i class="bi bi-trash-fill delete"></i>
-              </button>
-            </form>
-          </td>
-        </tr>
-      @empty
-        <tr>
-          <td colspan="14" class="text-muted">Belum ada data koleksi.</td>
-        </tr>
-      @endforelse
-    </tbody>
-  </table>
-</div>
-
-{{-- MODAL TAMBAH --}}
-<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">Tambah Koleksi Baru</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <form class="needs-validation" novalidate action="{{ route('admin.datakoleksi.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Judul</label>
-              <input type="text" name="judul" class="form-control" required>
-              <div class="invalid-feedback">Judul wajib diisi.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Penulis</label>
-              <input type="text" name="penulis" class="form-control" required>
-              <div class="invalid-feedback">Penulis wajib diisi.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Penerbit</label>
-              <input type="text" name="penerbit" class="form-control" required>
-              <div class="invalid-feedback">Penerbit wajib diisi.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Tahun Terbit</label>
-              <input type="text" name="tahun_terbit" class="form-control only-number" maxlength="4" required>
-              <div class="invalid-feedback">Masukkan tahun terbit dengan angka saja.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Kategori</label>
-              <input type="text" name="kategori" class="form-control" required>
-              <div class="invalid-feedback">Kategori wajib diisi.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Barcode <span class="text-danger">*</span></label>
-              <input type="text" id="barcode_add" name="barcode" class="form-control barcode-scanner" placeholder="Scan barcode di sini..." autofocus required>
-              <small class="text-muted d-block mt-1">Nomor buku akan otomatis tergenerate dari barcode ini</small>
-              <div class="invalid-feedback">Barcode wajib diinput.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Nomor Buku (Otomatis)</label>
-              <input type="text" id="nomor_buku_add" name="nomor_buku" class="form-control" readonly>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Rak</label>
-              <input type="text" name="rak" class="form-control" required>
-              <div class="invalid-feedback">Rak wajib diisi.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Status</label>
-              <select name="status" class="form-select" required>
-                <option value="">-- Pilih Status --</option>
-                <option value="Tersedia">Tersedia</option>
-                <option value="Dipinjam">Dipinjam</option>
-              </select>
-              <div class="invalid-feedback">Pilih status koleksi.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Jumlah</label>
-              <input type="number" name="jumlah" class="form-control" min="1" required>
-              <div class="invalid-feedback">Jumlah wajib diisi.</div>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label">Deskripsi</label>
-              <textarea name="deskripsi" class="form-control" required></textarea>
-              <div class="invalid-feedback">Deskripsi wajib diisi.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">E-Book (Link URL)</label>
-              <input type="url" name="ebook_url" class="form-control" placeholder="https://example.com/ebook.pdf">
-              <small class="text-muted">Atau upload file di bawah</small>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">E-Book (Upload File PDF)</label>
-              <input type="file" name="ebook_file" class="form-control" accept=".pdf">
-              <small class="text-muted">Max 10MB. Atau gunakan link di atas</small>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label">Upload Cover</label>
-              <input type="file" name="cover[]" class="form-control" multiple accept="image/*" required>
-              <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 2MB per gambar). Bisa upload multiple file sekaligus.</small>
-              <div class="invalid-feedback">Cover wajib diunggah.</div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-primary">Simpan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-{{-- MODAL EDIT --}}
-@foreach($books as $book)
-<div class="modal fade" id="editModal{{ $book->id }}" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-warning">
-        <h5 class="modal-title">Edit Koleksi</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form class="needs-validation" novalidate action="{{ route('admin.datakoleksi.update', $book->id) }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('PUT')
-        <div class="modal-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">Judul</label>
-              <input type="text" name="judul" class="form-control" value="{{ $book->judul }}" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Penulis</label>
-              <input type="text" name="penulis" class="form-control" value="{{ $book->penulis }}" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Penerbit</label>
-              <input type="text" name="penerbit" class="form-control" value="{{ $book->penerbit }}" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Tahun Terbit</label>
-              <input type="text" name="tahun_terbit" class="form-control only-number" value="{{ $book->tahun_terbit }}" maxlength="4" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Kategori</label>
-              <input type="text" name="kategori" class="form-control" value="{{ $book->kategori }}" required>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Barcode <span class="text-danger">*</span></label>
-              <input type="text" id="barcode_edit{{ $book->id }}" name="barcode" class="form-control barcode-scanner-edit" value="{{ $book->barcode }}" placeholder="Scan barcode di sini..." required>
-              <small class="text-muted d-block mt-1">Nomor buku akan otomatis update ketika barcode berubah</small>
-              <div class="invalid-feedback">Barcode wajib diinput.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Nomor Buku (Otomatis)</label>
-              <input type="text" id="nomor_buku_edit{{ $book->id }}" name="nomor_buku" class="form-control" value="{{ $book->nomor_buku }}" readonly>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Rak</label>
-              <input type="text" name="rak" class="form-control" value="{{ $book->rak }}" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Status</label>
-              <select name="status" class="form-select" required>
-                <option value="Tersedia" {{ $book->status == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
-                <option value="Dipinjam" {{ $book->status == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
-              </select>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">Jumlah</label>
-              <input type="number" name="jumlah" class="form-control" min="1" value="{{ $book->jumlah }}" required>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label">Deskripsi</label>
-              <textarea name="deskripsi" class="form-control" required>{{ $book->deskripsi }}</textarea>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">E-Book (Link URL)</label>
-              <input type="url" name="ebook_url" class="form-control" placeholder="https://example.com/ebook.pdf" 
-                value="{{ strpos($book->ebook, 'http') === 0 ? $book->ebook : '' }}">
-              <small class="text-muted">Atau upload file di bawah</small>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label">E-Book (Upload File PDF)</label>
-              <input type="file" name="ebook_file" class="form-control" accept=".pdf">
-              <small class="text-muted">Max 10MB. Atau gunakan link di atas</small>
-              @if($book->ebook && strpos($book->ebook, 'http') !== 0)
-                <div class="alert alert-info mt-2 p-2" style="font-size: 12px;">
-                  File saat ini: <a href="{{ asset('storage/' . $book->ebook) }}" target="_blank">{{ basename($book->ebook) }}</a>
+    <div class="row g-3 mb-4">
+        <div class="col-md-8">
+            <div class="stat-card">
+                <div class="icon-box bg-soft-gold">
+                    <i class="bi bi-journal-bookmark"></i>
                 </div>
-              @endif
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div>
+                        <h6 class="mb-1 fw-bold">Manajemen Data Koleksi</h6>
+                        <p class="text-muted small mb-0">Kelola buku, skripsi, dan referensi perpustakaan Anda di sini.</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="fs-4 fw-bold text-dark">{{ $books->total() }}</span>
+                        <small class="d-block text-muted" style="font-size: 10px; text-transform: uppercase;">Total Koleksi</small>
+                    </div>
+                </div>
             </div>
-
-            <div class="col-md-12">
-              <label class="form-label">Upload Cover Baru (Opsional)</label>
-              <input type="file" name="cover[]" class="form-control" multiple accept="image/*">
-              <small class="text-muted d-block mt-1">Format: JPG, PNG (Max 2MB per gambar). Kosongkan jika tidak ingin mengganti cover.</small>
-            </div>
-          </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-          <button type="submit" class="btn btn-warning text-white">Update</button>
+        <div class="col-md-4">
+            <button class="btn btn-gold w-100 h-100 py-3" data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-circle-fill fs-5"></i>
+                <span class="fs-6">Tambah Koleksi Baru</span>
+            </button>
         </div>
-      </form>
     </div>
-  </div>
-</div>
-@endforeach
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+    <div class="management-card">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0"><i class="bi bi-layers me-2 text-warning"></i> Daftar Koleksi Perpustakaan</h5>
+            <a href="{{ route('admin.datakoleksi.pdf', request()->all()) }}" target="_blank" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+            </a>
+        </div>
 
-    // === FUNCTION GENERATE NOMOR BUKU DARI BARCODE ===
-    function generateNomorBukuFromBarcode(barcodeValue) {
-        if (!barcodeValue) return '';
-        const year = new Date().getFullYear();
-        // Format: BK-<tahun>-<barcode>
-        return 'BK-' + year + '-' + barcodeValue;
-    }
+        <div class="filter-section">
+            <form action="{{ route('admin.datakoleksi') }}" method="GET" class="row g-3">
+                <div class="col-lg-4 col-md-12">
+                    <div class="search-input-group">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="keyword" class="form-control" placeholder="Cari judul, penulis, barcode..." value="{{ request('keyword') }}">
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <select name="filter_kategori" class="form-select">
+                        <option value="">Semua Kategori</option>
+                        <option value="Bacaan" {{ request('filter_kategori') == 'Bacaan' ? 'selected' : '' }}>Bacaan</option>
+                        <option value="Skripsi" {{ request('filter_kategori') == 'Skripsi' ? 'selected' : '' }}>Skripsi</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <select name="filter_status" class="form-select">
+                        <option value="">Semua Status</option>
+                        <option value="Tersedia" {{ request('filter_status') == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                        <option value="Dipinjam" {{ request('filter_status') == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <input type="date" name="filter_tanggal" class="form-control" value="{{ request('filter_tanggal') }}">
+                </div>
+                <div class="col-lg-2 col-md-12">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel me-1"></i> Terapkan
+                    </button>
+                </div>
+            </form>
+        </div>
 
-    // === TAMBAH MODAL - Input Barcode Scanner ===
-    const barcodeAddInput = document.getElementById('barcode_add');
-    const nomorAddInput = document.getElementById('nomor_buku_add');
-    
-    if (barcodeAddInput) {
-        barcodeAddInput.addEventListener('change', function() {
-            const barcodeValue = this.value.trim();
-            if (barcodeValue) {
-                nomorAddInput.value = generateNomorBukuFromBarcode(barcodeValue);
-            }
-        });
+        @if(session('success'))
+            <div class="alert alert-success border-0 shadow-sm mb-4">{{ session('success') }}</div>
+        @endif
 
-        // Auto-generate saat blur juga untuk memastikan
-        barcodeAddInput.addEventListener('blur', function() {
-            const barcodeValue = this.value.trim();
-            if (barcodeValue && !nomorAddInput.value) {
-                nomorAddInput.value = generateNomorBukuFromBarcode(barcodeValue);
-            }
-        });
-    }
-
-    // === EDIT MODAL - Input Barcode Scanner ===
-    document.querySelectorAll('.barcode-scanner-edit').forEach(input => {
-        const bookId = input.id.replace('barcode_edit', '');
-        const nomorInput = document.getElementById('nomor_buku_edit' + bookId);
+        <div class="custom-table-container">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th>Cover</th>
+                            <th>Informasi Buku</th>
+                            <th>Kategori</th>
+                            <th>Lokasi/Rak</th>
+                            <th>Status</th>
+                            <th>Stok</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($books as $book)
+                        <tr>
+                            <td class="text-center text-muted">{{ $loop->iteration }}</td>
+                            <td>
+                                @if($book->cover)
+                                    @php $covers = json_decode($book->cover, true); @endphp
+                                    <img src="{{ asset('storage/' . $covers[0]) }}" class="cover-img" alt="cover">
+                                @else
+                                    <div class="cover-img bg-light d-flex align-items-center justify-content-center text-muted" style="font-size: 10px;">No Image</div>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ $book->judul }}</div>
+                                <div class="text-muted" style="font-size: 12px;">
+                                    <i class="bi bi-person me-1"></i>{{ $book->penulis }} | <i class="bi bi-building me-1"></i>{{ $book->penerbit }}
+                                </div>
+                                <div class="mt-1">
+                                    <span class="badge bg-light text-dark border" style="font-size: 10px;">{{ $book->barcode }}</span>
+                                </div>
+                            </td>
+                            <td><span class="badge bg-soft-navy text-navy">{{ $book->kategori }}</span></td>
+                            <td><i class="bi bi-geo-alt me-1 text-danger"></i>{{ $book->rak }}</td>
+                            <td>
+                                <span class="badge-status {{ $book->status == 'Tersedia' ? 'status-tersedia' : 'status-dipinjam' }}">
+                                    {{ $book->status ?? 'Tersedia' }}
+                                </span>
+                            </td>
+                            <td><span class="fw-bold">{{ $book->jumlah }}</span> <small class="text-muted">eks</small></td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center">
+                                    <a href="javascript:void(0)" class="action-btn btn-edit" data-bs-toggle="modal" data-bs-target="#editModal{{ $book->id }}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <form action="{{ route('admin.datakoleksi.delete', $book->id) }}" method="POST" class="d-inline">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="action-btn btn-delete border-0" onclick="return confirm('Hapus buku ini?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Belum ada data koleksi yang ditemukan.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
         
-        input.addEventListener('change', function() {
-            const barcodeValue = this.value.trim();
-            if (barcodeValue) {
-                nomorInput.value = generateNomorBukuFromBarcode(barcodeValue);
-            }
-        });
+        <div class="mt-4">
+            {{ $books->links() }}
+        </div>
+    </div>
+</div>
 
-        input.addEventListener('blur', function() {
-            const barcodeValue = this.value.trim();
-            if (barcodeValue && !nomorInput.value) {
-                nomorInput.value = generateNomorBukuFromBarcode(barcodeValue);
-            }
-        });
-    });
-
-    // === RESET MODAL ADD ===
-    const addModal = document.getElementById('addModal');
-    if (addModal) {
-        addModal.addEventListener('hidden.bs.modal', function () {
-            addModal.querySelector('form').reset();
-            document.getElementById('nomor_buku_add').value = '';
-        });
-    }
-
-    // === RESET MODAL EDIT ===
-    document.querySelectorAll('[id^="editModal"]').forEach(modal => {
-        modal.addEventListener('hidden.bs.modal', function () {
-            modal.querySelector('form').reset();
-        });
-    });
-
-});
-</script>
 @endsection

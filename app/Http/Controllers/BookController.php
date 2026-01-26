@@ -31,8 +31,8 @@ class BookController extends Controller
 
     $books = $query->orderBy('kategori')
                ->orderBy('tahun_terbit')
-               ->get()
-               ->collect();
+               ->paginate(15)
+               ->withQueryString();
 
     $allKategori = Book::select('kategori')->distinct()->pluck('kategori');
     $allTahun = Book::select('tahun_terbit')->distinct()->pluck('tahun_terbit');
