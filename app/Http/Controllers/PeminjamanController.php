@@ -74,22 +74,11 @@ public function store(Request $request, Book $book)
     $identitas = null;
 
     // ✨ CEK TIPE LOGIN (multi-auth)
-    if (auth()->guard('guru')->check()) {
-        $user = auth()->guard('guru')->user();
-        $peminjamTipe = 'guru';
-        $identitas = $user->nip;
-        // Guru boleh pinjam multiple
-    } elseif (auth()->guard('user')->check()) {
-        $user = auth()->guard('user')->user();
+    if (auth()->check()) {
+        $user = auth()->user();
         $peminjamTipe = 'user';
-        $identitas = $user->npm;
+        $identitas = $user->nisn ?? $user->id;
         // User (siswa) dibatasi 1
-        $jumlah = 1;
-    } elseif (auth()->guard('umum')->check()) {
-        $user = auth()->guard('umum')->user();
-        $peminjamTipe = 'umum';
-        $identitas = $user->npm;
-        // Umum dibatasi 1
         $jumlah = 1;
     } else {
         return response()->json([
