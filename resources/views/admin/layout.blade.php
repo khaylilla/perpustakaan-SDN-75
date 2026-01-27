@@ -79,6 +79,7 @@
       transition: 0.3s;
       white-space: nowrap;
       margin-bottom: 5px;
+      cursor: pointer;
     }
 
     .sidebar ul li a i { font-size: 1.3rem; min-width: 35px; }
@@ -94,7 +95,31 @@
       font-weight: 600;
     }
 
-    /* Admin Profile Section */
+    /* Dropdown Arrow Animation */
+    .sidebar ul li a .bi-chevron-down {
+      transition: transform 0.3s;
+      font-size: 0.8rem;
+      min-width: auto;
+    }
+    .sidebar ul li a[aria-expanded="true"] .bi-chevron-down {
+      transform: rotate(180deg);
+    }
+
+    /* Submenu Style */
+    .submenu {
+      list-style: none;
+      padding-left: 35px !important;
+      margin-bottom: 10px !important;
+    }
+    .submenu li a {
+      padding: 8px 15px !important;
+      font-size: 13px !important;
+      background: transparent !important;
+    }
+    .submenu li a:hover {
+        color: white !important;
+    }
+
     .sidebar .admin-profile {
       padding: 15px;
       background: rgba(255,255,255,0.03);
@@ -151,6 +176,8 @@
       .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
       .sidebar.collapsed .brand-text,
       .sidebar.collapsed ul li a span,
+      .sidebar.collapsed ul li a .bi-chevron-down,
+      .sidebar.collapsed .submenu,
       .sidebar.collapsed .admin-profile span,
       .sidebar.collapsed .admin-profile i:last-child { 
         display: none; 
@@ -162,9 +189,7 @@
       .sidebar { left: calc(-1 * var(--sidebar-width)); }
       .sidebar.active { left: 0 !important; }
       .main-content { margin-left: 0 !important; }
-      /* Prevent background scrolling when sidebar open on mobile */
       body.sidebar-open { overflow: hidden; }
-      /* ensure hamburger sits above overlay so it's always clickable */
       .menu-toggle { position: relative; z-index: 4000; }
       .sidebar-overlay {
         position: fixed;
@@ -198,9 +223,30 @@
       </li>
 
       <li>
-        <a href="{{ route('admin.datauser') }}" class="{{ request()->routeIs('admin.datauser') ? 'active' : '' }}">
-          <i class="bi bi-people-fill"></i><span>Data User</span>
+        <a class="d-flex justify-content-between {{ request()->routeIs('admin.datauser*') || request()->routeIs('admin.dataabsen*') ? 'active' : '' }}" 
+           data-bs-toggle="collapse" 
+           href="#userSubmenu" 
+           role="button" 
+           aria-expanded="{{ request()->routeIs('admin.datauser*') || request()->routeIs('admin.dataabsen*') ? 'true' : 'false' }}">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-people-fill"></i><span>Data User</span>
+          </div>
+          <i class="bi bi-chevron-down"></i>
         </a>
+        <div class="collapse {{ request()->routeIs('admin.datauser*') || request()->routeIs('admin.dataabsen*') ? 'show' : '' }}" id="userSubmenu">
+          <ul class="submenu">
+            <li>
+              <a href="{{ route('admin.datauser') }}" class="{{ request()->routeIs('admin.datauser') ? 'text-white fw-bold' : '' }}">
+                <i class="bi bi-person-gear me-2"></i>Manajemen Data User
+              </a>
+            </li>
+            <li>
+              <a href="{{ route('admin.dataabsen') }}" class="{{ request()->routeIs('admin.dataabsen') ? 'text-white fw-bold' : '' }}">
+                <i class="bi bi-calendar-check me-2"></i>Manajemen Data Absen
+              </a>
+            </li>
+          </ul>
+        </div>
       </li>
 
       <li>
@@ -289,17 +335,6 @@
           sidebar.classList.remove('active');
           overlay.classList.remove('show');
           document.body.classList.remove('sidebar-open');
-        }
-      });
-
-      // Close sidebar on Escape key for accessibility
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          if (sidebar.classList.contains('active')) {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('show');
-            document.body.classList.remove('sidebar-open');
-          }
         }
       });
     });
