@@ -101,7 +101,7 @@
 <style>
 /* --- VARIABEL WARNA --- */
 :root {
-    --nav-bg: #021f4b; 
+    --nav-bg: #031c4d; 
     --accent-blue: #3A86FF;
     --text-dim: #94a3b8;
 }

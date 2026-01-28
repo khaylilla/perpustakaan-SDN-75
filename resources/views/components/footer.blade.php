@@ -63,7 +63,7 @@
 
 <style>
 .main-footer {
-    background: #000c24; /* Navy Super Gelap */
+    background: #031c4d; /* Navy Super Gelap */
     color: white;
     padding: 80px 0 30px;
     position: relative;

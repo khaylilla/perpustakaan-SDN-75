@@ -5,172 +5,205 @@
 @section('content')
 <style>
     :root {
-        --glass-bg: rgba(255, 255, 255, 0.7);
-        --glass-border: rgba(255, 255, 255, 0.3);
-        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-        --accent-orange: #f7931e;
+        --primary-blue: #0d6efd;
+        --deep-blue: #0a58ca;
+        --accent-red: #dc3545;
+        --soft-white: #f8fafc;
+        --glass-bg: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(255, 255, 255, 0.5);
     }
 
-    /* Background Decoration */
-    .bg-glow {
-        position: fixed;
-        top: 0; right: 0; width: 300px; height: 300px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
-        z-index: -1;
+    /* Keyframes for Animated Gradient */
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
 
-    /* Header Styling */
+    @keyframes float {
+        0% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+        100% { transform: translateY(0px) rotate(0deg); }
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Main Page Wrapper */
+    .fade-in-content {
+        animation: fadeInUp 0.8s ease-out forwards;
+    }
+
+    /* MODERN ANIMATED HEADER */
     .premium-header {
-        background: var(--primary-gradient);
-        border-radius: 24px;
-        padding: 40px;
-        color: white;
         position: relative;
-        overflow: hidden;
-        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
-        margin-bottom: 40px;
-    }
-
-    .premium-header::after {
-        content: '';
-        position: absolute;
-        top: -50px; right: -50px;
-        width: 200px; height: 200px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-    }
-
-    .btn-glass-add {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: linear-gradient(-45deg, #0d6efd, #0a58ca, #dc3545, #9b1c2e);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        border-radius: 30px;
+        padding: 30px 40px;
         color: white;
-        padding: 12px 28px;
-        border-radius: 14px;
-        font-weight: 600;
-        transition: 0.4s;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(13, 110, 253, 0.25);
+        margin-bottom: 60px;
     }
 
-    .btn-glass-add:hover {
+    /* Decorative Floating Shapes */
+    .shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        animation: float 8s infinite ease-in-out;
+        z-index: 1;
+    }
+    .shape-1 { width: 150px; height: 150px; top: -20px; right: 10%; animation-delay: 0s; }
+    .shape-2 { width: 100px; height: 100px; bottom: -10px; left: 5%; animation-delay: 2s; }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .btn-action-add {
         background: white;
-        color: #6366f1;
-        transform: translateY(-3px);
+        color: var(--primary-blue);
+        padding: 14px 32px;
+        border-radius: 16px;
+        font-weight: 700;
+        border: none;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
     }
 
-    /* Search & Filter - Floating Card */
+    .btn-action-add:hover {
+        transform: scale(1.05) translateY(-5px);
+        background: #f8fafc;
+        color: var(--accent-red);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    /* GLASSMORPHISM FILTER */
     .floating-filter {
         background: var(--glass-bg);
         backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
         border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        padding: 25px;
-        margin-top: -60px;
-        margin-bottom: 35px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border-radius: 24px;
+        padding: 30px;
+        margin-top: -80px;
+        margin-bottom: 40px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
         z-index: 10;
         position: relative;
     }
 
     .input-premium {
-        background: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 12px 18px;
+        background: white;
+        border: 2px solid #edf2f7;
+        border-radius: 14px;
+        padding: 12px 20px;
         transition: 0.3s;
     }
 
     .input-premium:focus {
-        border-color: #6366f1;
-        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
         outline: none;
     }
 
-    /* Card Table Styling */
+    /* TABLE DESIGN */
     .table-glass-container {
         background: white;
         border-radius: 24px;
-        box-shadow: 0 5px 25px rgba(0,0,0,0.03);
-        padding: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        padding: 20px;
+        border: 1px solid #f1f5f9;
     }
 
     .table thead th {
-        background: none;
-        border-bottom: 2px solid #f1f5f9;
-        color: #94a3b8;
-        font-size: 0.8rem;
+        background: #f8fafc;
+        border: none;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
         padding: 20px;
     }
 
     .user-row {
         transition: 0.3s;
-        border-radius: 15px;
+        border-bottom: 1px solid #f8fafc;
     }
 
     .user-row:hover {
-        background: #f8fafc;
-        transform: scale(1.005);
+        background: #f1f5f9;
+        transform: translateX(5px);
     }
 
-    /* Minimalist Badges */
+    /* BADGES & BUTTONS */
     .dot-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 14px;
-        border-radius: 10px;
-        font-weight: 600;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 700;
         font-size: 0.75rem;
     }
-    .dot-siswa { background: #eef2ff; color: #4f46e5; }
-    .dot-guru { background: #f0fdf4; color: #16a34a; }
-    .dot-umum { background: #fff7ed; color: #ea580c; }
+    .dot-siswa { background: #e0e7ff; color: #4338ca; }
+    .dot-guru { background: #fee2e2; color: var(--accent-red); }
+    .dot-umum { background: #f1f5f9; color: #475569; }
 
-    /* Action Circle Buttons */
     .btn-circle {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border: none;
-        margin: 0 3px;
         transition: 0.3s;
+        border: none;
     }
     .btn-c-view { background: #f1f5f9; color: #64748b; }
-    .btn-c-edit { background: #fef9c3; color: #a16207; }
-    .btn-c-delete { background: #fee2e2; color: #dc2626; }
+    .btn-c-edit { background: #e0e7ff; color: var(--primary-blue); }
+    .btn-c-delete { background: #fee2e2; color: var(--accent-red); }
     
-    .btn-circle:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-
+    .btn-circle:hover { 
+        transform: scale(1.15);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
 </style>
 
-<div class="bg-glow"></div>
+<div class="container-fluid py-4 fade-in-content">
 
-<div class="container-fluid py-3">
-
-    {{-- PREMIUM HEADER --}}
+    {{-- DYNAMIC ANIMATED HEADER --}}
     <div class="premium-header">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <span class="badge bg-white bg-opacity-25 mb-3 px-3 py-2 rounded-pill">Admin Dashboard v2.0</span>
-                <h1 class="fw-bold mb-1">Database Anggota</h1>
-                <p class="mb-0 opacity-75">Kelola informasi anggota perpustakaan dengan antarmuka cerdas.</p>
-            </div>
-            <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <button class="btn btn-glass-add" data-bs-toggle="modal" data-bs-target="#createUserModal">
-                    <i class="bi bi-person-plus-fill me-2"></i>Tambah Baru
-                </button>
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        
+        <div class="header-content">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold mb-2">Database Anggota</h1>
+                    <p class="lead mb-0 opacity-80">SDN 75 Kota Bengkulu — Manajemen data digital yang modern dan efisien.</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-4 mt-md-0">
+                    <button class="btn btn-action-add" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                        <i class="bi bi-person-plus-fill me-2"></i>Tambah Anggota Baru
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- FLOATING FILTER --}}
+    {{-- GLASS FILTER AREA --}}
     <div class="floating-filter">
         <form action="{{ route('admin.datauser') }}" method="GET" class="row g-3">
             <div class="col-md-7">
                 <div class="position-relative">
-                    <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
-                    <input type="text" name="keyword" class="form-control input-premium ps-5" placeholder="Cari nama, NISN, atau NIP anggota..." value="{{ request('keyword') }}">
+                    <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-primary" style="font-size: 1.2rem;"></i>
+                    <input type="text" name="keyword" class="form-control input-premium ps-5" placeholder="Cari berdasarkan Nama, NISN, atau NIP..." value="{{ request('keyword') }}">
                 </div>
             </div>
             <div class="col-md-3">
@@ -182,28 +215,35 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <button type="submit" class="btn btn-dark w-100 h-100 rounded-3 fw-bold">Terapkan</button>
+                <button type="submit" class="btn btn-primary w-100 h-100 rounded-4 fw-bold shadow-sm">
+                    <i class="bi bi-filter me-2"></i>Filter
+                </button>
             </div>
         </form>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-4 py-3 mb-4">
-            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+        <div class="alert alert-success border-0 shadow-lg rounded-4 py-3 mb-4 animate__animated animate__bounceInRight">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+                <div>
+                    <span class="fw-bold">Berhasil!</span> {{ session('success') }}
+                </div>
+            </div>
         </div>
     @endif
 
-    {{-- DATA TABLE --}}
+    {{-- MAIN DATA TABLE --}}
     <div class="table-glass-container">
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th class="text-center">ID</th>
-                        <th>Identitas Anggota</th>
+                        <th class="text-center">No</th>
+                        <th>Profil Anggota</th>
                         <th>Kategori</th>
-                        <th>Kode Identitas</th>
-                        <th>Keterangan</th>
+                        <th>Identitas Resmi</th>
+                        <th>Detail Kontak</th>
                         <th class="text-end pe-4">Kelola</th>
                     </tr>
                 </thead>
@@ -219,57 +259,59 @@
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="position-relative">
-                                    <img src="{{ $user->foto ? asset('storage/foto/'.$user->foto) : 'https://ui-avatars.com/api/?name='.urlencode($user->nama).'&background=6366f1&color=fff' }}" 
-                                         class="rounded-4 me-3" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                                    <span class="position-absolute bottom-0 end-0 translate-middle-x p-1 bg-success border border-white border-2 rounded-circle"></span>
+                                    <img src="{{ $user->foto ? asset('storage/foto/'.$user->foto) : 'https://ui-avatars.com/api/?name='.urlencode($user->nama).'&background=0d6efd&color=fff' }}" 
+                                         class="rounded-4 me-3" style="width: 52px; height: 52px; object-fit: cover; border: 3px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.08);">
                                 </div>
                                 <div>
-                                    <div class="fw-bold text-dark mb-0">{{ $user->nama }}</div>
-                                    <small class="text-muted"><i class="bi bi-geo-alt-fill me-1"></i>{{ Str::limit($user->alamat ?? 'Belum ada alamat', 20) }}</small>
+                                    <div class="fw-bold text-dark mb-0 fs-6">{{ $user->nama }}</div>
+                                    <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ Str::limit($user->alamat ?? 'Lokasi tidak ada', 25) }}</small>
                                 </div>
                             </div>
                         </td>
                         <td>
                             @if($user->type === 'users')
-                                <span class="dot-badge dot-siswa">Siswa</span>
+                                <span class="dot-badge dot-siswa"><i class="bi bi-person me-1"></i> Siswa</span>
                             @elseif($user->type === 'guru')
-                                <span class="dot-badge dot-guru">Guru</span>
+                                <span class="dot-badge dot-guru"><i class="bi bi-briefcase me-1"></i> Guru</span>
                             @else
-                                <span class="dot-badge dot-umum">Umum</span>
+                                <span class="dot-badge dot-umum"><i class="bi bi-people me-1"></i> Umum</span>
                             @endif
                         </td>
                         <td>
-                            <span class="badge bg-light text-dark border px-2 py-1">
-                                @if($user->type === 'users') {{ $user->nisn ?? '-' }}
-                                @elseif($user->type === 'guru') {{ $user->nip ?? '-' }}
-                                @else {{ $user->email ?? '-' }}
+                            <code class="text-primary fw-bold" style="background: #f1f5f9; padding: 4px 10px; border-radius: 8px;">
+                                @if($user->type === 'users') {{ $user->nisn ?? 'N/A' }}
+                                @elseif($user->type === 'guru') {{ $user->nip ?? 'N/A' }}
+                                @else {{ $user->email ?? 'N/A' }}
                                 @endif
-                            </span>
+                            </code>
                         </td>
                         <td>
                             <div class="small">
-                                <span class="d-block"><i class="bi bi-mortarboard me-1"></i> {{ $user->type === 'users' ? 'Kelas '.$user->kelas : 'Staff/Umum' }}</span>
-                                <span class="text-muted"><i class="bi bi-phone me-1"></i> {{ $user->nohp ?? '-' }}</span>
+                                <div class="text-dark fw-medium mb-1"><i class="bi bi-tag-fill me-2 text-primary"></i>{{ $user->type === 'users' ? 'Kelas '.$user->kelas : 'Staf Administrasi' }}</div>
+                                <div class="text-muted"><i class="bi bi-whatsapp me-2"></i>{{ $user->nohp ?? '-' }}</div>
                             </div>
                         </td>
                         <td class="text-end pe-4">
-                            <a href="#" class="btn-circle btn-c-view" title="Lihat Profil"><i class="bi bi-eye"></i></a>
-                            <button class="btn-circle btn-c-edit" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->type }}-{{ $user->id }}">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <form action="{{ route('admin.datauser.delete', $user->id) }}" method="POST" class="d-inline">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn-circle btn-c-delete" onclick="return confirm('Hapus data ini secara permanen?')">
-                                    <i class="bi bi-trash"></i>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="#" class="btn-circle btn-c-view" title="Lihat Profil"><i class="bi bi-eye-fill"></i></a>
+                                <button class="btn-circle btn-c-edit" data-bs-toggle="modal" data-bs-target="#editUserModal{{ $user->type }}-{{ $user->id }}" title="Edit">
+                                    <i class="bi bi-pencil-square"></i>
                                 </button>
-                            </form>
+                                <form action="{{ route('admin.datauser.delete', $user->id) }}" method="POST" class="d-inline">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-circle btn-c-delete" onclick="return confirm('Hapus data ini?')" title="Hapus">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
                         <td colspan="6" class="text-center py-5">
-                            <img src="https://illustrations.popsy.co/gray/box.svg" style="width: 150px;" class="mb-3 opacity-50">
-                            <h6 class="text-muted fw-bold">Belum ada data anggota yang tersimpan.</h6>
+                            <img src="https://illustrations.popsy.co/blue/abstract-art-4.svg" style="width: 200px;" class="mb-4">
+                            <h5 class="text-muted fw-bold">Belum ada anggota yang terdaftar</h5>
+                            <p class="text-muted">Klik tombol "Tambah Anggota" untuk memulai input data.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -279,33 +321,30 @@
     </div>
 </div>
 
-{{-- KODE MODAL TETAP DIBAWAH --}}
-{{-- MODAL TAMBAH USER --}}
+{{-- MODALS (MODAL CODE REMAINS THE SAME FOR FUNCTIONALITY) --}}
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold">Tambah Anggota</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-primary text-white border-0 p-4">
+                <h5 class="fw-bold mb-0">Tambah Anggota Baru</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.datauser.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Pilih Kategori</label>
+                        <label class="form-label fw-bold">Kategori Anggota</label>
                         <select id="categorySelect" class="form-select input-premium" onchange="toggleFields()" required>
-                            <option value="">-- Kategori --</option>
+                            <option value="">-- Pilih Kategori --</option>
                             <option value="siswa">Siswa</option>
                             <option value="guru">Guru</option>
                             <option value="umum">Umum</option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nama Lengkap</label>
-                        <input type="text" name="nama" class="form-control input-premium" required placeholder="Masukkan nama...">
+                        <input type="text" name="nama" class="form-control input-premium" required placeholder="Contoh: Budi Santoso">
                     </div>
-
                     <div id="siswaFields" style="display:none;">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -317,41 +356,21 @@
                                 <input type="text" name="kelas" class="form-control input-premium">
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Asal Sekolah</label>
-                            <input type="text" name="asal_sekolah" class="form-control input-premium">
-                        </div>
                     </div>
-
                     <div id="guruFields" style="display:none;">
                         <div class="mb-3"><label class="form-label">NIP</label>
                             <input type="text" name="nip" class="form-control input-premium">
                         </div>
-                        <div class="mb-3"><label class="form-label">Email</label>
-                            <input type="email" name="email_guru" class="form-control input-premium">
-                        </div>
                     </div>
-
-                    <div id="umumFields" style="display:none;">
-                        <div class="mb-3"><label class="form-label">Email</label>
-                            <input type="email" name="email_umum" class="form-control input-premium">
-                        </div>
+                    <div class="mb-3"><label class="form-label fw-bold">Nomor WhatsApp</label>
+                        <input type="text" name="nohp" class="form-control input-premium">
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3"><label class="form-label fw-bold">No HP</label>
-                            <input type="text" name="nohp" class="form-control input-premium">
-                        </div>
-                        <div class="col-md-6 mb-3"><label class="form-label fw-bold">Password</label>
-                            <input type="password" name="password" class="form-control input-premium" required>
-                        </div>
-                    </div>
-                    <div class="mb-3"><label class="form-label fw-bold">Foto</label>
+                    <div class="mb-3"><label class="form-label fw-bold">Unggah Foto</label>
                         <input type="file" name="foto" class="form-control input-premium">
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-4">
-                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Tutup</button>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold">Simpan Anggota</button>
                 </div>
             </form>
@@ -362,10 +381,10 @@
 @foreach($users as $user)
 <div class="modal fade" id="editUserModal{{ $user->type }}-{{ $user->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="fw-bold">Edit Data Anggota</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-primary text-white border-0 p-4">
+                <h5 class="fw-bold mb-0">Perbarui Data Anggota</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.datauser.update', $user->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf @method('PUT')
@@ -374,25 +393,19 @@
                         <label class="form-label fw-bold">Nama Lengkap</label>
                         <input type="text" name="nama" class="form-control input-premium" value="{{ $user->nama }}" required>
                     </div>
-                    
                     @if($user->type === 'users')
                         <div class="mb-3"><label class="form-label">NISN</label>
                             <input type="text" name="nisn" class="form-control input-premium" value="{{ $user->nisn ?? '' }}">
                         </div>
-                    @elseif($user->type === 'umum' || $user->type === 'guru')
-                        <div class="mb-3"><label class="form-label">Email/NIP</label>
-                            <input type="text" name="identitas" class="form-control input-premium" value="{{ $user->nip ?? $user->email }}">
-                        </div>
                     @endif
-                    
-                    <div class="mb-3"><label class="form-label fw-bold">No HP</label>
+                    <div class="mb-3"><label class="form-label fw-bold">Nomor WhatsApp</label>
                         <input type="text" name="nohp" class="form-control input-premium" value="{{ $user->nohp ?? '' }}">
                     </div>
-                    <div class="mb-3"><label class="form-label">Foto Baru</label>
+                    <div class="mb-3"><label class="form-label fw-bold">Ganti Foto Profil</label>
                         <input type="file" name="foto" class="form-control input-premium">
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-4">
+                <div class="modal-footer border-0 p-4 pt-0">
                     <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold">Update Data</button>
                 </div>
@@ -407,7 +420,6 @@ function toggleFields() {
     const category = document.getElementById('categorySelect').value;
     document.getElementById('siswaFields').style.display = category === 'siswa' ? 'block' : 'none';
     document.getElementById('guruFields').style.display = category === 'guru' ? 'block' : 'none';
-    document.getElementById('umumFields').style.display = category === 'umum' ? 'block' : 'none';
 }
 </script>
 

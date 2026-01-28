@@ -7,177 +7,217 @@
 
 <style>
     :root {
-        --navy-dark: #020617;
-        --navy-accent: #0f172a;
-        --gold: #f7931e;
-        --gold-glow: rgba(247, 147, 30, 0.2);
-        --glass: rgba(255, 255, 255, 0.03);
-        --glass-border: rgba(255, 255, 255, 0.08);
+        --primary-blue: #0A58CA;
+        --deep-navy: #021f4b;
+        --accent-red: #d90429;
+        --pure-white: #ffffff;
+        --text-slate: #334155;
+        --glass-white: rgba(255, 255, 255, 0.95);
     }
 
     body {
-        background-color: var(--navy-dark);
-        color: #e2e8f0;
+        /* Latar belakang dengan gradien biru tipis agar nuansa putih-merah menonjol */
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        color: var(--text-slate);
         font-family: 'Plus Jakarta Sans', sans-serif;
+        min-height: 100vh;
     }
 
-    /* 1. Menaikkan Konten (Margin diperkecil dari 140px ke 80px) */
     .container-detail {
         max-width: 850px;
-        margin: 80px auto 100px;
-        padding: 0 25px;
+        margin: 60px auto 100px;
+        padding: 40px;
+        background: var(--glass-white);
+        border-radius: 30px;
+        box-shadow: 0 20px 50px rgba(2, 31, 75, 0.1);
+        border: 1px solid rgba(10, 88, 202, 0.1);
         position: relative;
+    }
+
+    /* Garis dekoratif merah di paling atas kontainer */
+    .container-detail::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 150px;
+        height: 5px;
+        background: var(--accent-red);
+        border-radius: 0 0 10px 10px;
     }
 
     .nav-back {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        color: var(--gold);
+        color: var(--primary-blue);
         text-decoration: none;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: 30px;
         transition: 0.3s;
     }
-    .nav-back:hover { opacity: 0.8; transform: translateX(-3px); }
+    .nav-back:hover { color: var(--accent-red); transform: translateX(-5px); }
 
     /* Header Section */
     .article-header {
-        text-align: center; /* Membuat header lebih rapi di tengah */
+        text-align: center;
         margin-bottom: 40px;
     }
 
     .badge-category {
         display: inline-block;
-        padding: 6px 16px;
-        background: rgba(247, 147, 30, 0.1);
-        border: 1px solid var(--gold);
-        color: var(--gold);
-        font-weight: 700;
+        padding: 6px 18px;
+        background: var(--accent-red);
+        color: white;
+        font-weight: 800;
         font-size: 10px;
         text-transform: uppercase;
-        border-radius: 8px;
-        letter-spacing: 1.5px;
+        border-radius: 50px;
+        letter-spacing: 1.2px;
         margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(217, 4, 41, 0.2);
     }
 
     .title-main {
         font-family: 'Outfit', sans-serif;
-        font-size: clamp(2rem, 5vw, 3.2rem); /* Ukuran sedikit dikecilkan agar lebih elegan */
-        font-weight: 800;
+        font-size: clamp(2rem, 5vw, 2.8rem);
+        font-weight: 900;
         line-height: 1.2;
-        color: #fff;
+        /* Gradien Biru ke Merah sesuai permintaan */
+        background: linear-gradient(135deg, var(--deep-navy) 30%, var(--accent-red) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
         margin-bottom: 25px;
     }
 
     .meta-stack {
         display: flex;
         justify-content: center;
-        gap: 20px;
-        color: #94a3b8;
+        gap: 25px;
+        color: #64748b;
         font-size: 13px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--glass-border);
+        font-weight: 600;
+        padding-bottom: 25px;
+        border-bottom: 2px dashed #e2e8f0;
     }
 
-    .meta-item { display: flex; align-items: center; gap: 6px; }
-    .meta-item i { color: var(--gold); }
+    .meta-item i { color: var(--primary-blue); }
 
-    /* 2. Mengecilkan Gambar (Max-width 70% dan Max-height dikurangi) */
+    /* Media Image */
     .media-container {
         margin: 40px auto;
-        max-width: 80%; /* Gambar tidak selebar kontainer teks */
+        max-width: 90%; 
         text-align: center;
     }
 
     .img-frame {
         width: 100%;
-        max-height: 400px; /* Dibatasi agar tidak terlalu tinggi */
+        max-height: 450px;
         object-fit: cover;
-        border-radius: 24px;
-        border: 1px solid var(--glass-border);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        border-radius: 20px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        border: 4px solid white;
     }
 
-    /* 3. Isi Konten Lebih Rapi */
+    /* Content Area */
     .article-content {
-        font-size: 1.15rem;
+        font-size: 1.1rem;
         line-height: 1.8;
-        color: #cbd5e1;
-        text-align: justify; /* Membuat teks rata kanan-kiri agar terlihat rapi */
+        color: var(--text-slate);
+        text-align: justify;
     }
 
-    .article-content p {
-        margin-bottom: 25px;
+    .article-subjudul {
+        font-size: 1.4rem;
+        color: var(--deep-navy);
+        font-weight: 800;
+        margin: 35px 0 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .article-subjudul::before {
+        content: '';
+        width: 4px;
+        height: 24px;
+        background: var(--accent-red);
+        display: inline-block;
+        border-radius: 2px;
     }
 
-    /* Action Box */
+    /* Action Box (Source Link) */
     .action-box {
         margin-top: 60px;
         padding: 30px;
-        background: var(--navy-accent);
-        border-radius: 24px;
-        border: 1px solid var(--glass-border);
+        background: linear-gradient(135deg, var(--deep-navy), var(--primary-blue));
+        border-radius: 20px;
+        color: white;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 20px;
     }
 
-    .action-text h4 { font-family: 'Outfit', sans-serif; color: #fff; margin-bottom: 5px; }
     .btn-action {
-        background: var(--gold);
-        color: var(--navy-dark);
-        padding: 12px 28px;
+        background: white;
+        color: var(--deep-navy);
+        padding: 12px 24px;
         border-radius: 12px;
-        font-weight: 700;
+        font-weight: 800;
         text-decoration: none;
-        white-space: nowrap;
         transition: 0.3s;
+        border: 2px solid transparent;
     }
-    .btn-action:hover { transform: translateY(-3px); box-shadow: 0 10px 20px var(--gold-glow); }
+    .btn-action:hover { 
+        background: var(--accent-red); 
+        color: white;
+        transform: translateY(-3px);
+    }
 
     @media (max-width: 768px) {
-        .media-container { max-width: 100%; }
+        .container-detail { margin: 20px; padding: 25px; }
         .action-box { flex-direction: column; text-align: center; }
-        .meta-stack { flex-direction: column; gap: 10px; align-items: center; }
+        .meta-stack { flex-direction: column; gap: 10px; border-bottom: none; }
     }
 </style>
 
-<div class="container-detail">
-    <a href="{{ route('auth.artikel') }}" class="nav-back" data-aos="fade-right">
-        <i class="bi bi-arrow-left"></i> Kembali ke Eksplorasi
+<div class="container-detail" data-aos="fade-up">
+    <a href="{{ route('auth.artikel') }}" class="nav-back">
+        <i class="bi bi-arrow-left"></i> KEMBALI KE BERITA
     </a>
 
     <header class="article-header">
-        <div data-aos="fade-up">
-            <span class="badge-category">{{ $artikel->kategori }}</span>
-        </div>
-        <h1 class="title-main" data-aos="fade-up" data-aos-delay="100">
+        <span class="badge-category" data-aos="zoom-in">{{ $artikel->kategori }}</span>
+        <h1 class="title-main">
             {{ $artikel->judul }}
         </h1>
         
-        <div class="meta-stack" data-aos="fade-up" data-aos-delay="200">
+        <div class="meta-stack">
             <div class="meta-item">
-                <i class="bi bi-calendar-event"></i>
+                <i class="bi bi-calendar3"></i>
                 <span>{{ $artikel->created_at->format('d M Y') }}</span>
             </div>
             <div class="meta-item">
-                <i class="bi bi-person-circle"></i>
-                <span>Admin</span>
+                <i class="bi bi-clock"></i>
+                <span>{{ $artikel->created_at->format('H:i') }} WIB</span>
             </div>
             <div class="meta-item">
-                <i class="bi bi-clock"></i>
-                <span>5 Menit Baca</span>
+                <i class="bi bi-patch-check-fill"></i>
+                <span>Terverifikasi</span>
             </div>
         </div>
     </header>
 
     @if($artikel->foto)
-    <div class="media-container" data-aos="zoom-in">
+    <div class="media-container" data-aos="fade-up">
         <img src="{{ asset('storage/' . $artikel->foto) }}" class="img-frame" alt="Cover Artikel">
     </div>
+    @endif
+
+    @if($artikel->subjudul)
+        <div class="article-subjudul" data-aos="fade-up">{{ $artikel->subjudul }}</div>
     @endif
 
     <article class="article-content" data-aos="fade-up">
@@ -185,13 +225,13 @@
     </article>
 
     @if($artikel->link)
-    <div class="action-box" data-aos="fade-up">
+    <div class="action-box" data-aos="zoom-in">
         <div class="action-text">
-            <h4>Pelajari Lebih Dalam</h4>
-            <p class="text-muted small mb-0">Temukan referensi tambahan melalui tautan eksternal ini.</p>
+            <h4 class="mb-1 fw-bold">Informasi Lebih Lanjut</h4>
+            <p class="opacity-75 small mb-0">Klik tombol di samping untuk mengunjungi tautan referensi asli.</p>
         </div>
         <a href="{{ $artikel->link }}" target="_blank" class="btn-action">
-            Buka Sumber <i class="bi bi-box-arrow-up-right"></i>
+            BACA SUMBER <i class="bi bi-box-arrow-up-right ms-1"></i>
         </a>
     </div>
     @endif
@@ -201,6 +241,6 @@
 
 <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <script>
-    AOS.init({ duration: 800, once: true });
+    AOS.init({ duration: 1000, once: true });
 </script>
 @endsection
