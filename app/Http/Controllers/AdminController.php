@@ -8,32 +8,36 @@ use App\Models\Umum;
 use App\Models\Guru;
 use App\Models\Notifikasi;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
-    public function dataUser(Request $request)
+    /**
+     * Menampilkan data gabungan dari tabel User, Umum, dan Guru
+     */
+    public function index(Request $request)
     {
         $keyword = $request->has('keyword') && $request->keyword != '' ? $request->keyword : null;
         $category = $request->get('category');
 
         // Ambil data dari ketiga tabel
-        $users = User::query();
-        $umum = Umum::query();
-        $guru = Guru::query();
+        $usersQuery = User::query();
+        $umumQuery = Umum::query();
+        $guruQuery = Guru::query();
 
         // Filter keyword jika ada
         if ($keyword) {
-            $users->where(function ($q) use ($keyword) {
+            $usersQuery->where(function ($q) use ($keyword) {
                 $q->where('nama', 'like', "%$keyword%")
                   ->orWhere('nisn', 'like', "%$keyword%");
             });
             
-            $umum->where(function ($q) use ($keyword) {
+            $umumQuery->where(function ($q) use ($keyword) {
                 $q->where('nama', 'like', "%$keyword%")
                   ->orWhere('email', 'like', "%$keyword%");
             });
             
-            $guru->where(function ($q) use ($keyword) {
+            $guruQuery->where(function ($q) use ($keyword) {
                 $q->where('nama', 'like', "%$keyword%")
                   ->orWhere('nip', 'like', "%$keyword%")
                   ->orWhere('email', 'like', "%$keyword%");
@@ -41,25 +45,25 @@ class AdminController extends Controller
         }
 
         // Ambil data dengan tipe untuk membedakan dari tabel mana
-        $usersData = $users->get()->map(function($item) {
+        $usersData = $usersQuery->get()->map(function($item) {
             $item->type = 'users';
             $item->identifier = $item->nisn ?? '';
             return $item;
         });
 
-        $umumData = $umum->get()->map(function($item) {
+        $umumData = $umumQuery->get()->map(function($item) {
             $item->type = 'umum';
             $item->identifier = $item->email ?? '';
             return $item;
         });
 
-        $guruData = $guru->get()->map(function($item) {
+        $guruData = $guruQuery->get()->map(function($item) {
             $item->type = 'guru';
             $item->identifier = $item->nip ?? '';
             return $item;
         });
 
-        // Gabung ketiga koleksi
+        // Gabung ketiga koleksi (Logika asli dipertahankan)
         $users = $usersData->concat($umumData)->concat($guruData);
 
         return view('admin.datauser', compact('users'));
@@ -70,7 +74,10 @@ class AdminController extends Controller
         return view('admin.createuser');
     }
 
-    public function storeUser(Request $request)
+    /**
+     * Menyimpan user baru
+     */
+    public function store(Request $request)
     {
         $request->validate([
             'nama' => 'required|string|max:255',
@@ -99,7 +106,10 @@ class AdminController extends Controller
         return view('admin.edituser', compact('user'));
     }
 
-    public function updateUser(Request $request, $id)
+    /**
+     * Update data user
+     */
+    public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
 
@@ -122,68 +132,65 @@ class AdminController extends Controller
         return redirect()->route('admin.datauser')->with('success', 'Data user berhasil diperbarui!');
     }
 
-    public function deleteUser($id)
+    /**
+     * Hapus user
+     */
+    public function destroy($id)
     {
         $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('admin.datauser')->with('success', 'User berhasil dihapus!');
     }
 
-public function notifikasi(Request $request)
-{
-    $query = Notifikasi::query();
+    // --- NOTIFIKASI (TIDAK ADA YANG DIHAPUS) ---
 
-    // ===== FILTER SEARCH =====
-    if ($request->filled('keyword')) {
-        $keyword = $request->keyword;
-        $query->where(function($q) use ($keyword) {
-            $q->where('judul', 'like', "%{$keyword}%")
-              ->orWhere('pesan', 'like', "%{$keyword}%");
-        });
+    public function notifikasi(Request $request)
+    {
+        $query = Notifikasi::query();
+
+        if ($request->filled('keyword')) {
+            $keyword = $request->keyword;
+            $query->where(function($q) use ($keyword) {
+                $q->where('judul', 'like', "%{$keyword}%")
+                  ->orWhere('pesan', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $notifikasi = $query->latest()->get();
+        $totalNotif = Notifikasi::count();
+        $notifBaru = Notifikasi::whereDate('created_at', today())->count();
+
+        return view('admin.notifikasi', compact('notifikasi', 'totalNotif', 'notifBaru'));
     }
 
-    // ===== FILTER TANGGAL =====
-    if ($request->filled('start_date')) {
-        $start = $request->start_date;
-        $query->whereDate('created_at', '>=', $start);
+    public function notifikasiStore(Request $request)
+    {
+        $request->validate([
+            'judul' => 'required',
+            'pesan' => 'required',
+        ]);
+
+        Notifikasi::create($request->all());
+        return redirect()->back()->with('success', 'Notifikasi berhasil ditambahkan!');
     }
-    if ($request->filled('end_date')) {
-        $end = $request->end_date;
-        $query->whereDate('created_at', '<=', $end);
+
+    public function notifikasiUpdate(Request $request, $id)
+    {
+        $notifikasi = Notifikasi::findOrFail($id);
+        $notifikasi->update($request->all());
+        return redirect()->back()->with('success', 'Notifikasi berhasil diperbarui!');
     }
 
-    $notifikasi = $query->latest()->get();
-
-    $totalNotif = Notifikasi::count();
-    $notifBaru = Notifikasi::whereDate('created_at', today())->count();
-
-    return view('admin.notifikasi', compact('notifikasi', 'totalNotif', 'notifBaru'));
+    public function notifikasiDelete($id)
+    {
+        Notifikasi::findOrFail($id)->delete();
+        return redirect()->back()->with('success', 'Notifikasi berhasil dihapus!');
+    }
 }
-
-public function notifikasiStore(Request $request)
-{
-    $request->validate([
-        'judul' => 'required',
-        'pesan' => 'required',
-    ]);
-
-    Notifikasi::create($request->all());
-
-    return redirect()->back()->with('success', 'Notifikasi berhasil ditambahkan!');
-}
-
-public function notifikasiUpdate(Request $request, $id)
-{
-    $notifikasi = Notifikasi::findOrFail($id);
-    $notifikasi->update($request->all());
-
-    return redirect()->back()->with('success', 'Notifikasi berhasil diperbarui!');
-}
-
-public function notifikasiDelete($id)
-{
-    Notifikasi::findOrFail($id)->delete();
-    return redirect()->back()->with('success', 'Notifikasi berhasil dihapus!');
-}
-}
-

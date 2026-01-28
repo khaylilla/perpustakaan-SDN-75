@@ -3,134 +3,195 @@
 @section('content')
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
 <style>
 /* ============================================================= */
-/* GLOBAL STYLING */
+/* GLOBAL REFINEMENT (RED-BLUE-WHITE THEME) */
 /* ============================================================= */
 :root {
-    --c-navy: #001F54;
-    --c-orange: #f7931e;
+    --primary-blue: #0A58CA;
+    --deep-navy: #021f4b;
+    --accent-red: #d90429;
+    --pure-white: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
     --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: #f8fafc;
-    color: #334155;
+    font-family: var(--font-body);
+    background-color: #f8fafc;
+    color: var(--text-main);
 }
 
-/* UBAH DISINI: Jarak antar section diperkecil dari 40px jadi 20px */
-section { padding: 20px 0; } 
-.container { max-width: 1100px; }
+section { padding: 50px 0; }
+
+/* ANIMASI BACKGROUND BUBBLES */
+.bg-animated {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; background: #fff; overflow: hidden;
+}
+.bubble {
+    position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.08; animation: float 20s infinite alternate;
+}
+.bubble-1 { width: 400px; height: 400px; background: var(--primary-blue); top: -100px; right: -100px; }
+.bubble-2 { width: 300px; height: 300px; background: var(--accent-red); bottom: -50px; left: -50px; animation-delay: -5s; }
+
+@keyframes float {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(50px, 100px) scale(1.1); }
+}
 
 /* ============================================================= */
-/* HERO SLIDER SECTION */
+/* HERO SLIDER */
 /* ============================================================= */
 .hero-slider {
-    position: relative;
-    height: 480px; /* Sedikit diperpendek agar lebih compact */
+    height: 550px;
     width: 100%;
     overflow: hidden;
 }
 .hero-slider img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    filter: brightness(0.45);
+    width: 100%; height: 100%; object-fit: cover;
 }
 .hero-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(to bottom, rgba(0,31,84,0.3), rgba(0,31,84,0.7));
+    background: linear-gradient(to right, rgba(2, 31, 75, 0.85), rgba(2, 31, 75, 0.2));
     z-index: 1;
 }
 .hero-content {
     position: absolute; top: 50%; left: 10%;
     transform: translateY(-50%);
-    z-index: 2; color: white; max-width: 750px;
+    z-index: 2; color: white; max-width: 700px;
 }
-.hero-content h1 { font-size: 2.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 15px; }
+.hero-content h1 { 
+    font-family: var(--font-heading);
+    font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 20px; 
+}
 .hero-badge {
-    display: inline-block; padding: 5px 12px;
-    background: var(--c-orange); border-radius: 50px;
-    font-weight: 700; font-size: 0.7rem;
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+    display: inline-block; padding: 6px 15px;
+    background: var(--accent-red); border-radius: 50px;
+    font-weight: 700; font-size: 0.75rem;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;
 }
 
 /* ============================================================= */
-/* CARD & SLIDER STYLING */
+/* CARD STYLING (MATCHING THE LIST PAGE) */
 /* ============================================================= */
-.section-title { font-size: 22px; font-weight: 800; color: var(--c-navy); margin-bottom: 2px; }
-/* UBAH DISINI: Jarak header ke konten diperkecil */
-.section-header { margin-bottom: 15px; }
-
-/* Koleksi Card */
-.koleksi-card {
-    background: white; border-radius: 16px; overflow: hidden;
-    transition: var(--transition); border: 1px solid rgba(0,0,0,0.05); height: 100%;
+.section-title { 
+    font-family: var(--font-heading);
+    font-size: 2rem; font-weight: 800; 
+    color: var(--deep-navy);
 }
-.koleksi-img-wrapper { height: 240px; overflow: hidden; }
-.koleksi-img { width: 100%; height: 100%; object-fit: cover; transition: var(--transition); }
-.koleksi-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
 
-/* Favorite Card (Terpopuler) */
-.favorite-item-card {
-    background: white; 
-    border-radius: 16px; 
-    padding: 15px; /* UBAH DISINI: Padding dikurangi dari 25px jadi 15px */
-    transition: var(--transition); 
-    border: 1.5px solid transparent;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    justify-content: center;
+/* Small Book Card */
+.book-card-sm {
+    background: var(--pure-white);
+    border: 1px solid #f1f5f9;
+    border-radius: 24px;
+    padding: 12px;
+    transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
 }
-.favorite-item-card:hover { border-color: var(--c-orange); transform: translateY(-5px); }
+.book-card-sm:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(2, 31, 75, 0.1);
+    border-color: var(--primary-blue);
+}
+.img-wrapper-sm {
+    height: 220px;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 12px;
+    background: #f8fafc;
+}
+.img-wrapper-sm img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+
+.category-tag {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--primary-blue);
+    text-transform: uppercase;
+}
+
+/* Popular Card */
+.popular-card {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    border: 1px solid #f1f5f9;
+    transition: var(--transition);
+    border-left: 4px solid var(--accent-red);
+}
+.popular-card:hover {
+    border-color: var(--accent-red);
+    transform: translateX(5px);
+}
 
 /* Article Card */
-.article-card {
-    background: white; border-radius: 16px; border: none;
-    transition: var(--transition); box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+.article-card-sm {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #f1f5f9;
+    padding: 20px;
+    height: 100%;
+    transition: var(--transition);
+}
+.article-card-sm:hover {
+    box-shadow: 0 15px 30px rgba(10, 88, 202, 0.08);
 }
 
-.rank-badge {
-    width: 30px; height: 30px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 0.85rem;
+.btn-primary-custom {
+    background: var(--primary-blue);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.3s;
 }
-
-.text-truncate-2 {
-    display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
+.btn-primary-custom:hover {
+    background: var(--deep-navy);
+    color: white;
+    transform: translateY(-3px);
 }
-
-/* Button */
-.btn-primary-modern {
-    background: var(--c-navy); color: white; padding: 10px 24px;
-    border-radius: 10px; font-weight: 700; text-decoration: none; display: inline-block;
-    font-size: 0.9rem;
-}
-.btn-primary-modern:hover { background: var(--c-orange); color: white; }
 </style>
+
+<div class="bg-animated">
+    <div class="bubble bubble-1"></div>
+    <div class="bubble bubble-2"></div>
+</div>
 
 <div class="hero-slider swiper">
     <div class="swiper-wrapper">
         <div class="swiper-slide">
             <img src="{{ asset('FT.jpg') }}" alt="Gedung Teknik">
             <div class="hero-overlay"></div>
-            <div class="hero-content">
-                <span class="hero-badge">Digital Library</span>
-                <h1>Eksplorasi Ilmu Pengetahuan Teknik</h1>
-                <p class="mb-4 opacity-75 small">Akses ribuan referensi buku, jurnal, dan karya ilmiah terbaik dari Fakultas Teknik UNIB.</p>
-                <a href="{{ route('buku.index') }}" class="btn-primary-modern">Mulai Membaca</a>
+            <div class="hero-content" data-aos="fade-right">
+                <span class="hero-badge">Digital Repository</span>
+                <h1>Eksplorasi Ilmu Teknik Terlengkap</h1>
+                <p class="mb-4 opacity-75">Akses ribuan referensi buku, jurnal, dan karya ilmiah pilihan dari Fakultas Teknik UNIB.</p>
+                <a href="{{ route('buku.index') }}" class="btn-primary-custom">Mulai Jelajah</a>
             </div>
         </div>
         <div class="swiper-slide">
             <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1600" alt="Interior">
             <div class="hero-overlay"></div>
             <div class="hero-content">
-                <span class="hero-badge">Resource Hub</span>
-                <h1>Dukung Riset & Inovasi Mahasiswa</h1>
-                <p class="mb-4 opacity-75 small">Fasilitas literasi lengkap untuk mendukung proyek masa depan Anda.</p>
-                <a href="#koleksi" class="btn-primary-modern">Lihat Koleksi</a>
+                <span class="hero-badge">Modern Library</span>
+                <h1>Fasilitas Riset & Inovasi</h1>
+                <p class="mb-4 opacity-75">Ruang baca yang nyaman dan koleksi digital yang selalu diperbarui untuk riset Anda.</p>
+                <a href="#koleksi" class="btn-primary-custom">Lihat Koleksi</a>
             </div>
         </div>
     </div>
@@ -139,36 +200,33 @@ section { padding: 20px 0; }
 
 <section id="koleksi">
     <div class="container">
-        <div class="section-header d-flex justify-content-between align-items-end">
+        <div class="section-header d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="section-title">Koleksi Terbaru</h2>
-                <p class="text-muted small m-0">Buku terbaru yang siap dipinjam.</p>
+                <div style="width: 50px; height: 4px; background: var(--accent-red); border-radius: 2px;"></div>
             </div>
-            <a href="{{ route('buku.index') }}" class="fw-bold text-decoration-none small" style="color:var(--c-orange);">Lihat Semua →</a>
+            <a href="{{ route('buku.index') }}" class="fw-bold text-decoration-none" style="color:var(--primary-blue);">Lihat Semua <i class="bi bi-arrow-right"></i></a>
         </div>
 
         <div class="swiper koleksi-swiper">
             <div class="swiper-wrapper">
                 @foreach($books as $book)
-                @php
-                    $covers = json_decode($book->cover, true);
-                    $title = $book->title ?? $book->judul ?? 'Untitled';
-                @endphp
-                <div class="swiper-slide" style="width: 240px;"> <div class="koleksi-card shadow-sm">
-                        <div class="koleksi-img-wrapper">
+                @php $covers = json_decode($book->cover, true); @endphp
+                <div class="swiper-slide" style="width: 230px;">
+                    <a href="{{ route('buku.show', $book->id) }}" class="book-card-sm">
+                        <div class="img-wrapper-sm">
                             @if($covers && count($covers) > 0)
-                                <img src="{{ asset('storage/'.$covers[0]) }}" class="koleksi-img">
+                                <img src="{{ asset('storage/'.$covers[0]) }}" alt="Cover">
                             @else
-                                <img src="https://via.placeholder.com/300x400" class="koleksi-img">
+                                <img src="{{ asset('images/no-image.png') }}" alt="No Cover">
                             @endif
                         </div>
-                        <div class="koleksi-body p-3">
-                            <small class="fw-bold text-uppercase" style="color:var(--c-orange); font-size: 9px;">{{ $book->kategori->name ?? 'Umum' }}</small>
-                            <h6 class="koleksi-title mt-1 mb-1 fw-bold text-truncate-2" style="font-size: 14px; height: 38px; color: var(--c-navy);">{{ $title }}</h6>
-                            <p class="text-muted small mb-2" style="font-size: 11px;">{{ Str::limit($book->author ?? $book->penulis, 18) }}</p>
-                            <a href="{{ route('buku.show', $book->id) }}" class="btn btn-sm w-100 py-1" style="border: 1px solid var(--c-navy); color: var(--c-navy); font-weight: 700; border-radius: 8px; font-size: 12px;">Detail</a>
+                        <div class="p-1">
+                            <span class="category-tag">{{ $book->kategori }}</span>
+                            <h6 class="fw-bold mt-1 text-truncate-2" style="font-size: 14px; color: var(--deep-navy); height: 38px;">{{ $book->judul }}</h6>
+                            <p class="text-muted small mb-0" style="font-size: 11px;"><i class="bi bi-person me-1"></i>{{ Str::limit($book->penulis, 18) }}</p>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 @endforeach
             </div>
@@ -176,68 +234,55 @@ section { padding: 20px 0; }
     </div>
 </section>
 
-<section style="background: #f1f5f9;">
+<section style="background: rgba(10, 88, 202, 0.03);">
     <div class="container">
-        <div class="section-header">
+        <div class="section-header mb-4 text-center">
             <h2 class="section-title">Buku Terpopuler</h2>
-            <p class="text-muted small m-0">Pilihan favorit para pembaca saat ini.</p>
+            <p class="text-muted">Paling sering dibaca dan dipinjam bulan ini.</p>
         </div>
         
-        <div class="swiper populer-swiper">
-            <div class="swiper-wrapper">
-                @foreach($bukuFavorit as $index => $buku)
-                <div class="swiper-slide" style="width: 280px;"> <div class="favorite-item-card h-100 shadow-sm">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <div class="rank-badge" style="background: {{ $index == 0 ? '#FEF3C7' : ($index == 1 ? '#F1F5F9' : '#FFEDD5') }}; color: {{ $index == 0 ? '#92400E' : '#475569' }};">
-                                {{ $index + 1 }}
-                            </div>
-                            <span class="badge rounded-pill bg-primary-subtle text-primary" style="font-size: 10px;">{{ $buku->total }}x Pinjam</span>
-                        </div>
-                        
-                        <h6 class="fw-bold text-truncate-2 mb-1" style="color: var(--c-navy); line-height: 1.3; height: 38px; font-size: 14px;">{{ $buku->judul_buku }}</h6>
-                        
-                        <small class="text-muted" style="font-size: 11px;">
-                            <i class="fa-solid fa-pen-nib me-1 opacity-50"></i> {{ Str::limit($buku->penulis, 25) }}
-                        </small>
+        <div class="row g-3">
+            @foreach($bukuFavorit->take(4) as $index => $buku)
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
+                <div class="popular-card h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-danger rounded-circle" style="width: 25px; height: 25px; padding: 5px;">{{ $index + 1 }}</span>
+                        <span class="text-muted" style="font-size: 10px;"><i class="bi bi-fire text-danger"></i> {{ $buku->total }}x</span>
                     </div>
+                    <h6 class="fw-bold text-truncate-2 mb-1" style="font-size: 14px; color: var(--deep-navy);">{{ $buku->judul_buku }}</h6>
+                    <small class="text-muted">{{ Str::limit($buku->penulis, 20) }}</small>
                 </div>
-                @endforeach
             </div>
+            @endforeach
         </div>
     </div>
 </section>
 
 <section>
     <div class="container">
-        <div class="section-header d-flex justify-content-between align-items-center">
+        <div class="section-header d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h2 class="section-title">Wawasan Terbaru</h2>
-                <p class="text-muted small m-0">Berita dan tips terbaru seputar perpustakaan.</p>
+                <div style="width: 50px; height: 4px; background: var(--primary-blue); border-radius: 2px;"></div>
             </div>
-            <a href="{{ route('auth.artikel') }}" class="btn btn-sm fw-bold px-3 border-dark" style="border-radius: 10px; font-size: 12px;">Lihat Semua</a>
         </div>
 
-        <div class="swiper artikel-swiper">
-            <div class="swiper-wrapper">
-                @foreach($artikels as $artikel)
-                <div class="swiper-slide" style="width: 320px;">
-                    <div class="card article-card h-100 shadow-sm">
-                        <div class="card-body p-3"> <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="fa-regular fa-calendar text-muted small"></i>
-                                <small class="text-muted fw-bold" style="font-size: 10px;">{{ $artikel->created_at->format('d M Y') }}</small>
-                            </div>
-                            <h5 class="fw-bold mb-2 text-truncate-2" style="color: var(--c-navy); font-size: 15px; line-height: 1.4; height: 42px;">{{ $artikel->judul }}</h5>
-                            <p class="text-muted small mb-3" style="font-size: 12px; line-height: 1.5;">
-                                {{ Str::limit(strip_tags($artikel->deskripsi), 80) }}
-                            </p>
-                            <a href="{{ route('auth.artikel') }}" class="text-decoration-none fw-bold" style="color: var(--c-orange); font-size: 12px;">
-                                Selengkapnya <i class="fa-solid fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
+        <div class="row g-4">
+            @foreach($artikels->take(3) as $artikel)
+            <div class="col-md-4" data-aos="zoom-in">
+                <div class="article-card-sm">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <i class="bi bi-calendar3 text-danger small"></i>
+                        <small class="text-muted fw-bold" style="font-size: 10px;">{{ $artikel->created_at->format('d M Y') }}</small>
                     </div>
+                    <h5 class="fw-bold mb-2 text-truncate-2" style="font-size: 16px; color: var(--deep-navy);">{{ $artikel->judul }}</h5>
+                    <p class="text-muted small mb-3">{{ Str::limit(strip_tags($artikel->deskripsi), 80) }}</p>
+                    <a href="{{ route('auth.artikel') }}" class="text-decoration-none fw-bold small" style="color: var(--accent-red);">
+                        Baca Artikel <i class="bi bi-arrow-right-short"></i>
+                    </a>
                 </div>
-                @endforeach
             </div>
+            @endforeach
         </div>
     </div>
 </section>
@@ -245,20 +290,20 @@ section { padding: 20px 0; }
 @include('components.footer')
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <script>
-    // Hero Slider
+    AOS.init({ duration: 800, once: true });
+
     new Swiper(".hero-slider", {
-        loop: true, effect: "fade", autoplay: { delay: 5000 },
+        loop: true, effect: "fade", autoplay: { delay: 5000, disableOnInteraction: false },
         pagination: { el: ".swiper-pagination", clickable: true },
     });
 
-    // Koleksi Slider
-    new Swiper(".koleksi-swiper", { slidesPerView: "auto", spaceBetween: 15, freeMode: true });
-
-    // Populer Slider
-    new Swiper(".populer-swiper", { slidesPerView: "auto", spaceBetween: 15, freeMode: true });
-
-    // Artikel Slider
-    new Swiper(".artikel-swiper", { slidesPerView: "auto", spaceBetween: 15, freeMode: true });
+    new Swiper(".koleksi-swiper", { 
+        slidesPerView: "auto", 
+        spaceBetween: 20, 
+        freeMode: true,
+        grabCursor: true
+    });
 </script>
 @endsection

@@ -199,7 +199,7 @@ class BookController extends Controller
         return redirect()->route('admin.datakoleksi')->with('success', 'Data koleksi berhasil dihapus!');
     }
 
-    public function exportPDF(Request $request)
+    public function printPDF(Request $request)
     {
         $query = Book::query();
 

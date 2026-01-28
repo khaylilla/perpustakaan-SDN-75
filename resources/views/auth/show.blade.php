@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Detail Buku - ' . $book->judul)
+
 @section('content')
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -7,33 +9,58 @@
 
 <style>
     :root {
-        --primary-gold: #ffb84d;
-        --accent-orange: #f7931e;
-        --glass-bg: rgba(15, 23, 42, 0.7);
-        --glass-border: rgba(255, 255, 255, 0.1);
-        --text-light: #f8fafc;
-        --text-muted: #94a3b8;
+        --primary-blue: #0A58CA;
+        --deep-navy: #021f4b;
+        --accent-red: #d90429;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --glass-white: rgba(255, 255, 255, 0.92);
+        --font-heading: 'Outfit', sans-serif;
+        --font-body: 'Plus Jakarta Sans', sans-serif;
     }
 
     body {
-        background: url('{{ asset('FT.jpg') }}') center/cover no-repeat fixed;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: var(--text-light);
         margin: 0;
+        padding: 0;
+        font-family: var(--font-body);
+        background: #000; /* Fallback */
         overflow-x: hidden;
     }
 
-    /* Overlay Sinematik */
-    .overlay-vignette {
+    /* --- BACKGROUND IMAGE WITH ZOOM ANIMATION --- */
+    .bg-wrapper {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        overflow: hidden;
+    }
+
+    .bg-image {
+        width: 100%;
+        height: 100%;
+        background: url('{{ asset('FT.jpg') }}') center/cover no-repeat;
+        animation: bg-zoom 20s infinite alternate ease-in-out;
+    }
+
+    @keyframes bg-zoom {
+        from { transform: scale(1); }
+        to { transform: scale(1.15); }
+    }
+
+    /* Overlay Sinematik untuk memperjelas Card */
+    .bg-overlay {
         position: fixed;
         inset: 0;
-        background: radial-gradient(circle at center, rgba(16, 53, 109, 0.4) 0%, rgba(5, 15, 29, 0.9) 100%);
+        background: radial-gradient(circle at center, rgba(2, 31, 75, 0.3) 0%, rgba(0, 0, 0, 0.8) 100%);
         z-index: -1;
     }
 
     .detail-page {
         min-height: 100vh;
-        padding: 100px 20px;
+        padding: 80px 20px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -41,22 +68,22 @@
 
     /* Glass Card Utama */
     .book-card {
-        background: var(--glass-bg);
-        backdrop-filter: blur(25px) saturate(180%);
-        -webkit-backdrop-filter: blur(25px) saturate(180%);
-        border: 1px solid var(--glass-border);
+        background: var(--glass-white);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: 40px;
         display: grid;
         grid-template-columns: 1fr 1.5fr;
-        max-width: 1200px;
+        max-width: 1100px;
         width: 100%;
         overflow: hidden;
-        box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+        box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
     }
 
     /* Bagian Cover Visual */
     .book-cover-section {
-        background: rgba(0, 0, 0, 0.2);
+        background: #f1f5f9;
         padding: 50px;
         display: flex;
         flex-direction: column;
@@ -67,12 +94,12 @@
 
     .cover-slideshow {
         position: relative;
-        width: 300px;
-        height: 420px;
-        border-radius: 20px;
+        width: 280px;
+        height: 400px;
+        border-radius: 24px;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 25px 50px rgba(2, 31, 75, 0.2);
+        background: #fff;
     }
 
     .cover-slideshow img {
@@ -81,7 +108,7 @@
         object-fit: cover;
         position: absolute;
         opacity: 0;
-        transform: scale(1.1);
+        transform: scale(1.05);
         transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -95,141 +122,149 @@
         position: absolute;
         top: 30px;
         left: 30px;
-        background: linear-gradient(45deg, var(--primary-gold), var(--accent-orange));
-        color: #000;
+        background: var(--deep-navy);
+        color: #fff;
         padding: 8px 20px;
         border-radius: 50px;
-        font-weight: 800;
-        font-size: 12px;
+        font-weight: 700;
+        font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 1px;
+        z-index: 10;
     }
 
     /* Detail Informasi */
     .book-info-section {
         padding: 60px;
+        background: #fff;
     }
 
     .book-info-section h1 {
-        font-family: 'Outfit', sans-serif;
-        font-size: 3.5rem;
-        line-height: 1.1;
+        font-family: var(--font-heading);
+        font-size: 2.8rem;
+        font-weight: 800;
+        line-height: 1.2;
         margin-bottom: 10px;
-        background: linear-gradient(to bottom, #fff 60%, var(--primary-gold));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: var(--deep-navy);
     }
 
     .author-name {
-        font-size: 1.2rem;
-        color: var(--primary-gold);
-        margin-bottom: 40px;
-        font-weight: 500;
+        font-size: 1.1rem;
+        color: var(--primary-blue);
+        margin-bottom: 35px;
+        font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
     }
 
     /* Grid Spesifikasi */
     .specs-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 20px;
-        margin-bottom: 40px;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 15px;
+        margin-bottom: 35px;
     }
 
     .spec-item {
-        background: rgba(255, 255, 255, 0.05);
+        background: #f8fafc;
         padding: 15px;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
     }
 
     .spec-item label {
         display: block;
-        font-size: 11px;
+        font-size: 10px;
         color: var(--text-muted);
         text-transform: uppercase;
-        margin-bottom: 5px;
-        letter-spacing: 1px;
+        margin-bottom: 4px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
     }
 
     .spec-item span {
-        font-weight: 600;
-        font-size: 15px;
+        font-weight: 700;
+        font-size: 14px;
+        color: var(--deep-navy);
     }
 
     /* Deskripsi Area */
-    .description-box {
-        margin-top: 30px;
-    }
-
     .description-box h3 {
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        color: var(--deep-navy);
     }
 
     .description-text {
         color: var(--text-muted);
-        line-height: 1.8;
+        line-height: 1.7;
         font-size: 0.95rem;
     }
 
     /* Tombol-tombol */
     .action-group {
         display: flex;
-        gap: 15px;
+        gap: 12px;
         margin-top: 40px;
     }
 
     .btn-custom {
-        padding: 14px 28px;
-        border-radius: 15px;
+        padding: 12px 25px;
+        border-radius: 16px;
         font-weight: 700;
         transition: 0.3s;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
+        font-size: 0.95rem;
     }
 
     .btn-back {
-        background: rgba(255, 255, 255, 0.05);
-        color: #fff;
-        border: 1px solid var(--glass-border);
+        background: #f1f5f9;
+        color: var(--deep-navy);
+        border: 1px solid #e2e8f0;
     }
 
     .btn-back:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: #e2e8f0;
         transform: translateX(-5px);
-        color: #fff;
     }
 
     .btn-download {
-        background: linear-gradient(45deg, var(--primary-gold), var(--accent-orange));
-        color: #000;
+        background: var(--primary-blue);
+        color: #fff;
     }
 
     .btn-download:hover {
-        box-shadow: 0 10px 20px rgba(247, 147, 30, 0.3);
+        background: var(--deep-navy);
+        box-shadow: 0 10px 20px rgba(10, 88, 202, 0.3);
         transform: translateY(-3px);
+        color: #fff;
     }
 
     @media (max-width: 992px) {
-        .book-card { grid-template-columns: 1fr; }
+        .book-card { grid-template-columns: 1fr; border-radius: 30px; }
         .book-info-section { padding: 40px; }
-        .book-info-section h1 { font-size: 2.5rem; }
+        .book-info-section h1 { font-size: 2.2rem; }
+        .book-cover-section { padding: 40px; }
     }
 </style>
 
-<div class="overlay-vignette"></div>
+<div class="bg-wrapper">
+    <div class="bg-image"></div>
+</div>
+<div class="bg-overlay"></div>
 
 <div class="detail-page">
     <div class="book-card" data-aos="zoom-in">
         
         <div class="book-cover-section">
-            <span class="status-badge">Tersedia: {{ $book->jumlah }} Buku</span>
+            <span class="status-badge">
+                <i class="bi bi-stack me-1"></i> Stok: {{ $book->jumlah }}
+            </span>
             
             <div class="cover-slideshow">
                 @php $covers = json_decode($book->cover, true); @endphp
@@ -237,7 +272,7 @@
                     @foreach($covers as $index => $cover)
                         <img src="{{ asset('storage/' . $cover) }}" 
                              class="{{ $index === 0 ? 'active' : '' }}" 
-                             alt="Cover">
+                             alt="Cover Buku">
                     @endforeach
                 @else
                     <img src="{{ asset('images/no-image.png') }}" class="active" alt="No Cover">
@@ -249,7 +284,7 @@
             <div data-aos="fade-up" data-aos-delay="200">
                 <h1>{{ $book->judul }}</h1>
                 <div class="author-name">
-                    <i class="bi bi-person-circle text-warning"></i> 
+                    <i class="bi bi-pen-fill"></i> 
                     {{ $book->penulis ?? 'Penulis Anonim' }}
                 </div>
 
@@ -273,7 +308,7 @@
                 </div>
 
                 <div class="description-box">
-                    <h3>Sinopsis / Deskripsi</h3>
+                    <h3>Sinopsis</h3>
                     <div class="description-text">
                         {!! nl2br(e($book->deskripsi)) !!}
                     </div>
@@ -287,7 +322,7 @@
                     @if($book->ebook)
                         @php $ebookUrl = strpos($book->ebook, 'http') === 0 ? $book->ebook : asset('storage/' . $book->ebook); @endphp
                         <a href="{{ $ebookUrl }}" target="_blank" class="btn-custom btn-download">
-                            <i class="bi bi-file-earmark-pdf-fill"></i> Baca E-Book
+                            <i class="bi bi-journal-bookmark-fill"></i> Baca Digital
                         </a>
                     @endif
                 </div>
@@ -301,10 +336,8 @@
 
 <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <script>
-    // Inisialisasi AOS (Animasi on Scroll)
     AOS.init({ duration: 1000, once: true });
 
-    // Slideshow Logic yang lebih halus
     document.addEventListener('DOMContentLoaded', function() {
         const slides = document.querySelectorAll('.cover-slideshow img');
         if (slides.length > 1) {

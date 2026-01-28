@@ -262,9 +262,30 @@
       </li>
 
       <li>
-        <a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}" class="{{ request()->routeIs('admin.riwayat*') ? 'active' : '' }}">
-          <i class="bi bi-clock-history"></i><span>Riwayat</span>
+        <a class="d-flex justify-content-between {{ request()->routeIs('admin.riwayat*') ? 'active' : '' }}" 
+           data-bs-toggle="collapse" 
+           href="#riwayatSubmenu" 
+           role="button" 
+           aria-expanded="{{ request()->routeIs('admin.riwayat*') ? 'true' : 'false' }}">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-clock-history"></i><span>Riwayat</span>
+          </div>
+          <i class="bi bi-chevron-down"></i>
         </a>
+        <div class="collapse {{ request()->routeIs('admin.riwayat*') ? 'show' : '' }}" id="riwayatSubmenu">
+          <ul class="submenu">
+            <li>
+              <a href="{{ route('admin.riwayat.peminjaman.peminjaman') }}" class="{{ request()->routeIs('admin.riwayat.peminjaman.peminjaman') ? 'text-white fw-bold' : '' }}">
+                <i class="bi bi-journal-arrow-up me-2"></i>Peminjaman
+              </a>
+            </li>
+            <li>
+              <a href="{{ route('admin.riwayat.pengembalian.pengembalian') }}" class="{{ request()->routeIs('admin.riwayat.pengembalian.pengembalian') ? 'text-white fw-bold' : '' }}">
+                <i class="bi bi-journal-arrow-down me-2"></i>Pengembalian
+              </a>
+            </li>
+          </ul>
+        </div>
       </li>
     </ul>
 

@@ -5,184 +5,193 @@
 @section('content')
 <style>
     :root {
-        --glass-bg: rgba(255, 255, 255, 0.95);
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --accent-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        --orange-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        --primary: #4e73df;
+        --secondary: #858796;
+        --success: #1cc88a;
+        --info: #36b9cc;
+        --warning: #f6c23e;
+        --danger: #e74a3b;
+        --dark-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        --glass-white: rgba(255, 255, 255, 0.9);
+        --surface: #ffffff;
     }
 
     .container-fluid {
-        padding: 20px;
-        background-color: #f8f9fa;
+        background: #f0f2f5;
+        min-height: 100vh;
+        padding: 30px;
     }
 
-    /* Modern Page Header */
-    .page-header-premium {
-        background: var(--primary-gradient);
-        border-radius: 20px;
-        padding: 30px;
+    /* Animated Header Section */
+    .premium-header {
+        background: var(--dark-gradient);
+        border-radius: 24px;
+        padding: 40px;
         color: white;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(118, 75, 162, 0.2);
+        margin-bottom: 35px;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 20px 40px rgba(26, 26, 46, 0.15);
     }
 
-    .page-header-premium::after {
-        content: "";
+    .premium-header::before {
+        content: '';
         position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 150px;
-        height: 150px;
-        background: rgba(255,255,255,0.1);
+        top: -50%;
+        left: -10%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(78, 115, 223, 0.2) 0%, transparent 70%);
         border-radius: 50%;
     }
 
-    /* Card Styling */
-    .premium-card {
+    /* Floating Stats Cards */
+    .stat-card {
         border: none;
-        border-radius: 18px;
-        transition: all 0.3s ease;
-        overflow: hidden;
-        position: relative;
+        border-radius: 20px;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        background: white;
+        border: 1px solid rgba(0,0,0,0.03);
     }
 
-    .premium-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 30px rgba(0,0,0,0.08);
     }
 
-    .icon-box {
-        width: 50px;
-        height: 50px;
-        background: rgba(255,255,255,0.2);
-        border-radius: 12px;
+    .icon-shape {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 1.5rem;
     }
 
-    /* Table Styling */
-    .table-container-premium {
-        background: white;
+    /* Search Bar Re-design */
+    .filter-wrapper {
+        background: var(--glass-white);
+        backdrop-filter: blur(10px);
         border-radius: 20px;
         padding: 25px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        border: 1px solid white;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.03);
     }
 
-    .table thead th {
-        background-color: #fcfaff;
-        border: none;
-        color: #764ba2;
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 1px;
-        padding: 20px;
-    }
-
-    .table tbody td {
-        padding: 20px;
-        border-bottom: 1px solid #f1f1f1;
-        font-size: 0.9rem;
-    }
-
-    /* Search & Filter Bar */
-    .search-filter-section {
-        background: white;
-        border-radius: 20px;
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-    }
-
-    .form-premium {
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        padding: 10px 15px;
-        transition: 0.3s;
-    }
-
-    .form-premium:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    /* Buttons */
-    .btn-premium-add {
-        background: var(--accent-gradient);
-        border: none;
-        color: white;
+    .input-premium {
+        background: #f8f9fc;
+        border: 1.5px solid #edf2f7;
         border-radius: 12px;
-        padding: 12px 25px;
+        padding: 12px 18px;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+    }
+
+    .input-premium:focus {
+        background: white;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(78, 115, 223, 0.1);
+    }
+
+    /* Luxury Table Design */
+    .table-card {
+        background: white;
+        border-radius: 24px;
+        border: none;
+        padding: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    }
+
+    .custom-table {
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    .custom-table thead th {
+        border: none;
+        color: #a0aec0;
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+        padding: 15px 25px;
+    }
+
+    .custom-table tbody tr {
+        background: white;
+        transition: all 0.2s;
+    }
+
+    .custom-table tbody tr td {
+        border: none;
+        padding: 20px 25px;
+        background: #fff;
+    }
+
+    .custom-table tbody tr td:first-child { border-radius: 15px 0 0 15px; }
+    .custom-table tbody tr td:last-child { border-radius: 0 15px 15px 0; }
+
+    .custom-table tbody tr:hover td {
+        background: #f8faff;
+        color: var(--primary);
+    }
+
+    /* Better Badge */
+    .badge-time {
+        background: #fff4e5;
+        color: #d97706;
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Glowing Buttons */
+    .btn-glow {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 14px;
         font-weight: 600;
         transition: 0.3s;
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
     }
 
-    .btn-premium-primary {
-        background: var(--primary-gradient);
-        border: none;
+    .btn-glow:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 25px rgba(99, 102, 241, 0.4);
         color: white;
-        border-radius: 10px;
-        padding: 8px 20px;
-    }
-
-    /* Status Badges */
-    .badge-date {
-        background: #eef2ff;
-        color: #4338ca;
-        padding: 8px 12px;
-        border-radius: 8px;
-        font-weight: 600;
-        display: inline-block;
-    }
-
-    .action-icon-btn {
-        width: 35px;
-        height: 35px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        margin: 0 3px;
-        transition: 0.2s;
-        border: none;
-    }
-
-    .edit-btn { background: #fff7ed; color: #f97316; }
-    .edit-btn:hover { background: #f97316; color: white; }
-    .delete-btn { background: #fef2f2; color: #ef4444; }
-    .delete-btn:hover { background: #ef4444; color: white; }
-
-    @media print {
-        .page-header-premium, .search-filter-section, .btn-premium-add { display: none !important; }
     }
 </style>
 
 <div class="container-fluid">
 
-    {{-- MODERN HEADER --}}
-    <div class="page-header-premium d-flex justify-content-between align-items-center">
+    {{-- HEADER SECTION --}}
+    <div class="premium-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
         <div>
-            <h2 class="fw-bold mb-1">Manajemen Presensi</h2>
-            <p class="mb-0 opacity-75">Pantau dan kelola kehadiran anggota perpustakaan secara real-time</p>
+            <h1 class="fw-bold mb-2">Absen Pengunjung</h1>
+            <p class="mb-0 opacity-75">Sistem monitoring kunjungan perpustakaan cerdas & otomatis.</p>
         </div>
-        <button class="btn btn-premium-add shadow-lg" data-bs-toggle="modal" data-bs-target="#createAbsenModal">
-            <i class="bi bi-plus-circle-fill me-2"></i> Tambah Absensi Manual
-        </button>
+        <div class="mt-4 mt-md-0">
+            <button class="btn btn-glow" data-bs-toggle="modal" data-bs-target="#createAbsenModal">
+                <i class="bi bi-plus-lg me-2"></i> Input Manual
+            </button>
+        </div>
     </div>
 
-    {{-- QUICK NAVIGATION CARDS (TANPA KOTAK DATA USER) --}}
+    {{-- STATS CARDS --}}
     <div class="row g-4 mb-4">
         <div class="col-md-4">
             <a href="{{ route('admin.absen.scan') }}" class="text-decoration-none">
-                <div class="card premium-card shadow-sm h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
-                    <div class="card-body d-flex align-items-center p-4">
-                        <div class="icon-box me-3"><i class="bi bi-qr-code-scan fs-4"></i></div>
-                        <div>
-                            <h6 class="mb-0 fw-bold">Scanner QR</h6>
-                            <small class="opacity-75">Absen Cepat Otomatis</small>
+                <div class="card stat-card p-2 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="icon-shape bg-soft-primary text-primary" style="background: #eef2ff;">
+                            <i class="bi bi-qr-code-scan"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 fw-bold text-dark">Scanner QR</h6>
+                            <small class="text-muted">Klik untuk mulai scan</small>
                         </div>
                     </div>
                 </div>
@@ -190,119 +199,130 @@
         </div>
         <div class="col-md-4">
             <a href="{{ route('admin.kartu') }}" class="text-decoration-none">
-                <div class="card premium-card shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <div class="card-body d-flex align-items-center p-4">
-                        <div class="icon-box me-3"><i class="bi bi-credit-card fs-4"></i></div>
-                        <div>
-                            <h6 class="mb-0 fw-bold">Cetak Kartu</h6>
-                            <small class="opacity-75">ID Card Anggota</small>
+                <div class="card stat-card p-2 shadow-sm">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="icon-shape bg-soft-info text-info" style="background: #e0f7fa;">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 fw-bold text-dark">Cetak Kartu</h6>
+                            <small class="text-muted">Generate ID Anggota</small>
                         </div>
                     </div>
                 </div>
             </a>
         </div>
         <div class="col-md-4">
-            <div class="card premium-card shadow-sm h-100" style="background: white; border: 1px solid #eee;">
-                <div class="card-body d-flex align-items-center p-4">
-                    <div class="icon-box me-3 bg-light text-primary"><i class="bi bi-info-circle fs-4"></i></div>
-                    <div>
-                        <h6 class="mb-0 text-dark fw-bold">{{ $absens->count() }} Kunjungan</h6>
-                        <small class="text-muted">Total Kehadiran Hari Ini</small>
+            <div class="card stat-card p-2 shadow-sm border-start border-primary border-4">
+                <div class="card-body d-flex align-items-center">
+                    <div class="icon-shape bg-primary text-white">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0 fw-bold text-dark">{{ $absens->count() }} Anggota</h6>
+                        <small class="text-muted">Kunjungan Hari Ini</small>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- SEARCH & FILTER SECTION (INPUT PENCARIAN DIPERKECIL) --}}
-    <div class="search-filter-section shadow-sm">
+    {{-- FILTER SECTION --}}
+    <div class="filter-wrapper">
         <form action="{{ route('admin.dataabsen') }}" method="GET" class="row g-3 align-items-end">
-            <div class="col-md-2">
-                <label class="small fw-bold text-muted mb-2"><i class="bi bi-search me-1"></i> CARI DATA</label>
-                <input type="text" name="keyword" class="form-control form-premium" placeholder="NISN/NIP..." value="{{ request('keyword') }}">
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label small fw-bold text-uppercase text-muted">Cari Nama/NIP</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 border-2" style="border-radius: 12px 0 0 12px;"><i class="bi bi-search"></i></span>
+                    <input type="text" name="keyword" class="form-control input-premium border-start-0" placeholder="Ketik pencarian..." value="{{ request('keyword') }}">
+                </div>
             </div>
-            
-            <div class="col-md-2">
-                <label class="small fw-bold text-muted mb-2">TIPE</label>
-                <select name="type" class="form-select form-premium" onchange="this.form.submit()">
+            <div class="col-lg-2 col-md-6">
+                <label class="form-label small fw-bold text-uppercase text-muted">Kategori</label>
+                <select name="type" class="form-select input-premium" onchange="this.form.submit()">
                     <option value="">Semua</option>
                     <option value="siswa" {{ request('type') === 'siswa' ? 'selected' : '' }}>Siswa</option>
                     <option value="guru" {{ request('type') === 'guru' ? 'selected' : '' }}>Guru</option>
                 </select>
             </div>
-            
-            <div class="col-md-5">
-                <label class="small fw-bold text-muted mb-2">RENTANG TANGGAL</label>
+            <div class="col-lg-4 col-md-12">
+                <label class="form-label small fw-bold text-uppercase text-muted">Periode Kunjungan</label>
                 <div class="input-group">
-                    <input type="date" name="start_date" class="form-control form-premium" value="{{ request('start_date') }}">
-                    <span class="input-group-text bg-transparent border-0 fw-bold">s/d</span>
-                    <input type="date" name="end_date" class="form-control form-premium" value="{{ request('end_date') }}">
+                    <input type="date" name="start_date" class="form-control input-premium" value="{{ request('start_date') }}">
+                    <span class="input-group-text bg-transparent border-0 px-2">-</span>
+                    <input type="date" name="end_date" class="form-control input-premium" value="{{ request('end_date') }}">
                 </div>
             </div>
-            
-            <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-premium-primary w-100 fw-bold shadow-sm">Terapkan Filter</button>
-                <a href="{{ route('admin.dataabsen.export', ['groupBy' => 'day']) }}" class="btn btn-outline-danger border-2 rounded-3" title="Export PDF">
-                    <i class="bi bi-file-pdf"></i>
+            <div class="col-lg-3 col-md-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold py-2">Filter</button>
+                <a href="{{ route('admin.dataabsen.export', ['groupBy' => 'day']) }}" class="btn btn-outline-danger px-3 py-2 rounded-3">
+                    <i class="bi bi-file-earmark-pdf-fill"></i>
                 </a>
             </div>
         </form>
     </div>
 
-    {{-- ALERT --}}
-    @if(session('success'))
-        <div class="alert alert-success border-0 shadow-sm rounded-4 mb-4">
-            <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-        </div>
-    @endif
-
-    {{-- TABLE DATA --}}
-    <div class="table-container-premium border-0">
+    {{-- TABLE SECTION --}}
+    <div class="table-card shadow-sm">
         <div class="table-responsive">
-            <table class="table align-middle">
+            <table class="table custom-table">
                 <thead>
                     <tr>
                         <th class="text-center">#</th>
-                        <th>Identitas Anggota</th>
-                        <th>ID Anggota</th>
-                        <th>Waktu Kunjungan</th>
-                        <th class="text-center">Aksi</th>
+                        <th>NAMA ANGGOTA</th>
+                        <th>IDENTITAS</th>
+                        <th>WAKTU MASUK</th>
+                        <th class="text-center">AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($absens as $i => $absen)
-                        <tr>
-                            <td class="text-center fw-bold text-muted">{{ $i + 1 }}</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-circle me-3 bg-soft-primary text-primary fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 10px; background: #f0f4ff;">
-                                        {{ substr($absen->nama, 0, 1) }}
-                                    </div>
-                                    <div class="fw-bold text-dark">{{ $absen->nama }}</div>
+                    <tr>
+                        <td class="text-center text-muted fw-bold">{{ $i + 1 }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-square me-3 bg-soft-primary text-primary d-flex align-items-center justify-content-center fw-bold" 
+                                     style="width: 45px; height: 45px; border-radius: 12px; background: #f0f4ff; font-size: 1.2rem;">
+                                    {{ substr($absen->nama, 0, 1) }}
                                 </div>
-                            </td>
-                            <td><span class="text-muted small fw-bold">{{ $absen->npm }}</span></td>
-                            <td><span class="badge-date"><i class="bi bi-clock me-2"></i>{{ $absen->tanggal }}</span></td>
-                            <td class="text-center">
-                                <button class="action-icon-btn edit-btn" data-bs-toggle="modal" data-bs-target="#editAbsenModal{{ $absen->id }}">
-                                    <i class="bi bi-pencil-square"></i>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ $absen->nama }}</div>
+                                    <small class="text-muted text-uppercase" style="font-size: 0.7rem;">Verified Member</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-light text-dark px-3 py-2 border rounded-pill">{{ $absen->npm }}</span></td>
+                        <td>
+                            <span class="badge-time">
+                                <i class="bi bi-clock-history me-2"></i>{{ \Carbon\Carbon::parse($absen->tanggal)->format('H:i | d M Y') }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots-vertical"></i>
                                 </button>
-                                <form action="{{ route('admin.dataabsen.delete', $absen->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="action-icon-btn delete-btn" onclick="return confirm('Hapus data ini?')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2" style="border-radius: 12px;">
+                                    <li><a class="dropdown-item rounded-3" href="#" data-bs-toggle="modal" data-bs-target="#editAbsenModal{{ $absen->id }}"><i class="bi bi-pencil me-2"></i> Edit</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="{{ route('admin.dataabsen.delete', $absen->id) }}" method="POST">
+                                            @csrf @method('DELETE')
+                                            <button class="dropdown-item text-danger rounded-3" onclick="return confirm('Hapus data?')"><i class="bi bi-trash me-2"></i> Hapus</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
                     @empty
-                        <tr>
-                            <td colspan="5" class="text-center py-5">
-                                <img src="https://illustrations.popsy.co/gray/empty-states.svg" style="width: 150px;" class="mb-3 opacity-50">
-                                <p class="text-muted">Tidak ada data absensi yang ditemukan.</p>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <img src="https://illustrations.popsy.co/gray/data-report.svg" style="width: 200px;" class="mb-3">
+                            <h5 class="text-muted">Data Kunjungan Kosong</h5>
+                            <p class="small text-muted">Belum ada aktivitas presensi hari ini.</p>
+                        </td>
+                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -310,46 +330,47 @@
     </div>
 </div>
 
-{{-- MODAL TAMBAH ABSEN --}}
+{{-- MODAL RE-DESIGN --}}
 <div class="modal fade" id="createAbsenModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
             <div class="modal-header border-0 pt-4 px-4">
-                <h5 class="fw-bold mb-0">Tambah Absensi Baru</h5>
+                <h5 class="fw-bold">New Entry</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form action="{{ route('admin.dataabsen.store') }}" method="POST">
                 @csrf
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">PILIH DARI DATABASE</label>
-                        <select name="person_id" id="personSelect" class="form-select form-premium" required onchange="updatePersonData()">
-                            <option value="">-- Pilih Anggota --</option>
+                        <label class="form-label small fw-bold">Pilih Anggota</label>
+                        <select name="person_id" id="personSelect" class="form-select input-premium" required onchange="updatePersonData()">
+                            <option value="">-- Cari Nama --</option>
                             @foreach($allPersons as $person)
                                 <option value="{{ $person->id }}" data-nama="{{ $person->nama }}" 
                                     data-identifier="{{ $person->type === 'users' ? $person->nisn : ($person->type === 'guru' ? $person->nip : $person->email) }}">
-                                    {{ $person->nama }} ({{ $person->type }})
+                                    {{ $person->nama }} ({{ strtoupper($person->type) }})
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                    <hr class="my-4 opacity-50">
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">NAMA LENGKAP</label>
-                        <input type="text" name="nama" id="namaInput" class="form-control form-premium" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="small fw-bold text-muted mb-1">ID (NISN/NIP/EMAIL)</label>
-                        <input type="text" name="npm" id="npmInput" class="form-control form-premium" required>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label small fw-bold">Nama Lengkap</label>
+                            <input type="text" name="nama" id="namaInput" class="form-control input-premium" readonly>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label small fw-bold">Identifier (NIP/NISN)</label>
+                            <input type="text" name="npm" id="npmInput" class="form-control input-premium" readonly>
+                        </div>
                     </div>
                     <div class="mb-0">
-                        <label class="small fw-bold text-muted mb-1">TANGGAL ABSEN</label>
-                        <input type="date" name="tanggal" class="form-control form-premium" value="{{ date('Y-m-d') }}" required>
+                        <label class="form-label small fw-bold">Tanggal</label>
+                        <input type="date" name="tanggal" class="form-control input-premium" value="{{ date('Y-m-d') }}" required>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pb-4 px-4">
-                    <button type="button" class="btn btn-light rounded-3 fw-bold" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-premium-primary fw-bold shadow">Simpan Data</button>
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-light w-25" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary flex-grow-1 py-2 fw-bold rounded-3">Simpan Absensi</button>
                 </div>
             </form>
         </div>
@@ -357,6 +378,7 @@
 </div>
 
 <script>
+    // Script tetap sama namun pastikan ID elemen sesuai
     function updatePersonData() {
         const select = document.getElementById('personSelect');
         const selectedOption = select.options[select.selectedIndex];

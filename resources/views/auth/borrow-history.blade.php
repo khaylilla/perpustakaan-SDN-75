@@ -3,219 +3,187 @@
 @section('title', 'Riwayat Peminjaman')
 
 @section('content')
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
 <style>
     :root {
-        --primary-color: #4e73df;
-        --secondary-color: #858796;
-        --bg-gradient: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
+        --primary-blue: #0A58CA;
+        --deep-navy: #021f4b;
+        --accent-red: #d90429;
+        --pure-white: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --font-heading: 'Outfit', sans-serif;
+        --font-body: 'Plus Jakarta Sans', sans-serif;
     }
 
     body {
-        background: #f3f4f6;
-        font-family: 'Poppins', sans-serif;
-        color: #444;
+        background-color: var(--pure-white);
+        color: var(--text-main);
+        font-family: var(--font-body);
+        overflow-x: hidden;
     }
 
-    /* Kartu Utama */
+    /* ANIMASI BACKGROUND BUBBLES */
+    .bg-animated {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: -1; background: #fff; overflow: hidden;
+    }
+    .bubble {
+        position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.1; animation: float 20s infinite alternate;
+    }
+    .bubble-1 { width: 400px; height: 400px; background: var(--primary-blue); top: -100px; right: -100px; }
+    .bubble-2 { width: 300px; height: 300px; background: var(--accent-red); bottom: -50px; left: -50px; animation-delay: -5s; }
+    
+    @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(50px, 100px) scale(1.1); }
+    }
+
+    /* Hero Section (Dinaikkan mendekat Navbar) */
+    .hero-mini {
+        padding: 40px 0 20px;
+        text-align: center;
+    }
+    .hero-mini h3 {
+        font-family: var(--font-heading);
+        font-weight: 800;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, var(--deep-navy) 30%, var(--primary-blue) 60%, var(--accent-red) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Main Card Styling */
     .main-card {
         border: none;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-        background: #fff;
+        border-radius: 35px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 20px 40px rgba(2, 31, 75, 0.05);
         overflow: hidden;
-        animation: fadeIn 0.8s ease;
+        margin-bottom: 80px;
     }
 
-    /* Header Section */
+    /* Header Tabel */
     .header-section {
-        background: linear-gradient(135deg, #2c3e50, #4ca1af);
-        padding: 40px 30px;
+        background: var(--deep-navy);
+        padding: 30px;
         color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header-section::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 300px;
-        height: 300px;
-        background: rgba(255,255,255,0.1);
-        border-radius: 50%;
-        z-index: 0;
-    }
-
-    .header-content {
-        position: relative;
-        z-index: 1;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .header-title h3 {
-        font-weight: 700;
-        margin-bottom: 5px;
-        font-size: 1.8rem;
-    }
-
-    .header-title p {
-        opacity: 0.9;
-        margin: 0;
-        font-weight: 300;
-    }
-
-    /* Stats Box Kecil di Header */
-    .stats-box {
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        padding: 10px 20px;
+    .stats-pill {
+        background: rgba(255,255,255,0.1);
+        padding: 8px 20px;
         border-radius: 15px;
-        border: 1px solid rgba(255,255,255,0.3);
-        text-align: center;
-    }
-
-    .stats-box span {
-        display: block;
-        font-size: 2rem;
+        border: 1px solid rgba(255,255,255,0.2);
         font-weight: 700;
-        line-height: 1;
     }
 
-    .stats-box small {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* Styling Tabel Modern */
-    .table-container {
-        padding: 20px;
-    }
-
+    /* Custom Table Row Pop-Up */
+    .table-container { padding: 25px; }
+    
     .custom-table {
         width: 100%;
         border-collapse: separate;
-        border-spacing: 0 10px; /* Jarak antar baris */
+        border-spacing: 0 12px;
     }
 
     .custom-table thead th {
         border: none;
-        color: #8898aa;
-        font-weight: 600;
+        color: var(--deep-navy);
+        font-weight: 800;
         text-transform: uppercase;
         font-size: 0.75rem;
-        letter-spacing: 1px;
-        padding: 15px 20px;
+        letter-spacing: 1.5px;
+        padding: 10px 20px;
     }
 
     .custom-table tbody tr {
-        background: #fff;
-        box-shadow: 0 5px 10px rgba(0,0,0,0.02);
-        transition: transform 0.2s, box-shadow 0.2s;
+        background: var(--pure-white);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.02);
     }
 
     .custom-table tbody tr:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-        z-index: 10;
-        position: relative;
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 15px 30px rgba(2, 31, 75, 0.1);
+        z-index: 5;
     }
 
     .custom-table td {
-        border: none;
         padding: 20px;
+        border: none;
         vertical-align: middle;
-        border-top: 1px solid #f1f3f9;
-        border-bottom: 1px solid #f1f3f9;
+        border-top: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
     }
 
-    .custom-table td:first-child {
-        border-top-left-radius: 12px;
-        border-bottom-left-radius: 12px;
-        border-left: 1px solid #f1f3f9;
-    }
-
-    .custom-table td:last-child {
-        border-top-right-radius: 12px;
-        border-bottom-right-radius: 12px;
-        border-right: 1px solid #f1f3f9;
-    }
+    .custom-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+    .custom-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 20px; border-bottom-right-radius: 20px; }
 
     /* Ikon Buku */
     .book-icon-wrapper {
-        width: 45px;
-        height: 45px;
-        background: #eef2f7;
-        color: #4e73df;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        margin-right: 15px;
+        width: 48px; height: 48px;
+        background: #f1f5f9;
+        color: var(--primary-blue);
+        border-radius: 15px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; margin-right: 15px;
+        transition: 0.3s;
+    }
+    .custom-table tr:hover .book-icon-wrapper {
+        background: var(--primary-blue);
+        color: white;
     }
 
-    /* Badge Status Kustom */
+    /* Badge Status (Menyala) */
     .status-badge {
-        padding: 8px 16px;
-        border-radius: 30px;
+        padding: 8px 18px;
+        border-radius: 12px;
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
     }
 
-    .status-dipinjam {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    .status-kembali {
-        background-color: #d4edda;
-        color: #155724;
-    }
+    .status-dipinjam { background: #fff8e1; color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
+    .status-kembali { background: #ecfdf5; color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .status-terlambat { background: #fef2f2; color: var(--accent-red); border: 1px solid rgba(217, 4, 41, 0.2); }
 
-    .status-terlambat {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    /* Empty State */
     .empty-state {
-        text-align: center;
-        padding: 60px 20px;
+        text-align: center; padding: 80px 20px;
     }
-    .empty-state i {
-        font-size: 4rem;
-        color: #d1d3e2;
-        margin-bottom: 15px;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+    .empty-state i { font-size: 5rem; color: var(--text-muted); opacity: 0.2; }
 </style>
 
-<div class="container py-5">
-    <div class="main-card">
-        
+<div class="bg-animated">
+    <div class="bubble bubble-1"></div>
+    <div class="bubble bubble-2"></div>
+</div>
+
+<div class="container">
+    <div class="hero-mini" data-aos="fade-down">
+        <h3>Riwayat Peminjaman</h3>
+        <p class="text-muted">Pantau aktivitas literasi dan status koleksi Anda.</p>
+    </div>
+
+    <div class="main-card" data-aos="fade-up">
         <div class="header-section">
-            <div class="header-content">
-                <div class="header-title">
-                    <h3>Riwayat Peminjaman</h3>
-                    <p>Kelola dan pantau status buku perpustakaan Anda.</p>
-                </div>
-                <div class="stats-box d-none d-md-block">
-                    <span>{{ count($peminjaman) }}</span>
-                    <small>Total Buku</small>
-                </div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-collection-play-fill fs-4 text-primary"></i>
+                <span class="fw-bold">Ringkasan Aktivitas</span>
+            </div>
+            <div class="stats-pill">
+                {{ count($peminjaman) }} Total Buku
             </div>
         </div>
 
@@ -223,64 +191,58 @@
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th>Buku</th>
-                        <th>Nomor Pustaka</th>
-                        <th>Tgl Pinjam</th>
-                        <th>Tgl Kembali</th>
+                        <th>Informasi Buku</th>
+                        <th>ID Pustaka</th>
+                        <th>Waktu Pinjam</th>
+                        <th>Waktu Kembali</th>
                         <th class="text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($peminjaman as $p)
                         @php
-                            $statusClass = 'status-dipinjam';
-                            $statusIcon = 'bi-clock-history';
-                            $statusLabel = 'Dipinjam';
-
-                            if(strtolower($p->status) == 'dikembalikan' || strtolower($p->status) == 'kembali') {
-                                $statusClass = 'status-kembali';
-                                $statusIcon = 'bi-check-circle-fill';
-                                $statusLabel = 'Selesai';
-                            } elseif(strtolower($p->status) == 'terlambat') {
-                                $statusClass = 'status-terlambat';
-                                $statusIcon = 'bi-exclamation-triangle-fill';
-                                $statusLabel = 'Terlambat';
+                            $status = strtolower($p->status);
+                            if($status == 'dikembalikan' || $status == 'kembali') {
+                                $class = 'status-kembali'; $icon = 'bi-check2-circle'; $label = 'Selesai';
+                            } elseif($status == 'terlambat') {
+                                $class = 'status-terlambat'; $icon = 'bi-exclamation-octagon'; $label = 'Terlambat';
+                            } else {
+                                $class = 'status-dipinjam'; $icon = 'bi-clock-history'; $label = 'Dipinjam';
                             }
                         @endphp
-
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="book-icon-wrapper">
-                                        <i class="bi bi-book"></i>
+                                        <i class="bi bi-book-half"></i>
                                     </div>
                                     <div>
-                                        <span class="fw-bold text-dark d-block">{{ $p->judul_buku }}</span>
-                                        <span class="text-muted small" style="font-size: 0.8rem;">Perpustakaan Utama</span>
+                                        <span class="fw-bold text-dark d-block" style="font-size: 1rem;">{{ $p->judul_buku }}</span>
+                                        <span class="text-muted small">Fakultas Teknik UNIB</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="fw-bold text-secondary">#{{ $p->nomor_buku }}</td>
+                            <td><span class="badge bg-light text-dark border px-3 py-2 rounded-pill">#{{ $p->nomor_buku }}</span></td>
                             <td>
                                 <div class="d-flex flex-column">
-                                    <span class="fw-semibold">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</span>
+                                    <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</span>
                                     <small class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('H:i') }} WIB</small>
                                 </div>
                             </td>
                             <td>
                                 @if($p->tanggal_kembali)
                                     <div class="d-flex flex-column">
-                                        <span class="fw-semibold">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d M Y') }}</span>
-                                        <small class="text-muted">Batas Pengembalian</small>
+                                        <span class="fw-semibold text-dark">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d M Y') }}</span>
+                                        <small class="text-muted">Jatuh Tempo</small>
                                     </div>
                                 @else
-                                    <span class="text-muted fst-italic">-</span>
+                                    <span class="text-muted opacity-50 fst-italic">Belum Ada</span>
                                 @endif
                             </td>
                             <td class="text-center">
-                                <span class="status-badge {{ $statusClass }}">
-                                    <i class="bi {{ $statusIcon }}"></i>
-                                    {{ $p->status }}
+                                <span class="status-badge {{ $class }}">
+                                    <i class="bi {{ $icon }}"></i>
+                                    {{ $label }}
                                 </span>
                             </td>
                         </tr>
@@ -289,8 +251,8 @@
                             <td colspan="5">
                                 <div class="empty-state">
                                     <i class="bi bi-journal-x"></i>
-                                    <h5 class="text-muted">Belum ada riwayat peminjaman.</h5>
-                                    <p class="text-muted small">Mulai membaca dengan meminjam buku favorit Anda!</p>
+                                    <h5 class="mt-3 fw-bold">Belum Ada Aktivitas</h5>
+                                    <p class="text-muted">Buku yang Anda pinjam akan muncul di sini.</p>
                                 </div>
                             </td>
                         </tr>
@@ -302,4 +264,7 @@
 </div>
 
 @include('components.footer')
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>AOS.init({ duration: 1000, once: true });</script>
 @endsection

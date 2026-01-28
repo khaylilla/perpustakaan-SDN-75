@@ -3,209 +3,186 @@
 @section('title', 'Riwayat Pengembalian')
 
 @section('content')
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 
 <style>
     :root {
-        --primary-green: #1cc88a;
-        --secondary-green: #13855c;
-        --bg-gradient: linear-gradient(120deg, #d4fc79 0%, #96e6a1 100%);
+        --primary-blue: #0A58CA;
+        --deep-navy: #021f4b;
+        --accent-red: #d90429;
+        --pure-white: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --font-heading: 'Outfit', sans-serif;
+        --font-body: 'Plus Jakarta Sans', sans-serif;
     }
 
     body {
-        background: #f4f6f9;
-        font-family: 'Poppins', sans-serif;
-        color: #444;
+        background-color: var(--pure-white);
+        color: var(--text-main);
+        font-family: var(--font-body);
+        overflow-x: hidden;
     }
 
-    /* Container Utama */
+    /* ANIMASI BACKGROUND BUBBLES */
+    .bg-animated {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        z-index: -1; background: #fff; overflow: hidden;
+    }
+    .bubble {
+        position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.1; animation: float 20s infinite alternate;
+    }
+    .bubble-1 { width: 400px; height: 400px; background: var(--primary-blue); top: -100px; right: -100px; }
+    .bubble-2 { width: 300px; height: 300px; background: var(--accent-red); bottom: -50px; left: -50px; animation-delay: -5s; }
+    
+    @keyframes float {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(50px, 100px) scale(1.1); }
+    }
+
+    /* Hero Section */
+    .hero-mini {
+        padding: 40px 0 20px;
+        text-align: center;
+    }
+    .hero-mini h3 {
+        font-family: var(--font-heading);
+        font-weight: 800;
+        font-size: 2.5rem;
+        background: linear-gradient(135deg, var(--deep-navy) 30%, var(--primary-blue) 60%, var(--accent-red) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Main Card Styling */
     .main-card {
         border: none;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-        background: #fff;
+        border-radius: 35px;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 20px 40px rgba(2, 31, 75, 0.05);
         overflow: hidden;
-        animation: slideUp 0.8s ease;
+        margin-bottom: 80px;
     }
 
-    /* Header Section */
+    /* Header Tabel */
     .header-section {
-        background: linear-gradient(135deg, #11998e, #38ef7d); /* Gradasi Hijau Segar */
-        padding: 40px 30px;
+        background: var(--deep-navy);
+        padding: 30px;
         color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .header-section::after {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -5%;
-        width: 250px;
-        height: 250px;
-        background: rgba(255,255,255,0.15);
-        border-radius: 50%;
-        z-index: 0;
-        pointer-events: none;
-    }
-
-    .header-content {
-        position: relative;
-        z-index: 1;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 
-    .header-title h3 {
-        font-weight: 700;
-        margin-bottom: 5px;
-        font-size: 1.8rem;
-    }
-
-    .header-title p {
-        opacity: 0.9;
-        margin: 0;
-        font-weight: 300;
-    }
-
-    /* Stats Box Kecil */
-    .stats-box {
-        background: rgba(255, 255, 255, 0.25);
-        backdrop-filter: blur(5px);
-        padding: 10px 25px;
+    .stats-pill {
+        background: rgba(255,255,255,0.1);
+        padding: 8px 20px;
         border-radius: 15px;
-        border: 1px solid rgba(255,255,255,0.4);
-        text-align: center;
-        color: #fff;
-    }
-
-    .stats-box span {
-        display: block;
-        font-size: 2rem;
+        border: 1px solid rgba(255,255,255,0.2);
         font-weight: 700;
-        line-height: 1;
     }
 
-    .stats-box small {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    /* Styling Tabel */
-    .table-container {
-        padding: 20px;
-    }
-
+    /* Custom Table Styling */
+    .table-container { padding: 25px; }
+    
     .custom-table {
         width: 100%;
         border-collapse: separate;
-        border-spacing: 0 12px; /* Jarak antar baris */
+        border-spacing: 0 12px;
     }
 
     .custom-table thead th {
         border: none;
-        color: #8898aa;
-        font-weight: 700;
+        color: var(--deep-navy);
+        font-weight: 800;
         text-transform: uppercase;
         font-size: 0.75rem;
-        letter-spacing: 0.8px;
-        padding: 15px 20px;
+        letter-spacing: 1.5px;
+        padding: 10px 20px;
     }
 
     .custom-table tbody tr {
-        background: #fff;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.03);
-        transition: transform 0.2s, box-shadow 0.2s;
-        border-radius: 10px;
+        background: var(--pure-white);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.02);
     }
 
     .custom-table tbody tr:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-        position: relative;
+        transform: translateY(-5px) scale(1.01);
+        box-shadow: 0 15px 30px rgba(2, 31, 75, 0.1);
         z-index: 5;
     }
 
     .custom-table td {
-        border: none;
         padding: 20px;
+        border: none;
         vertical-align: middle;
-        border-top: 1px solid #f0f3f5;
-        border-bottom: 1px solid #f0f3f5;
+        border-top: 1px solid #f1f5f9;
+        border-bottom: 1px solid #f1f5f9;
     }
 
-    .custom-table td:first-child {
-        border-top-left-radius: 15px;
-        border-bottom-left-radius: 15px;
-        border-left: 1px solid #f0f3f5;
-    }
-
-    .custom-table td:last-child {
-        border-top-right-radius: 15px;
-        border-bottom-right-radius: 15px;
-        border-right: 1px solid #f0f3f5;
-    }
+    .custom-table td:first-child { border-left: 1px solid #f1f5f9; border-top-left-radius: 20px; border-bottom-left-radius: 20px; }
+    .custom-table td:last-child { border-right: 1px solid #f1f5f9; border-top-right-radius: 20px; border-bottom-right-radius: 20px; }
 
     /* Ikon Buku */
     .book-icon-wrapper {
-        width: 45px;
-        height: 45px;
-        background: #e6fffa;
-        color: #11998e;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        margin-right: 15px;
+        width: 48px; height: 48px;
+        background: #f1f5f9;
+        color: var(--primary-blue);
+        border-radius: 15px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; margin-right: 15px;
+        transition: 0.3s;
+    }
+    .custom-table tr:hover .book-icon-wrapper {
+        background: var(--primary-blue);
+        color: white;
     }
 
-    /* Badge Status */
+    /* Badge Status (Hijau karena sudah kembali) */
     .status-badge {
-        background-color: #d1e7dd;
-        color: #0f5132;
-        padding: 8px 16px;
-        border-radius: 30px;
+        background: #ecfdf5; 
+        color: #10b981; 
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        padding: 8px 18px;
+        border-radius: 12px;
         font-size: 0.75rem;
-        font-weight: 700;
+        font-weight: 800;
         text-transform: uppercase;
         display: inline-flex;
         align-items: center;
         gap: 6px;
     }
 
-    /* Empty State */
     .empty-state {
-        text-align: center;
-        padding: 60px 20px;
+        text-align: center; padding: 80px 20px;
     }
-    .empty-state i {
-        font-size: 3.5rem;
-        color: #cbd3da;
-        margin-bottom: 15px;
-    }
-
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+    .empty-state i { font-size: 5rem; color: var(--text-muted); opacity: 0.2; }
 </style>
 
-<div class="container py-5">
-    <div class="main-card">
-        
+<div class="bg-animated">
+    <div class="bubble bubble-1"></div>
+    <div class="bubble bubble-2"></div>
+</div>
+
+<div class="container">
+    <div class="hero-mini" data-aos="fade-down">
+        <h3>Riwayat Pengembalian</h3>
+        <p class="text-muted">Arsip buku yang telah Anda baca dan kembalikan dengan sukses.</p>
+    </div>
+
+    <div class="main-card" data-aos="fade-up">
         <div class="header-section">
-            <div class="header-content">
-                <div class="header-title">
-                    <h3>Riwayat Pengembalian</h3>
-                    <p>Arsip buku yang telah Anda baca dan kembalikan.</p>
-                </div>
-                <div class="stats-box d-none d-md-block">
-                    <span>{{ count($pengembalian) }}</span>
-                    <small>Buku Selesai</small>
-                </div>
+            <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-archive-fill fs-4 text-primary"></i>
+                <span class="fw-bold">Arsip Pengembalian</span>
+            </div>
+            <div class="stats-pill">
+                {{ count($pengembalian) }} Buku Selesai
             </div>
         </div>
 
@@ -214,7 +191,7 @@
                 <thead>
                     <tr>
                         <th>Judul Buku</th>
-                        <th>Nomor Pustaka</th>
+                        <th>ID Pustaka</th>
                         <th>Waktu Pinjam</th>
                         <th>Waktu Kembali</th>
                         <th class="text-center">Status</th>
@@ -229,27 +206,28 @@
                                         <i class="bi bi-journal-check"></i>
                                     </div>
                                     <div>
-                                        <span class="fw-bold text-dark d-block">{{ $p->judul_buku }}</span>
-                                        <span class="text-muted small">Koleksi Perpustakaan</span>
+                                        <span class="fw-bold text-dark d-block" style="font-size: 1rem;">{{ $p->judul_buku }}</span>
+                                        <span class="text-muted small">Fakultas Teknik UNIB</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="fw-bold text-secondary">#{{ $p->nomor_buku }}</td>
+                            <td><span class="badge bg-light text-dark border px-3 py-2 rounded-pill">#{{ $p->nomor_buku }}</span></td>
                             <td>
-                                <span class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</span>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</span>
+                                    <small class="text-muted">Tanggal Pinjam</small>
+                                </div>
                             </td>
                             <td>
                                 <div class="d-flex flex-column">
-                                    <span class="fw-semibold text-success">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d M Y') }}</span>
-                                    <small class="text-muted" style="font-size: 0.75rem;">
-                                        {{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('H:i') }} WIB
-                                    </small>
+                                    <span class="fw-bold text-primary">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d M Y') }}</span>
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('H:i') }} WIB</small>
                                 </div>
                             </td>
                             <td class="text-center">
                                 <span class="status-badge">
-                                    <i class="bi bi-check-circle-fill"></i>
-                                    Dikembalikan
+                                    <i class="bi bi-check2-all"></i>
+                                    Selesai
                                 </span>
                             </td>
                         </tr>
@@ -258,8 +236,8 @@
                             <td colspan="5">
                                 <div class="empty-state">
                                     <i class="bi bi-inbox"></i>
-                                    <h5 class="text-muted fw-bold">Belum ada data pengembalian.</h5>
-                                    <p class="text-muted small">Buku yang Anda pinjam akan muncul di sini setelah dikembalikan.</p>
+                                    <h5 class="mt-3 fw-bold">Arsip Kosong</h5>
+                                    <p class="text-muted">Buku yang sudah dikembalikan akan muncul di sini.</p>
                                 </div>
                             </td>
                         </tr>
@@ -271,4 +249,7 @@
 </div>
 
 @include('components.footer')
+
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script>AOS.init({ duration: 1000, once: true });</script>
 @endsection

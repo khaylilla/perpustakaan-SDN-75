@@ -231,8 +231,9 @@
                 <div class="col-lg-2 col-md-4">
                     <select name="filter_kategori" class="form-select">
                         <option value="">Semua Kategori</option>
-                        <option value="Bacaan" {{ request('filter_kategori') == 'Bacaan' ? 'selected' : '' }}>Bacaan</option>
-                        <option value="Skripsi" {{ request('filter_kategori') == 'Skripsi' ? 'selected' : '' }}>Skripsi</option>
+                        @foreach($allKategori as $kat)
+                            <option value="{{ $kat }}" {{ request('filter_kategori') == $kat ? 'selected' : '' }}>{{ $kat }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-lg-2 col-md-4">
@@ -275,11 +276,11 @@
                     <tbody>
                         @forelse($books as $book)
                         <tr>
-                            <td class="text-center text-muted">{{ $loop->iteration }}</td>
+                            <td class="text-center text-muted">{{ ($books->currentPage()-1) * $books->perPage() + $loop->iteration }}</td>
                             <td>
                                 @if($book->cover)
                                     @php $covers = json_decode($book->cover, true); @endphp
-                                    <img src="{{ asset('storage/' . $covers[0]) }}" class="cover-img" alt="cover">
+                                    <img src="{{ asset('storage/' . ($covers[0] ?? '')) }}" class="cover-img" alt="cover">
                                 @else
                                     <div class="cover-img bg-light d-flex align-items-center justify-content-center text-muted" style="font-size: 10px;">No Image</div>
                                 @endif
@@ -333,5 +334,143 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Tambah Koleksi Baru</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('admin.datakoleksi.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Upload Cover</label>
+                            <input type="file" name="cover[]" class="form-control" multiple>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Barcode / ISBN (Wajib)</label>
+                            <input type="text" name="barcode" class="form-control" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Judul Buku</label>
+                            <input type="text" name="judul" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Penulis</label>
+                            <input type="text" name="penulis" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Penerbit</label>
+                            <input type="text" name="penerbit" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tahun Terbit</label>
+                            <input type="number" name="tahun_terbit" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Kategori</label>
+                            <input type="text" name="kategori" class="form-control" list="kategoriList">
+                            <datalist id="kategoriList">
+                                @foreach($allKategori as $kat) <option value="{{ $kat }}"> @endforeach
+                            </datalist>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Jumlah</label>
+                            <input type="number" name="jumlah" class="form-control" min="0" value="1">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Rak</label>
+                            <input type="text" name="rak" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Tersedia">Tersedia</option>
+                                <option value="Dipinjam">Dipinjam</option>
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Deskripsi</label>
+                            <textarea name="deskripsi" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-gold">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@foreach($books as $book)
+<div class="modal fade" id="editModal{{ $book->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold">Edit: {{ $book->judul }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('admin.datakoleksi.update', $book->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf @method('PUT')
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Ganti Cover (Biarkan kosong jika tidak diubah)</label>
+                            <input type="file" name="cover[]" class="form-control" multiple>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Barcode / ISBN</label>
+                            <input type="text" name="barcode" class="form-control" value="{{ $book->barcode }}" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Judul Buku</label>
+                            <input type="text" name="judul" class="form-control" value="{{ $book->judul }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Penulis</label>
+                            <input type="text" name="penulis" class="form-control" value="{{ $book->penulis }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Penerbit</label>
+                            <input type="text" name="penerbit" class="form-control" value="{{ $book->penerbit }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Tahun Terbit</label>
+                            <input type="number" name="tahun_terbit" class="form-control" value="{{ $book->tahun_terbit }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Kategori</label>
+                            <input type="text" name="kategori" class="form-control" value="{{ $book->kategori }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Jumlah</label>
+                            <input type="number" name="jumlah" class="form-control" value="{{ $book->jumlah }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Rak</label>
+                            <input type="text" name="rak" class="form-control" value="{{ $book->rak }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Tersedia" {{ $book->status == 'Tersedia' ? 'selected' : '' }}>Tersedia</option>
+                                <option value="Dipinjam" {{ $book->status == 'Dipinjam' ? 'selected' : '' }}>Dipinjam</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
 
 @endsection
