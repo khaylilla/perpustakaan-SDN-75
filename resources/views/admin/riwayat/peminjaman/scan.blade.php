@@ -300,10 +300,10 @@ function updateInfo(type, value){
 }
 
 function prosesPeminjaman(){
-    const npm = document.getElementById("barcodeAnggota").value.trim();
+    const identitas = document.getElementById("barcodeAnggota").value.trim();
     const nomorBuku = document.getElementById("barcodeBuku").value.trim();
 
-    if(!npm || !nomorBuku){ 
+    if(!identitas || !nomorBuku){ 
         Swal.fire({
             icon:'error', 
             title:'Data Kosong', 
@@ -313,7 +313,7 @@ function prosesPeminjaman(){
         return; 
     }
 
-    fetch(`/admin/riwayat/peminjaman/get-user/${npm}`)
+    fetch(`/admin/riwayat/peminjaman/get-user/${identitas}`)
     .then(res => res.json())
     .then(data => {
         const peminjamTipe = data.peminjam_tipe || 'umum';
@@ -328,21 +328,21 @@ function prosesPeminjaman(){
                 confirmButtonText: 'Selesaikan',
                 confirmButtonColor: '#1e40af'
             }).then((result) => {
-                if (result.isConfirmed) submitPeminjamanAdmin(npm, nomorBuku, result.value);
+                if (result.isConfirmed) submitPeminjamanAdmin(identitas, nomorBuku, result.value);
             });
         } else {
-            submitPeminjamanAdmin(npm, nomorBuku, 1);
+            submitPeminjamanAdmin(identitas, nomorBuku, 1);
         }
     });
 }
 
-function submitPeminjamanAdmin(npm, nomorBuku, jumlah){
+function submitPeminjamanAdmin(identitas, nomorBuku, jumlah){
     Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
     fetch("{{ route('admin.riwayat.peminjaman.proses') }}", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-        body: JSON.stringify({npm: npm, nomor_buku: nomorBuku, jumlah: jumlah})
+        body: JSON.stringify({npm: identitas, nomor_buku: nomorBuku, jumlah: jumlah})
     })
     .then(res => res.json())
     .then(data => {

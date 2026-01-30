@@ -70,21 +70,35 @@ public function store(Request $request, Book $book)
 
     $jumlah = $request->jumlah;
     $user = null;
-    $peminjamTipe = null;
-    $identitas = null;
+    $loginAs = session('login_as');
+    $nama = null;
+    $nisn = null;
+    $nip = null;
+    $email = null;
 
     // ✨ CEK TIPE LOGIN (multi-auth)
-    if (auth()->check()) {
-        $user = auth()->user();
-        $peminjamTipe = 'user';
-        $identitas = $user->nisn ?? $user->id;
-        // User (siswa) dibatasi 1
-        $jumlah = 1;
-    } else {
+    if (!auth()->check()) {
         return response()->json([
             'success' => false,
             'message' => 'Silakan login terlebih dahulu'
         ], 401);
+    }
+
+    $user = auth()->user();
+
+    if ($loginAs === 'siswa') {
+        $nama = $user->nama;
+        $nisn = $user->nisn;
+        $jumlah = 1; // Siswa dibatasi 1
+    } elseif ($loginAs === 'guru') {
+        $nama = $user->nama;
+        $nip = $user->nip;
+        // Guru boleh lebih dari 1 (misalnya sampai 5)
+        $jumlah = min($request->jumlah, 5);
+    } elseif ($loginAs === 'umum') {
+        $nama = $user->nama;
+        $email = $user->email;
+        $jumlah = 1; // Umum dibatasi 1
     }
 
     // ✨ CEK STOK BUKU
@@ -95,16 +109,41 @@ public function store(Request $request, Book $book)
         ], 400);
     }
 
-    // ✨ CEK BATASAN PEMINJAMAN (Siswa/Umum hanya boleh 1)
-    if ($peminjamTipe !== 'guru') {
-        $peminjamanAktif = Peminjaman::where('npm', $identitas)
+    // ✨ CEK BATASAN PEMINJAMAN
+    if ($loginAs === 'siswa') {
+        // Siswa hanya boleh 1 buku aktif
+        $peminjamanAktif = Peminjaman::where('nisn', $nisn)
             ->where('status', 'dipinjam')
             ->count();
 
         if ($peminjamanAktif >= 1) {
             return response()->json([
                 'success' => false,
-                'message' => ucfirst($peminjamTipe) . ' hanya boleh meminjam 1 buku sekaligus. Kembalikan buku sebelumnya terlebih dahulu.'
+                'message' => 'Siswa hanya boleh meminjam 1 buku sekaligus. Kembalikan buku sebelumnya terlebih dahulu.'
+            ], 400);
+        }
+    } elseif ($loginAs === 'guru') {
+        // Guru boleh sampai 5 buku aktif
+        $peminjamanAktif = Peminjaman::where('nip', $nip)
+            ->where('status', 'dipinjam')
+            ->count();
+
+        if ($peminjamanAktif >= 5) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Guru hanya boleh meminjam maksimal 5 buku sekaligus.'
+            ], 400);
+        }
+    } elseif ($loginAs === 'umum') {
+        // Umum hanya boleh 1 buku aktif
+        $peminjamanAktif = Peminjaman::where('email', $email)
+            ->where('status', 'dipinjam')
+            ->count();
+
+        if ($peminjamanAktif >= 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Umum hanya boleh meminjam 1 buku sekaligus. Kembalikan buku sebelumnya terlebih dahulu.'
             ], 400);
         }
     }
@@ -114,10 +153,13 @@ public function store(Request $request, Book $book)
     $tanggalKembali = $tanggalPinjam->copy()->addDays(7);
 
     Peminjaman::create([
-        'nama' => $user->nama,
-        'npm' => $identitas,
+        'nama' => $nama,
+        'nisn' => $nisn,
+        'nip' => $nip,
+        'email' => $email,
         'judul_buku' => $book->judul,
         'nomor_buku' => $book->nomor_buku,
+        'jumlah' => $jumlah,
         'tanggal_pinjam' => $tanggalPinjam,
         'tanggal_kembali' => $tanggalKembali,
         'status' => 'dipinjam',

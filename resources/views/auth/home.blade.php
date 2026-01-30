@@ -132,8 +132,8 @@ section { padding: 40px 0; }
             <div class="hero-overlay"></div>
             <div class="hero-content" data-aos="fade-up">
                 <span class="hero-badge">Digital Repository</span>
-                <h1>Eksplorasi Ilmu Teknik Terlengkap</h1>
-                <p class="mb-4 opacity-75 d-none d-md-block">Akses ribuan referensi buku, jurnal, dan karya ilmiah pilihan dari Fakultas Teknik UNIB.</p>
+                <h1>Eksplorasi Ilmu Terlengkap</h1>
+                <p class="mb-4 opacity-75 d-none d-md-block">Akses ribuan referensi buku, jurnal, dan karya ilmiah pilihan dari SDN 75 Kota Bengkulu.</p>
                 <a href="{{ route('buku.index') }}" class="btn-primary-custom">Mulai Jelajah <i class="bi bi-arrow-right ms-2"></i></a>
             </div>
         </div>

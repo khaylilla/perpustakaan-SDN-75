@@ -42,7 +42,7 @@
         100% { transform: translate(50px, 100px) scale(1.1); }
     }
 
-    /* Hero Section (Dinaikkan mendekat Navbar) */
+    /* Hero Section */
     .hero-mini {
         padding: 40px 0 20px;
         text-align: center;
@@ -179,11 +179,11 @@
     <div class="main-card" data-aos="fade-up">
         <div class="header-section">
             <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-collection-play-fill fs-4 text-primary"></i>
-                <span class="fw-bold">Ringkasan Aktivitas</span>
+                <i class="bi bi-book-fill fs-4 text-primary"></i>
+                <span class="fw-bold">Daftar Peminjaman Aktif</span>
             </div>
             <div class="stats-pill">
-                {{ count($peminjaman) }} Total Buku
+                {{ count($peminjaman) }} Buku Dipinjam
             </div>
         </div>
 
@@ -191,69 +191,66 @@
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th>Informasi Buku</th>
-                        <th>ID Pustaka</th>
-                        <th>Waktu Pinjam</th>
-                        <th>Waktu Kembali</th>
+                        <th>NO</th>
+                        <th>Nama</th>
+                        <th>Identitas</th>
+                        <th>Judul Buku</th>
+                        <th>Nomor Buku</th>
+                        <th class="text-center">Jumlah</th>
+                        <th class="text-center">Tanggal Pinjam</th>
+                        <th class="text-center">Tenggat Kembali</th>
                         <th class="text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($peminjaman as $p)
+                    @forelse($peminjaman as $index => $p)
                         @php
-                            $status = strtolower($p->status);
-                            if($status == 'dikembalikan' || $status == 'kembali') {
-                                $class = 'status-kembali'; $icon = 'bi-check2-circle'; $label = 'Selesai';
-                            } elseif($status == 'terlambat') {
-                                $class = 'status-terlambat'; $icon = 'bi-exclamation-octagon'; $label = 'Terlambat';
-                            } else {
-                                $class = 'status-dipinjam'; $icon = 'bi-clock-history'; $label = 'Dipinjam';
-                            }
+                            $tenggat = $p->tanggal_kembali ? \Carbon\Carbon::parse($p->tanggal_kembali) : null;
+                            $isOverdue = $tenggat ? \Carbon\Carbon::now()->gt($tenggat) : false;
                         @endphp
                         <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="book-icon-wrapper">
-                                        <i class="bi bi-book-half"></i>
-                                    </div>
-                                    <div>
-                                        <span class="fw-bold text-dark d-block" style="font-size: 1rem;">{{ $p->judul_buku }}</span>
-                                        <span class="text-muted small">Fakultas Teknik UNIB</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge bg-light text-dark border px-3 py-2 rounded-pill">#{{ $p->nomor_buku }}</span></td>
-                            <td>
-                                <div class="d-flex flex-column">
-                                    <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</span>
-                                    <small class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('H:i') }} WIB</small>
-                                </div>
+                            <td class="text-center">
+                                <span class="fw-bold text-muted small">{{ $index + 1 }}</span>
                             </td>
                             <td>
-                                @if($p->tanggal_kembali)
-                                    <div class="d-flex flex-column">
-                                        <span class="fw-semibold text-dark">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d M Y') }}</span>
-                                        <small class="text-muted">Jatuh Tempo</small>
-                                    </div>
-                                @else
-                                    <span class="text-muted opacity-50 fst-italic">Belum Ada</span>
-                                @endif
+                                <div class="fw-bold text-dark" style="font-size: 14px;">{{ $p->nama }}</div>
+                            </td>
+                            <td>
+                                <div class="text-primary fw-semibold" style="font-size: 11px;">{{ $p->npm }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark" style="font-size: 13px;">{{ $p->judul_buku }}</div>
+                            </td>
+                            <td>
+                                <div class="text-muted small">{{ $p->nomor_buku }}</div>
                             </td>
                             <td class="text-center">
-                                <span class="status-badge {{ $class }}">
-                                    <i class="bi {{ $icon }}"></i>
-                                    {{ $label }}
-                                </span>
+                                <span class="badge" style="background: #f0f9ff; color: #0A58CA;">{{ $p->jumlah ?? 1 }}</span>
+                            </td>
+                            <td class="text-center">
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold text-danger">{{ $tenggat ? $tenggat->format('d/m/Y') : '-' }}</span>
+                            </td>
+                            <td class="text-center">
+                                @if($isOverdue)
+                                    <span class="status-badge status-terlambat">
+                                        <i class="bi bi-exclamation-octagon"></i>
+                                        Terlambat
+                                    </span>
+                                @else
+                                    <span class="status-badge status-dipinjam">
+                                        <i class="bi bi-clock-history"></i>
+                                        Dipinjam
+                                    </span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5">
-                                <div class="empty-state">
-                                    <i class="bi bi-journal-x"></i>
-                                    <h5 class="mt-3 fw-bold">Belum Ada Aktivitas</h5>
-                                    <p class="text-muted">Buku yang Anda pinjam akan muncul di sini.</p>
-                                </div>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                Belum ada riwayat peminjaman
                             </td>
                         </tr>
                     @endforelse

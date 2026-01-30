@@ -182,7 +182,7 @@
                 <span class="fw-bold">Arsip Pengembalian</span>
             </div>
             <div class="stats-pill">
-                {{ count($pengembalian) }} Buku Selesai
+                {{ count($peminjaman) }} Buku Selesai
             </div>
         </div>
 
@@ -190,55 +190,55 @@
             <table class="custom-table">
                 <thead>
                     <tr>
+                        <th>ID</th>
+                        <th>Nama</th>
+                        <th>Identitas</th>
                         <th>Judul Buku</th>
-                        <th>ID Pustaka</th>
-                        <th>Waktu Pinjam</th>
-                        <th>Waktu Kembali</th>
+                        <th>Nomor Buku</th>
+                        <th class="text-center">Jumlah</th>
+                        <th class="text-center">Tanggal Pinjam</th>
+                        <th class="text-center">Tanggal Kembali</th>
                         <th class="text-center">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($pengembalian as $p)
+                    @forelse($peminjaman as $index => $p)
                         <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="book-icon-wrapper">
-                                        <i class="bi bi-journal-check"></i>
-                                    </div>
-                                    <div>
-                                        <span class="fw-bold text-dark d-block" style="font-size: 1rem;">{{ $p->judul_buku }}</span>
-                                        <span class="text-muted small">Fakultas Teknik UNIB</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge bg-light text-dark border px-3 py-2 rounded-pill">#{{ $p->nomor_buku }}</span></td>
-                            <td>
-                                <div class="d-flex flex-column">
-                                    <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d M Y') }}</span>
-                                    <small class="text-muted">Tanggal Pinjam</small>
-                                </div>
+                            <td class="text-center">
+                                <span class="fw-bold text-muted small">{{ $index + 1 }}</span>
                             </td>
                             <td>
-                                <div class="d-flex flex-column">
-                                    <span class="fw-bold text-primary">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d M Y') }}</span>
-                                    <small class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('H:i') }} WIB</small>
-                                </div>
+                                <div class="fw-bold text-dark" style="font-size: 14px;">{{ $p->nama }}</div>
+                            </td>
+                            <td>
+                                <div class="text-primary fw-semibold" style="font-size: 11px;">{{ $p->npm }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark" style="font-size: 13px;">{{ $p->judul_buku }}</div>
+                            </td>
+                            <td>
+                                <div class="text-muted small">{{ $p->nomor_buku }}</div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge" style="background: #f0f9ff; color: #0A58CA;">{{ $p->jumlah ?? 0 }}</span>
+                            </td>
+                            <td class="text-center">
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</small>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold text-primary">{{ $p->tanggal_kembali ? \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') : '-' }}</span>
                             </td>
                             <td class="text-center">
                                 <span class="status-badge">
                                     <i class="bi bi-check2-all"></i>
-                                    Selesai
+                                    Dikembalikan
                                 </span>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5">
-                                <div class="empty-state">
-                                    <i class="bi bi-inbox"></i>
-                                    <h5 class="mt-3 fw-bold">Arsip Kosong</h5>
-                                    <p class="text-muted">Buku yang sudah dikembalikan akan muncul di sini.</p>
-                                </div>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                Belum ada riwayat pengembalian
                             </td>
                         </tr>
                     @endforelse

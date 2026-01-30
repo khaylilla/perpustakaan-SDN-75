@@ -13,6 +13,13 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     * The guard associated with this model.
+     *
+     * @var string
+     */
+    protected $guard = 'web';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

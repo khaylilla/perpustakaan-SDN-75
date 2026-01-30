@@ -300,10 +300,10 @@ function updateInfo(type, value){
 }
 
 function prosesPengembalian() {
-    const npm = document.getElementById('npm').value.trim();
+    const identitas = document.getElementById('npm').value.trim();
     const nomorBuku = document.getElementById('nomorBuku').value.trim();
 
-    if (!npm || !nomorBuku) {
+    if (!identitas || !nomorBuku) {
         Swal.fire({ 
             icon: 'warning', 
             title: 'Data Belum Lengkap', 
@@ -313,7 +313,7 @@ function prosesPengembalian() {
         return;
     }
 
-    fetch(`/admin/riwayat/peminjaman/get-user/${npm}`)
+    fetch(`/admin/riwayat/peminjaman/get-user/${identitas}`)
     .then(res => res.json())
     .then(data => {
         const peminjamTipe = data.peminjam_tipe || 'umum';
@@ -328,21 +328,21 @@ function prosesPengembalian() {
                 confirmButtonColor: '#1e40af',
                 confirmButtonText: 'Proses'
             }).then((result) => {
-                if (result.isConfirmed) submitPengembalianAdmin(npm, nomorBuku, result.value);
+                if (result.isConfirmed) submitPengembalianAdmin(identitas, nomorBuku, result.value);
             });
         } else {
-            submitPengembalianAdmin(npm, nomorBuku, 1);
+            submitPengembalianAdmin(identitas, nomorBuku, 1);
         }
     });
 }
 
-function submitPengembalianAdmin(npm, nomorBuku, jumlah) {
+function submitPengembalianAdmin(identitas, nomorBuku, jumlah) {
     Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
     fetch("{{ route('admin.riwayat.pengembalian.proses') }}", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': "{{ csrf_token() }}" },
-        body: JSON.stringify({ npm: npm, nomor_buku: nomorBuku, jumlah: jumlah })
+        body: JSON.stringify({ npm: identitas, nomor_buku: nomorBuku, jumlah: jumlah })
     })
     .then(res => res.json())
     .then(data => {

@@ -14,7 +14,9 @@ class Peminjaman extends Model
 
     protected $fillable = [
         'nama',
-        'npm',
+        'nisn',
+        'nip',
+        'email',
         'judul_buku',
         'nomor_buku',
         'jumlah',
@@ -23,9 +25,4 @@ class Peminjaman extends Model
         'tanggal_kembali',
         'status',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'nama', 'nama');
-    }
 }

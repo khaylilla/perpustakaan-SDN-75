@@ -13,9 +13,9 @@
                     Sistem pengelolaan perpustakaan digital terintegrasi untuk mendukung riset dan literasi akademik di lingkungan Fakultas Teknik Universitas Bengkulu.
                 </p>
                 <div class="footer-socials">
-                    <a href="#"><i class="bi bi-facebook"></i></a>
-                    <a href="#"><i class="bi bi-instagram"></i></a>
-                    <a href="#"><i class="bi bi-youtube"></i></a>
+                    <a href="https://www.facebook.com/share/1D8LwVxsPV/"><i class="bi bi-facebook"></i></a>
+                    <a href="https://www.instagram.com/sdn75kotabengkulu?igsh=MTJiM2RsMXo0aGhjOQ=="><i class="bi bi-instagram"></i></a>
+                    <a href="https://youtube.com/@sdn75kotabengkulu47?si=pctkFHbmoWfUVXGa"><i class="bi bi-youtube"></i></a>
                     <a href="#"><i class="bi bi-globe"></i></a>
                 </div>
             </div>
@@ -34,15 +34,15 @@
                 <h5 class="footer-heading">Hubungi Kami</h5>
                 <div class="contact-item">
                     <i class="bi bi-geo-alt-fill"></i>
-                    <p>Fakultas Teknik, Universitas Bengkulu, Kandang Limun, Kec. Muara Bangka Hulu, Kota Bengkulu, 38119</p>
+                    <p>FJl. Re Martadinata RT 03 RW 04 kel.kandang Kec.kampung Melayu kota Bengkulu</p>
                 </div>
                 <div class="contact-item">
                     <i class="bi bi-envelope-fill"></i>
-                    <p>perpusftunib@gmail.com</p>
+                    <p>sd.negeri75bengkulu@yahoo.com</p>
                 </div>
                 <div class="contact-item">
                     <i class="bi bi-telephone-fill"></i>
-                    <p>(0736) 344087</p>
+                    <p>0736-1375</p>
                 </div>
             </div>
 

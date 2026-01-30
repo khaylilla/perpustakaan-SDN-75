@@ -22,7 +22,7 @@ Route::middleware('guest')->group(function () {
 // PUBLIC ROUTES
 // ============================
 Route::get('/', [AuthController::class, 'index'])->name('home');
-Route::get('/home', [AuthController::class, 'index']);
+Route::get('/home', [AuthController::class, 'index'])->middleware('multiauth');
 Route::get('/about', fn () => view('auth.about'))->name('about');
 
 Route::get('/buku', [BukuController::class, 'index'])->name('buku.index');
@@ -41,9 +41,9 @@ Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showRese
 Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
 
 // ============================
-// AUTH ROUTES
+// AUTH ROUTES (SISWA, GURU, UMUM)
 // ============================
-Route::middleware('auth')->group(function () {
+Route::middleware('multiauth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
