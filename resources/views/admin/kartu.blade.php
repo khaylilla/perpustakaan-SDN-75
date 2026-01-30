@@ -13,15 +13,104 @@
         --white: #ffffff;
         --card-width: 9cm;
         --card-height: 5.5cm;
+        /* Warna Baru untuk Background Halaman */
+        --bg-admin: #f8fafc; 
     }
 
     body {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #f0f2f5;
+        background-color: var(--bg-admin); /* Background halaman diubah */
         margin: 0;
     }
 
-    /* Grid untuk tampilan layar Admin */
+    /* --- UPDATE STYLE HEADER (ACTION BAR) --- */
+    .action-bar-modern {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem 2rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .action-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .btn-back-custom {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s;
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-back-custom:hover {
+        background: #f1f5f9;
+        color: var(--navy);
+        border-color: var(--navy);
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f1f5f9;
+        padding: 5px 15px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        margin: 0;
+    }
+
+    .form-select-custom {
+        background: transparent;
+        border: none;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--navy);
+        cursor: pointer;
+        outline: none;
+    }
+
+    .btn-print-primary {
+        background: var(--navy);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 10px 15px -3px rgba(26, 42, 78, 0.3);
+    }
+
+    .btn-print-primary:hover {
+        background: var(--maroon);
+        transform: translateY(-2px);
+        box-shadow: 0 20px 25px -5px rgba(124, 23, 13, 0.2);
+    }
+
+    /* --- STYLE KARTU TETAP SAMA --- */
     .card-grid {
         display: grid;
         grid-template-columns: repeat(2, var(--card-width));
@@ -30,13 +119,12 @@
         padding: 20px;
     }
 
-    /* Container Kartu Utama */
     .member-card {
         position: relative;
         width: var(--card-width);
         height: var(--card-height);
         background-color: var(--white);
-        border-radius: 12px; /* Disesuaikan untuk ukuran kecil */
+        border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         display: flex;
@@ -44,7 +132,6 @@
         page-break-inside: avoid;
     }
 
-    /* Background & Overlay identik dengan kode Digital */
     .card-bg {
         position: absolute;
         inset: 0;
@@ -68,7 +155,6 @@
         flex-direction: column;
     }
 
-    /* Header identik */
     .header {
         padding: 12px 20px;
         display: flex;
@@ -105,7 +191,6 @@
         letter-spacing: 1px;
     }
 
-    /* Main Body menggunakan Flexbox (Bukan Grid Kaku) */
     .main-body {
         display: flex;
         padding: 15px 20px;
@@ -140,7 +225,6 @@
         min-width: 0;
     }
 
-    /* Baris Informasi */
     .info-item {
         margin-bottom: 2px;
     }
@@ -163,7 +247,6 @@
         word-wrap: break-word;
     }
 
-    /* Barcode Section */
     .barcode-section {
         margin-top: 5px;
         background: white;
@@ -182,14 +265,13 @@
         width: 100%;
     }
 
-    /* Pengaturan Cetak A4 */
     @media print {
         @page { size: A4; margin: 1cm; }
         body { background: none; padding: 0; }
         .no-print { display: none !important; }
         .card-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
             gap: 10px;
             padding: 0;
             margin: 0;
@@ -203,28 +285,30 @@
     }
 </style>
 
-<div class="container-fluid py-4">
-    {{-- ACTION BAR --}}
-    <div class="no-print d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
-        <div class="d-flex align-items-center gap-3">
-            <a href="{{ route('admin.dataabsen') }}" class="btn btn-outline-secondary btn-sm px-3 rounded-pill">
-                <i class="bi bi-arrow-left"></i> Kembali
+<div class="container-fluid p-0">
+    {{-- NEW HEADER (ACTION BAR) --}}
+    <div class="no-print action-bar-modern">
+        <div class="action-left">
+            <a href="{{ route('admin.dataabsen') }}" class="btn-back-custom">
+                <i class="bi bi-chevron-left"></i> Kembali
             </a>
-            <div class="d-flex align-items-center gap-2">
-                <label class="fw-semibold small mb-0">Filter:</label>
-                <select id="typeFilter" class="form-select form-select-sm" style="width: 130px;" onchange="filterKartu(this.value)">
-                    <option value="">-- Semua --</option>
+            <div class="filter-group">
+                <label><i class="bi bi-filter-left"></i> Filter Kartu</label>
+                <select id="typeFilter" class="form-select-custom" onchange="filterKartu(this.value)">
+                    <option value="">Semua Anggota</option>
                     <option value="siswa">Siswa</option>
                     <option value="guru">Guru</option>
                     <option value="umum">Umum</option>
                 </select>
             </div>
         </div>
-        <button onclick="window.print()" class="btn btn-dark px-4 fw-bold">
-            <i class="bi bi-printer me-2"></i> Cetak A4
+        
+        <button onclick="window.print()" class="btn-print-primary">
+            <i class="bi bi-printer-fill"></i> Cetak A4 Sekarang
         </button>
     </div>
 
+    {{-- GRID KARTU --}}
     <div class="card-grid" id="cardGrid">
         @foreach($anggota as $i => $item)
             <div class="member-card" data-type="{{ $item->type }}">
@@ -276,7 +360,6 @@
     </div>
 </div>
 
-{{-- Script Barcode menggunakan JsBarcode agar hasil cetak tajam --}}
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 <script>
     window.onload = function() {

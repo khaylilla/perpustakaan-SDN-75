@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Umum;
 use App\Models\Guru;
 use App\Models\Notifikasi;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
@@ -17,166 +17,147 @@ class AdminController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->has('keyword') && $request->keyword != '' ? $request->keyword : null;
-        $category = $request->get('category');
+        $keyword = $request->keyword;
 
-        // Ambil data dari ketiga tabel
+        // Ambil data dari ketiga tabel dengan filter keyword
         $usersQuery = User::query();
         $umumQuery = Umum::query();
         $guruQuery = Guru::query();
 
-        // Filter keyword jika ada
         if ($keyword) {
-            $usersQuery->where(function ($q) use ($keyword) {
-                $q->where('nama', 'like', "%$keyword%")
-                  ->orWhere('nisn', 'like', "%$keyword%");
-            });
-            
-            $umumQuery->where(function ($q) use ($keyword) {
-                $q->where('nama', 'like', "%$keyword%")
-                  ->orWhere('email', 'like', "%$keyword%");
-            });
-            
-            $guruQuery->where(function ($q) use ($keyword) {
-                $q->where('nama', 'like', "%$keyword%")
-                  ->orWhere('nip', 'like', "%$keyword%")
-                  ->orWhere('email', 'like', "%$keyword%");
-            });
+            $usersQuery->where('nama', 'like', "%$keyword%")->orWhere('nisn', 'like', "%$keyword%");
+            $umumQuery->where('nama', 'like', "%$keyword%")->orWhere('email', 'like', "%$keyword%");
+            $guruQuery->where('nama', 'like', "%$keyword%")->orWhere('nip', 'like', "%$keyword%");
         }
 
-        // Ambil data dengan tipe untuk membedakan dari tabel mana
+        // Map data agar memiliki property 'type' untuk identifikasi tabel di View
         $usersData = $usersQuery->get()->map(function($item) {
             $item->type = 'users';
-            $item->identifier = $item->nisn ?? '';
+            $item->identifier = $item->nisn ?? '-';
             return $item;
         });
 
         $umumData = $umumQuery->get()->map(function($item) {
             $item->type = 'umum';
-            $item->identifier = $item->email ?? '';
+            $item->identifier = $item->email ?? '-';
             return $item;
         });
 
         $guruData = $guruQuery->get()->map(function($item) {
             $item->type = 'guru';
-            $item->identifier = $item->nip ?? '';
+            $item->identifier = $item->nip ?? '-';
             return $item;
         });
 
-        // Gabung ketiga koleksi (Logika asli dipertahankan)
+        // Gabung semua data
         $users = $usersData->concat($umumData)->concat($guruData);
 
         return view('admin.datauser', compact('users'));
     }
 
-    public function createUser()
-    {
-        return view('admin.createuser');
-    }
-
     /**
-     * Menyimpan user baru
+     * Menyimpan user baru ke tabel yang sesuai
      */
     public function store(Request $request)
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'npm' => 'required|string|max:50|unique:users',
-            'email' => 'required|email|unique:users',
-            'alamat' => 'nullable|string',
-            'nohp' => 'nullable|string',
-            'password' => 'required|min:6',
+            'type' => 'required|in:users,guru,umum',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        User::create([
-            'nama' => $request->nama,
-            'npm' => $request->npm,
-            'email' => $request->email,
-            'alamat' => $request->alamat,
-            'nohp' => $request->nohp,
-            'password' => bcrypt($request->password),
-        ]);
+        $data = $request->all();
+        
+        // Handle Password jika ada field password di form
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
 
-        return redirect()->route('admin.datauser')->with('success', 'User berhasil ditambahkan!');
-    }
+        // Handle Upload Foto
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('foto', 'public');
+        }
 
-    public function editUser($id)
-    {
-        $user = User::findOrFail($id);
-        return view('admin.edituser', compact('user'));
+        // Simpan ke tabel yang benar berdasarkan 'type'
+        if ($request->type === 'users') {
+            User::create($data);
+        } elseif ($request->type === 'guru') {
+            Guru::create($data);
+        } elseif ($request->type === 'umum') {
+            Umum::create($data); // Pastikan Model Umum punya fillable 'email'
+        }
+
+        return redirect()->back()->with('success', 'Anggota berhasil ditambahkan!');
     }
 
     /**
-     * Update data user
+     * Update data user secara dinamis sesuai tabel asalnya
      */
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
+        $type = $request->type; // Dikirim dari hidden input di modal edit
+        $model = null;
 
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'npm' => 'required|string|max:50|unique:users,npm,' . $id,
-            'email' => 'required|email|unique:users,email,' . $id,
-            'alamat' => 'nullable|string',
-            'nohp' => 'nullable|string',
-        ]);
+        if ($type === 'users') { $model = User::findOrFail($id); }
+        elseif ($type === 'guru') { $model = Guru::findOrFail($id); }
+        elseif ($type === 'umum') { $model = Umum::findOrFail($id); }
 
-        $user->update([
-            'nama' => $request->nama,
-            'npm' => $request->npm,
-            'email' => $request->email,
-            'alamat' => $request->alamat,
-            'nohp' => $request->nohp,
-        ]);
+        if ($model) {
+            $data = $request->all();
+            
+            if ($request->hasFile('foto')) {
+                // Hapus foto lama
+                if ($model->foto) { Storage::disk('public')->delete($model->foto); }
+                $data['foto'] = $request->file('foto')->store('foto', 'public');
+            }
 
-        return redirect()->route('admin.datauser')->with('success', 'Data user berhasil diperbarui!');
+            $model->update($data);
+            return redirect()->back()->with('success', 'Data berhasil diperbarui!');
+        }
+
+        return redirect()->back()->with('error', 'Gagal memperbarui data.');
     }
 
     /**
-     * Hapus user
+     * Hapus user secara dinamis
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
-        return redirect()->route('admin.datauser')->with('success', 'User berhasil dihapus!');
+        $type = $request->type; // Diambil dari query string ?type=...
+        $model = null;
+
+        if ($type === 'users') { $model = User::find($id); }
+        elseif ($type === 'guru') { $model = Guru::find($id); }
+        elseif ($type === 'umum') { $model = Umum::find($id); }
+
+        if ($model) {
+            if ($model->foto) { Storage::disk('public')->delete($model->foto); }
+            $model->delete();
+            return redirect()->back()->with('success', 'Data berhasil dihapus!');
+        }
+
+        return redirect()->back()->with('error', 'Data tidak ditemukan.');
     }
 
-    // --- NOTIFIKASI (TIDAK ADA YANG DIHAPUS) ---
-
+    // --- BAGIAN NOTIFIKASI (TIDAK ADA YANG DIHAPUS) ---
     public function notifikasi(Request $request)
     {
         $query = Notifikasi::query();
-
         if ($request->filled('keyword')) {
             $keyword = $request->keyword;
             $query->where(function($q) use ($keyword) {
-                $q->where('judul', 'like', "%{$keyword}%")
-                  ->orWhere('pesan', 'like', "%{$keyword}%");
+                $q->where('judul', 'like', "%{$keyword}%")->orWhere('pesan', 'like', "%{$keyword}%");
             });
         }
-
-        if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
-        }
-
         $notifikasi = $query->latest()->get();
         $totalNotif = Notifikasi::count();
         $notifBaru = Notifikasi::whereDate('created_at', today())->count();
-
         return view('admin.notifikasi', compact('notifikasi', 'totalNotif', 'notifBaru'));
     }
 
     public function notifikasiStore(Request $request)
     {
-        $request->validate([
-            'judul' => 'required',
-            'pesan' => 'required',
-        ]);
-
+        $request->validate(['judul' => 'required', 'pesan' => 'required']);
         Notifikasi::create($request->all());
         return redirect()->back()->with('success', 'Notifikasi berhasil ditambahkan!');
     }

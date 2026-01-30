@@ -8,30 +8,40 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-  body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0f2f5; color: #1e293b; }
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: #1e293b; }
   .main-wrapper { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Warna Utama: Biru (#0056b3), Merah (#dc3545), Putih (#ffffff) */
 
   /* Header & Navigation */
   .header-box { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
   .btn-back-home { 
     display: flex; align-items: center; gap: 10px; padding: 10px 20px; 
-    background: #fff; border-radius: 12px; border: 1px solid #e2e8f0;
-    color: #4a4ca4; text-decoration: none; font-weight: 600; font-size: 14px;
+    background: #fff; border-radius: 12px; border: 2px solid #0056b3;
+    color: #0056b3; text-decoration: none; font-weight: 600; font-size: 14px;
     transition: 0.3s;
   }
-  .btn-back-home:hover { background: #4a4ca4; color: #fff; transform: translateX(-5px); box-shadow: 0 4px 12px rgba(74, 76, 164, 0.2); }
+  .btn-back-home:hover { background: #0056b3; color: #fff; transform: translateX(-5px); }
 
   /* Main Container */
   .glass-card { 
-    background: rgba(255, 255, 255, 0.95); 
+    background: #ffffff; 
     border-radius: 24px; padding: 40px; 
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-    border: 1px solid #ffffff;
+    box-shadow: 0 15px 35px rgba(0, 86, 179, 0.1);
+    border: 1px solid #e2e8f0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Akses Garis Merah di atas kartu */
+  .glass-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+    background: linear-gradient(90deg, #0056b3 0%, #dc3545 100%);
   }
   
   /* Tabs */
   .nav-tabs-custom { 
-    display: flex; background: #f8fafc; padding: 8px; border-radius: 16px; 
+    display: flex; background: #f1f5f9; padding: 6px; border-radius: 16px; 
     margin-bottom: 35px; border: 1px solid #e2e8f0;
   }
   .tab-item { 
@@ -39,68 +49,70 @@
     border-radius: 12px; font-size: 14px; font-weight: 700; color: #64748b; 
     cursor: pointer; transition: 0.3s; 
   }
-  .tab-item.active { background: #ffffff; color: #4a4ca4; box-shadow: 0 4px 15px rgba(0,0,0,0.06); }
+  .tab-item.active { background: #0056b3; color: #ffffff; box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3); }
 
-  /* Scanner Visual */
+  /* Input Modern */
   .input-group-modern { position: relative; margin-bottom: 25px; }
   .input-group-modern i { 
     position: absolute; left: 20px; top: 50%; transform: translateY(-50%); 
-    font-size: 20px; color: #94a3b8; z-index: 10;
+    font-size: 20px; color: #0056b3; z-index: 10;
   }
   .form-control { 
     width: 100%; padding: 18px 20px 18px 55px; border-radius: 16px; 
-    border: 2px solid #f1f5f9; background: #f8fafc; outline: none; 
-    font-size: 16px; transition: 0.3s; font-family: inherit;
+    border: 2px solid #e2e8f0; background: #fff; outline: none; 
+    font-size: 16px; transition: 0.3s;
   }
   .form-control:focus { 
-    border-color: #4a4ca4; background: #fff; 
-    box-shadow: 0 0 0 4px rgba(74, 76, 164, 0.1); 
+    border-color: #0056b3; 
+    box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.1); 
   }
-  .pulse-border:focus { animation: pulse-purple 2s infinite; }
+  .pulse-border:focus { animation: pulse-blue 2s infinite; }
 
-  @keyframes pulse-purple {
-    0% { box-shadow: 0 0 0 0 rgba(74, 76, 164, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(74, 76, 164, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(74, 76, 164, 0); }
+  @keyframes pulse-blue {
+    0% { box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 86, 179, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 86, 179, 0); }
   }
 
-  /* Info Result */
+  /* Result Card */
   .result-card { 
-    background: #ffffff; border-radius: 20px; padding: 25px; margin-top: 25px; 
-    border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    transition: 0.3s ease;
+    background: #fff; border-radius: 20px; padding: 25px; margin-top: 25px; 
+    border: 1px solid #e2e8f0; border-left: 6px solid #dc3545; /* Aksen Merah */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   }
-  .info-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 10px; display: block; }
-  .info-name { font-size: 22px; font-weight: 800; color: #1e293b; margin: 0; }
-  .info-sub { display: flex; gap: 15px; margin-top: 12px; }
-  .badge-info { background: #f1f5f9; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #475569; }
+  .info-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #dc3545; margin-bottom: 5px; display: block; }
+  .info-name { font-size: 24px; font-weight: 800; color: #0056b3; margin: 0; }
+  .badge-info { background: #f1f5f9; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; color: #0056b3; border: 1px solid #e2e8f0; }
 
   /* Buttons */
   .btn-confirm { 
-    width: 100%; background: linear-gradient(135deg, #4a4ca4 0%, #6366f1 100%); 
+    width: 100%; background: #0056b3; 
     color: white; border: none; padding: 18px; border-radius: 16px; 
     font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s; 
-    margin-top: 15px; box-shadow: 0 10px 15px -3px rgba(74, 76, 164, 0.3);
+    margin-top: 15px; box-shadow: 0 8px 15px rgba(0, 86, 179, 0.2);
   }
-  .btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(74, 76, 164, 0.4); filter: brightness(1.1); }
+  .btn-confirm:hover { background: #004494; transform: translateY(-2px); box-shadow: 0 12px 20px rgba(0, 86, 179, 0.3); }
+  
+  .btn-secondary-custom {
+    background: #ffffff; color: #dc3545; border: 2px solid #dc3545;
+  }
+  .btn-secondary-custom:hover { background: #dc3545; color: #fff; }
 
   /* Upload Zone */
   .upload-zone { 
-    border: 2px dashed #cbd5e1; border-radius: 20px; padding: 40px; 
-    text-align: center; cursor: pointer; background: #f8fafc; transition: 0.3s;
+    border: 2px dashed #0056b3; border-radius: 20px; padding: 40px; 
+    text-align: center; cursor: pointer; background: #f0f7ff; transition: 0.3s;
   }
-  .upload-zone:hover { border-color: #4a4ca4; background: #f0f4ff; }
-  .upload-zone i { font-size: 50px; color: #94a3b8; margin-bottom: 15px; display: block; }
+  .upload-zone:hover { border-color: #dc3545; background: #fff5f5; }
+  .upload-zone i { font-size: 50px; color: #0056b3; margin-bottom: 15px; display: block; }
   
   /* Progress */
-  .progress-container { margin-top: 25px; }
-  .progress-bar-bg { background: #f1f5f9; height: 12px; border-radius: 10px; overflow: hidden; }
-  .progress-bar-fill { background: #4a4ca4; height: 100%; transition: 0.3s; }
+  .progress-bar-fill { background: linear-gradient(90deg, #0056b3, #dc3545); height: 100%; transition: 0.3s; }
 
-  /* Custom Status Bar */
-  .status-bar { display: flex; gap: 10px; margin-bottom: 15px; }
-  .status-indicator { width: 8px; height: 8px; border-radius: 50%; background: #10b981; align-self: center; }
-  .status-text { font-size: 12px; font-weight: 600; color: #10b981; }
+  /* Status Bar */
+  .status-bar { display: flex; gap: 10px; background: #fff; padding: 8px 15px; border-radius: 20px; border: 1px solid #e2e8f0; }
+  .status-indicator { width: 10px; height: 10px; border-radius: 50%; background: #10b981; align-self: center; box-shadow: 0 0 8px #10b981; }
+  .status-text { font-size: 12px; font-weight: 700; color: #1e293b; }
 </style>
 
 <div class="main-wrapper">
@@ -110,15 +122,15 @@
     </a>
     <div class="status-bar">
       <div class="status-indicator"></div>
-      <span class="status-text">Sistem Online</span>
+      <span class="status-text">SISTEM AKTIF</span>
     </div>
   </div>
 
   <div class="glass-card">
     <div class="nav-tabs-custom">
-      <button onclick="switchTab('tab1')" class="tab-item active" id="btn-tab1">📱 Scanner</button>
-      <button onclick="switchTab('tab2')" class="tab-item" id="btn-tab2">📝 Input Manual</button>
-      <button onclick="switchTab('tab3')" class="tab-item" id="btn-tab3">📤 Import Media</button>
+      <button onclick="switchTab('tab1')" class="tab-item active" id="btn-tab1">📱 SCAN BARCODE</button>
+      <button onclick="switchTab('tab2')" class="tab-item" id="btn-tab2">📝 MANUAL</button>
+      <button onclick="switchTab('tab3')" class="tab-item" id="btn-tab3">📤 IMPORT</button>
     </div>
 
     <div id="tab1" class="tab-content">
@@ -127,16 +139,16 @@
         <input type="text" id="barcodeAnggota" class="form-control pulse-border" placeholder="Arahkan scanner ke barcode..." autofocus>
       </div>
 
-      <div id="scanResult" class="result-card" style="display:block; border-left: 6px solid #4a4ca4;">
-        <span class="info-tag">Nama Terdeteksi</span>
+      <div id="scanResult" class="result-card">
+        <span class="info-tag">Hasil Pemindaian</span>
         <h2 class="info-name" id="namaAnggota">-</h2>
-        <div class="info-sub">
-          <span class="badge-info"><i class="bi bi-person-badge me-1"></i> <span id="identifierType">-</span></span>
-          <span class="badge-info"><i class="bi bi-key me-1"></i> <span id="identifierValue">-</span></span>
+        <div class="info-sub" style="display: flex; gap: 10px; margin-top: 15px;">
+          <span class="badge-info"><i class="bi bi-person-badge"></i> <span id="identifierType">-</span></span>
+          <span class="badge-info"><i class="bi bi-key"></i> <span id="identifierValue">-</span></span>
         </div>
       </div>
       
-      <button class="btn-confirm" onclick="simpanAbsen()">Konfirmasi Kehadiran</button>
+      <button class="btn-confirm" onclick="simpanAbsen()">KONFIRMASI KEHADIRAN</button>
     </div>
 
     <div id="tab2" class="tab-content" style="display:none;">
@@ -145,54 +157,56 @@
         <input type="text" id="manualIdentifier" class="form-control" placeholder="Masukkan NISN / NIP / Email...">
       </div>
       
-      <div id="manualResult" class="result-card" style="display:block; border-left: 6px solid #10b981;">
-        <span class="info-tag">Data Anggota</span>
+      <div id="manualResult" class="result-card" style="border-left-color: #0056b3;">
+        <span class="info-tag">Informasi Anggota</span>
         <h2 class="info-name" id="namaManual">-</h2>
-        <div class="info-sub">
+        <div class="info-sub" style="display: flex; gap: 10px; margin-top: 15px;">
           <span class="badge-info" id="identifierTypeManual">-</span>
           <span class="badge-info" id="identifierValueManual">-</span>
         </div>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <button class="btn-confirm" style="background: #f1f5f9; color: #475569; box-shadow: none;" onclick="cariDataManual()">Cari Data</button>
-        <button class="btn-confirm" style="background: #10b981; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);" onclick="simpanAbsenManual()">Simpan Absen</button>
+        <button class="btn-confirm btn-secondary-custom" onclick="cariDataManual()">CARI DATA</button>
+        <button class="btn-confirm" onclick="simpanAbsenManual()">SIMPAN ABSEN</button>
       </div>
     </div>
 
     <div id="tab3" class="tab-content" style="display:none;">
       <div class="upload-zone" onclick="document.getElementById('mediaUpload').click()">
         <i class="bi bi-cloud-arrow-up"></i>
-        <p id="uploadText" style="font-weight: 700; color: #475569;">Klik untuk upload berkas</p>
-        <span style="font-size: 13px; color: #94a3b8;">(.xlsx, .csv, atau foto barcode)</span>
+        <p id="uploadText" style="font-weight: 700; color: #1e293b;">Klik atau seret file ke sini</p>
+        <span style="font-size: 13px; color: #64748b;">(Excel, CSV, atau Foto Barcode)</span>
         <input type="file" id="mediaUpload" hidden accept=".csv, .xlsx, .xls, image/*">
-        <img id="previewImage" style="max-width: 150px; margin-top: 15px; border-radius: 12px; display: none;">
+        <img id="previewImage" style="max-width: 150px; margin-top: 15px; border-radius: 12px; display: none; border: 3px solid #0056b3;">
       </div>
 
       <div id="fileDetail" class="result-card" style="display:none;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <span class="info-tag">Nama File</span>
-            <p id="fileName" style="font-weight: 700; margin:0;">-</p>
+            <span class="info-tag">File Terpilih</span>
+            <p id="fileName" style="font-weight: 700; margin:0; color: #0056b3;">-</p>
           </div>
           <span id="fileType" class="badge-info">-</span>
         </div>
       </div>
 
-      <div id="barcodeDetected" class="result-card" style="display:none; background: #f0fdf4; border: 1px solid #bbf7d0;">
-        <span class="info-tag" style="color: #166534;">Barcode Terdeteksi</span>
-        <p id="detectedCode" style="font-size: 20px; font-weight: 800; color: #166534; margin: 0;">-</p>
+      <div id="barcodeDetected" class="result-card" style="display:none; background: #fdf2f2; border: 1px solid #fecaca; border-left-color: #dc3545;">
+        <span class="info-tag">Barcode Terdeteksi</span>
+        <p id="detectedCode" style="font-size: 20px; font-weight: 800; color: #dc3545; margin: 0;">-</p>
       </div>
 
-      <div id="importProgress" class="progress-container" style="display:none;">
+      <div id="importProgress" class="progress-container" style="display:none; margin-top: 20px;">
         <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-          <span style="font-size: 13px; font-weight: 700;">Memproses data...</span>
+          <span style="font-size: 13px; font-weight: 700; color: #0056b3;">Memproses Data...</span>
           <span style="font-size: 13px; font-weight: 700;"><span id="currProgress">0</span>/<span id="totalProgress">0</span></span>
         </div>
-        <div class="progress-bar-bg"><div id="progressBar" class="progress-bar-fill"></div></div>
+        <div style="background: #e2e8f0; height: 12px; border-radius: 10px; overflow: hidden;">
+            <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
+        </div>
       </div>
 
-      <button id="processBtn" class="btn-confirm" onclick="handleMediaProcess()">Proses & Import Sekarang</button>
+      <button id="processBtn" class="btn-confirm" onclick="handleMediaProcess()">PROSES & IMPORT DATA</button>
     </div>
   </div>
 </div>

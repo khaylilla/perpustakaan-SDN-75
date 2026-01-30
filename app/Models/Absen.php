@@ -17,6 +17,11 @@ class Absen extends Model
         'tanggal',
     ];
 
+    // TAMBAHKAN INI
+    protected $casts = [
+        'tanggal' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

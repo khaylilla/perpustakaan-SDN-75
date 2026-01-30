@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Artikel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use PDF;
 
 class ArtikelController extends Controller
 {
@@ -14,9 +12,12 @@ class ArtikelController extends Controller
     {
         $query = Artikel::query();
 
+        // Pencarian berdasarkan judul atau isi
         if ($request->keyword) {
-            $query->where('judul', 'like', '%' . $request->keyword . '%')
+            $query->where(function($q) use ($request) {
+                $q->where('judul', 'like', '%' . $request->keyword . '%')
                   ->orWhere('isi', 'like', '%' . $request->keyword . '%');
+            });
         }
 
         $artikels = $query->latest()->get();
@@ -28,26 +29,20 @@ class ArtikelController extends Controller
     {
         $request->validate([
             'kategori' => 'required|in:Informasi/Pengumuman,Berita,Artikel',
-            'judul' => 'required|max:255',
+            'judul'    => 'required|max:255',
             'subjudul' => 'nullable|max:255',
-            'isi' => 'required',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'link' => 'nullable|url',
+            'isi'      => 'required',
+            'foto'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'link'     => 'nullable|url',
         ]);
 
-        $fotoPath = null;
+        $data = $request->all();
+
         if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('artikels', 'public');
+            $data['foto'] = $request->file('foto')->store('artikels', 'public');
         }
 
-        Artikel::create([
-            'kategori' => $request->kategori,
-            'judul' => $request->judul,
-            'subjudul' => $request->subjudul,
-            'isi' => $request->isi,
-            'foto' => $fotoPath,
-            'link' => $request->link,
-        ]);
+        Artikel::create($data);
 
         return redirect()->route('admin.dataartikel')->with('success', 'Artikel berhasil ditambahkan!');
     }
@@ -62,45 +57,47 @@ class ArtikelController extends Controller
     {
         $request->validate([
             'kategori' => 'required|in:Informasi/Pengumuman,Berita,Artikel',
-            'judul' => 'required|max:255',
+            'judul'    => 'required|max:255',
             'subjudul' => 'nullable|max:255',
-            'isi' => 'required',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'link' => 'nullable|url',
+            'isi'      => 'required',
+            'foto'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'link'     => 'nullable|url',
         ]);
 
         $artikel = Artikel::findOrFail($id);
+        
+        // Ambil semua input kecuali foto
+        $data = $request->except('foto');
 
         if ($request->hasFile('foto')) {
             // Hapus foto lama jika ada
             if ($artikel->foto && Storage::disk('public')->exists($artikel->foto)) {
                 Storage::disk('public')->delete($artikel->foto);
             }
-            $fotoPath = $request->file('foto')->store('artikels', 'public');
-            $artikel->foto = $fotoPath;
+            // Simpan foto baru dan masukkan ke array data
+            $data['foto'] = $request->file('foto')->store('artikels', 'public');
         }
 
-        $artikel->update([
-            'kategori' => $request->kategori,
-            'judul' => $request->judul,
-            'subjudul' => $request->subjudul,
-            'isi' => $request->isi,
-            'link' => $request->link,
-        ]);
+        // Update data (termasuk subjudul)
+        $artikel->update($data);
 
         return redirect()->route('admin.dataartikel')->with('success', 'Artikel berhasil diperbarui!');
     }
 
-    public function destroy(Artikel $artikel)
+    public function destroy($id)
     {
-        // Hapus foto jika ada
+        // Cari data berdasarkan ID
+        $artikel = Artikel::findOrFail($id);
+
+        // Hapus file foto dari storage fisik jika ada
         if ($artikel->foto && Storage::disk('public')->exists($artikel->foto)) {
             Storage::disk('public')->delete($artikel->foto);
         }
 
+        // Hapus data dari database
         $artikel->delete();
 
+        // Redirect kembali
         return redirect()->route('admin.dataartikel')->with('success', 'Artikel berhasil dihapus!');
     }
 }
-

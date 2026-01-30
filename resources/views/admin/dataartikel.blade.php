@@ -5,11 +5,12 @@
 @section('content')
 
 <style>
-    /* === THEME CUSTOMIZATION === */
+    /* === THEME CUSTOMIZATION (RED, WHITE, BLUE) === */
     :root {
-        --primary-navy: #020617;
-        --accent-gold: #f7931e;
-        --soft-gold: rgba(247, 147, 30, 0.1);
+        --primary-blue: #003366;    /* Biru Formal */
+        --accent-red: #d90429;      /* Merah Berani */
+        --soft-blue: rgba(0, 51, 102, 0.05);
+        --soft-red: rgba(217, 4, 41, 0.1);
         --white: #ffffff;
     }
 
@@ -41,8 +42,8 @@
         font-size: 1.8rem;
     }
 
-    .bg-soft-gold { background: var(--soft-gold); color: var(--accent-gold); }
-    .bg-soft-navy { background: rgba(2, 6, 23, 0.05); color: var(--primary-navy); }
+    .bg-soft-red { background: var(--soft-red); color: var(--accent-red); }
+    .bg-soft-blue { background: var(--soft-blue); color: var(--primary-blue); }
 
     /* === MANAGEMENT CONTAINER === */
     .management-card {
@@ -90,7 +91,7 @@
     }
 
     .table thead {
-        background: var(--primary-navy);
+        background: var(--primary-blue);
         color: white;
     }
 
@@ -130,8 +131,8 @@
     .kat-artikel { background: #dcfce7; color: #166534; }
 
     /* === BUTTONS === */
-    .btn-gold {
-        background: var(--accent-gold);
+    .btn-red {
+        background: var(--accent-red);
         color: white;
         border: none;
         font-weight: 600;
@@ -144,10 +145,10 @@
         gap: 8px;
     }
 
-    .btn-gold:hover {
-        background: #e68516;
+    .btn-red:hover {
+        background: #b90422;
         color: white;
-        box-shadow: 0 4px 12px rgba(247, 147, 30, 0.3);
+        box-shadow: 0 4px 12px rgba(217, 4, 41, 0.3);
     }
 
     .action-btn {
@@ -161,11 +162,11 @@
         transition: 0.3s;
         text-decoration: none;
     }
-    .btn-edit { background: #fef3c7; color: #d97706; }
-    .btn-delete { background: #fee2e2; color: #dc2626; }
-    .btn-view { background: #e0f2fe; color: #0369a1; }
-    .btn-edit:hover { background: #fcd34d; }
-    .btn-delete:hover { background: #fecaca; }
+    .btn-edit { background: var(--soft-blue); color: var(--primary-blue); }
+    .btn-delete { background: var(--soft-red); color: var(--accent-red); }
+    .btn-view { background: #f1f5f9; color: #475569; }
+    .btn-edit:hover { background: var(--primary-blue); color: white; }
+    .btn-delete:hover { background: var(--accent-red); color: white; }
 
     /* === MODAL STYLE === */
     .modal-content { border-radius: 20px; border: none; overflow: hidden; }
@@ -178,7 +179,7 @@
     <div class="row g-3 mb-4">
         <div class="col-md-8">
             <div class="stat-card">
-                <div class="icon-box bg-soft-navy">
+                <div class="icon-box bg-soft-blue">
                     <i class="bi bi-file-text"></i>
                 </div>
                 <div class="d-flex justify-content-between align-items-center w-100">
@@ -194,7 +195,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-gold w-100 h-100 py-3" data-bs-toggle="modal" data-bs-target="#addModal">
+            <button class="btn btn-red w-100 h-100 py-3" data-bs-toggle="modal" data-bs-target="#addModal">
                 <i class="bi bi-plus-circle-fill fs-5"></i>
                 <span class="fs-6">Tambah Artikel Baru</span>
             </button>
@@ -203,7 +204,7 @@
 
     <div class="management-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h5 class="fw-bold mb-0"><i class="bi bi-card-text me-2 text-warning"></i> Daftar Artikel & Berita</h5>
+            <h5 class="fw-bold mb-0"><i class="bi bi-card-text me-2 text-primary"></i> Daftar Artikel & Berita</h5>
         </div>
 
         <div class="filter-section">
@@ -215,7 +216,7 @@
                     </div>
                 </div>
                 <div class="col-lg-2 col-md-3">
-                    <button type="submit" class="btn btn-primary w-100">
+                    <button type="submit" class="btn btn-primary w-100" style="background: var(--primary-blue); border: none;">
                         <i class="bi bi-funnel me-1"></i> Filter
                     </button>
                 </div>
@@ -293,13 +294,13 @@
                             </td>
                         </tr>
 
-                        {{-- Modal Edit (Reuse current structure with better styling) --}}
+                        {{-- Modal Edit --}}
                         <div class="modal fade" id="editModal{{ $artikel->id }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-lg modal-dialog-centered">
                                 <form method="POST" action="{{ route('admin.dataartikel.update', $artikel->id) }}" enctype="multipart/form-data">
                                     @csrf @method('PUT')
                                     <div class="modal-content">
-                                        <div class="modal-header bg-warning">
+                                        <div class="modal-header" style="background: var(--primary-blue);">
                                             <h5 class="modal-title fw-bold text-white">Edit Artikel</h5>
                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                         </div>
@@ -318,6 +319,10 @@
                                                     <input type="text" name="judul" value="{{ $artikel->judul }}" class="form-control" required>
                                                 </div>
                                                 <div class="col-md-12">
+                                                    <label class="form-label">Sub Judul (Opsional)</label>
+                                                    <input type="text" name="subjudul" value="{{ $artikel->subjudul }}" class="form-control" placeholder="Keterangan singkat...">
+                                                </div>
+                                                <div class="col-md-12">
                                                     <label class="form-label">Isi Artikel</label>
                                                     <textarea name="isi" rows="5" class="form-control" required>{{ $artikel->isi }}</textarea>
                                                 </div>
@@ -329,7 +334,7 @@
                                         </div>
                                         <div class="modal-footer border-0">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                                            <button type="submit" class="btn btn-warning text-white fw-bold px-4">Simpan Perubahan</button>
+                                            <button type="submit" class="btn text-white fw-bold px-4" style="background: var(--primary-blue);">Simpan Perubahan</button>
                                         </div>
                                     </div>
                                 </form>
@@ -376,7 +381,7 @@
         <form method="POST" action="{{ route('admin.dataartikel.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="modal-content">
-                <div class="modal-header bg-navy text-white" style="background: var(--primary-navy);">
+                <div class="modal-header text-white" style="background: var(--primary-blue);">
                     <h5 class="modal-title fw-bold">Buat Artikel Baru</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -411,7 +416,7 @@
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-gold px-4">Publikasikan Artikel</button>
+                    <button type="submit" class="btn btn-red px-4">Publikasikan Artikel</button>
                 </div>
             </div>
         </form>

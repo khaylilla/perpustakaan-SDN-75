@@ -64,39 +64,48 @@ class AbsenController extends Controller
     }
 
     // ================================
-    // TAMBAH DATA ABSEN
-    // ================================
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'npm' => 'required|string|max:50',
-            'tanggal' => 'required|date',
-        ]);
+// TAMBAH DATA ABSEN (Perbaikan)
+// ================================
+public function store(Request $request)
+{
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'npm' => 'required|string|max:50',
+        'tanggal' => 'required', // Hapus validasi |date agar format string manual aman
+    ]);
 
-        Absen::create($request->only('nama', 'npm', 'tanggal'));
+    Absen::create([
+        'nama'    => $request->nama,
+        'npm'     => $request->npm,
+        // Pastikan formatnya Y-m-d H:i:s agar jam masuk ke DB
+        'tanggal' => \Carbon\Carbon::parse($request->tanggal)->format('Y-m-d H:i:s'),
+    ]);
 
-        return redirect()->route('admin.dataabsen')
-                         ->with('success', 'Data absen berhasil ditambahkan.');
-    }
+    return redirect()->route('admin.dataabsen')
+                     ->with('success', 'Data absen berhasil ditambahkan.');
+}
 
-    // ================================
-    // UPDATE DATA ABSEN
-    // ================================
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:255',
-            'npm' => 'required|string|max:50',
-            'tanggal' => 'required|date',
-        ]);
+// ================================
+// UPDATE DATA ABSEN (Perbaikan)
+// ================================
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'nama' => 'required|string|max:255',
+        'npm' => 'required|string|max:50',
+        'tanggal' => 'required',
+    ]);
 
-        $absen = Absen::findOrFail($id);
-        $absen->update($request->only('nama', 'npm', 'tanggal'));
+    $absen = Absen::findOrFail($id);
+    $absen->update([
+        'nama'    => $request->nama,
+        'npm'     => $request->npm,
+        'tanggal' => \Carbon\Carbon::parse($request->tanggal)->format('Y-m-d H:i:s'),
+    ]);
 
-        return redirect()->route('admin.dataabsen')
-                         ->with('success', 'Data absen berhasil diperbarui.');
-    }
+    return redirect()->route('admin.dataabsen')
+                     ->with('success', 'Data absen berhasil diperbarui.');
+}
 
     // ================================
     // HAPUS DATA ABSEN
