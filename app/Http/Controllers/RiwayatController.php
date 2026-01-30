@@ -185,13 +185,13 @@ class RiwayatController extends Controller
         $kode = trim($id);
 
         $guru = Guru::where('nip', $kode)->first();
-        if ($guru) return response()->json(['nama' => $guru->nama, 'peminjam_tipe' => 'guru']);
+        if ($guru) return response()->json(['nama' => $guru->nama, 'role' => 'guru']);
 
         $umum = Umum::where('email', $kode)->orWhere('nohp', $kode)->first();
-        if ($umum) return response()->json(['nama' => $umum->nama, 'peminjam_tipe' => 'umum']);
+        if ($umum) return response()->json(['nama' => $umum->nama, 'role' => 'umum']);
 
         $siswa = User::where('nisn', $kode)->first();
-        if ($siswa) return response()->json(['nama' => $siswa->nama, 'peminjam_tipe' => 'user']);
+        if ($siswa) return response()->json(['nama' => $siswa->nama, 'role' => 'siswa']);
 
         return response()->json(['message' => 'Data tidak ditemukan'], 404);
     }
@@ -217,9 +217,11 @@ class RiwayatController extends Controller
             'npm' => 'required',
             'nomor_buku' => 'required|exists:books,nomor_buku',
             'jumlah' => 'nullable|integer|min:1',
+            'role' => 'required|in:siswa,guru,umum',
         ]);
 
         $identitas = trim($request->npm);
+        $role = $request->role;
         
         $user = Guru::where('nip', $identitas)->first() 
                 ?? Umum::where('email', $identitas)->orWhere('nohp', $identitas)->first() 
@@ -234,32 +236,19 @@ class RiwayatController extends Controller
             return response()->json(['message' => 'Stok tidak mencukupi.'], 400);
         }
 
-        $tipe = (isset($user->nip)) ? 'guru' : 'umum/siswa';
-        $hari = ($tipe == 'guru') ? 14 : 7;
+        // Durasi berdasarkan role
+        $hari = ($role === 'guru') ? 14 : 7;
         
-        $nisn = null;
-        $nip = null;
-        $email = null;
-
-        if (isset($user->nip)) {
-            $nip = $user->nip;
-        } elseif (isset($user->email) && !isset($user->nisn)) {
-            $email = $user->email;
-        } elseif (isset($user->nisn)) {
-            $nisn = $user->nisn;
-        }
-
         Peminjaman::create([
             'nama' => $user->nama,
-            'nisn' => $nisn,
-            'nip' => $nip,
-            'email' => $email,
+            'npm' => $identitas,
             'judul_buku' => $book->judul,
             'nomor_buku' => $book->nomor_buku,
             'jumlah' => $jumlah,
             'tanggal_pinjam' => now(),
             'tanggal_kembali' => now()->addDays($hari),
             'status' => 'dipinjam',
+            'role' => $role,
         ]);
 
         $book->decrement('jumlah', $jumlah);

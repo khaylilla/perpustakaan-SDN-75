@@ -316,8 +316,8 @@ function prosesPeminjaman(){
     fetch(`/admin/riwayat/peminjaman/get-user/${identitas}`)
     .then(res => res.json())
     .then(data => {
-        const peminjamTipe = data.peminjam_tipe || 'umum';
-        if (peminjamTipe === 'guru') {
+        const role = data.role;
+        if (role === 'guru') {
             Swal.fire({
                 title: 'Input Jumlah',
                 text: 'Khusus Guru: Masukkan jumlah buku',
@@ -328,21 +328,21 @@ function prosesPeminjaman(){
                 confirmButtonText: 'Selesaikan',
                 confirmButtonColor: '#1e40af'
             }).then((result) => {
-                if (result.isConfirmed) submitPeminjamanAdmin(identitas, nomorBuku, result.value);
+                if (result.isConfirmed) submitPeminjamanAdmin(identitas, nomorBuku, result.value, role);
             });
         } else {
-            submitPeminjamanAdmin(identitas, nomorBuku, 1);
+            submitPeminjamanAdmin(identitas, nomorBuku, 1, role);
         }
     });
 }
 
-function submitPeminjamanAdmin(identitas, nomorBuku, jumlah){
+function submitPeminjamanAdmin(identitas, nomorBuku, jumlah, role){
     Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
     fetch("{{ route('admin.riwayat.peminjaman.proses') }}", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": "{{ csrf_token() }}" },
-        body: JSON.stringify({npm: identitas, nomor_buku: nomorBuku, jumlah: jumlah})
+        body: JSON.stringify({npm: identitas, nomor_buku: nomorBuku, jumlah: jumlah, role: role})
     })
     .then(res => res.json())
     .then(data => {

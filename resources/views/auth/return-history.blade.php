@@ -182,7 +182,7 @@
                 <span class="fw-bold">Arsip Pengembalian</span>
             </div>
             <div class="stats-pill">
-                {{ count($peminjaman) }} Buku Selesai
+                {{ $peminjaman->flatten()->count() }} Buku Selesai
             </div>
         </div>
 
@@ -202,39 +202,49 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($peminjaman as $index => $p)
+                    @php $i = 0; @endphp
+                    @forelse($peminjaman as $role => $group)
                         <tr>
-                            <td class="text-center">
-                                <span class="fw-bold text-muted small">{{ $index + 1 }}</span>
-                            </td>
-                            <td>
-                                <div class="fw-bold text-dark" style="font-size: 14px;">{{ $p->nama }}</div>
-                            </td>
-                            <td>
-                                <div class="text-primary fw-semibold" style="font-size: 11px;">{{ $p->npm }}</div>
-                            </td>
-                            <td>
-                                <div class="fw-bold text-dark" style="font-size: 13px;">{{ $p->judul_buku }}</div>
-                            </td>
-                            <td>
-                                <div class="text-muted small">{{ $p->nomor_buku }}</div>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge" style="background: #f0f9ff; color: #0A58CA;">{{ $p->jumlah ?? 0 }}</span>
-                            </td>
-                            <td class="text-center">
-                                <small class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</small>
-                            </td>
-                            <td class="text-center">
-                                <span class="fw-bold text-primary">{{ $p->tanggal_kembali ? \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') : '-' }}</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="status-badge">
-                                    <i class="bi bi-check2-all"></i>
-                                    Dikembalikan
-                                </span>
+                            <td colspan="9" class="bg-light text-start">
+                                <strong>{{ ucfirst($role) }}</strong> &mdash; {{ count($group) }} entri
                             </td>
                         </tr>
+
+                        @foreach($group as $p)
+                            @php $i++; @endphp
+                            <tr>
+                                <td class="text-center">
+                                    <span class="fw-bold text-muted small">{{ $i }}</span>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 14px;">{{ $p->nama }}</div>
+                                </td>
+                                <td>
+                                    <div class="text-primary fw-semibold" style="font-size: 11px;">{{ $p->npm }}</div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark" style="font-size: 13px;">{{ $p->judul_buku }}</div>
+                                </td>
+                                <td>
+                                    <div class="text-muted small">{{ $p->nomor_buku }}</div>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge" style="background: #f0f9ff; color: #0A58CA;">{{ $p->jumlah ?? 0 }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('d/m/Y') }}</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="fw-bold text-primary">{{ $p->tanggal_kembali ? \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') : '-' }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="status-badge">
+                                        <i class="bi bi-check2-all"></i>
+                                        Dikembalikan
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
                     @empty
                         <tr>
                             <td colspan="9" class="text-center text-muted py-5">

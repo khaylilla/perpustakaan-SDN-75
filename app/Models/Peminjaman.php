@@ -14,9 +14,7 @@ class Peminjaman extends Model
 
     protected $fillable = [
         'nama',
-        'nisn',
-        'nip',
-        'email',
+        'npm',
         'judul_buku',
         'nomor_buku',
         'jumlah',
@@ -24,5 +22,6 @@ class Peminjaman extends Model
         'tanggal_pinjam',
         'tanggal_kembali',
         'status',
+        'role',
     ];
 }

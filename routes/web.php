@@ -55,6 +55,7 @@ Route::middleware('multiauth')->group(function () {
     Route::post('/notifikasi/{id}/read', [AuthController::class, 'markAsRead']);
 
     Route::post('/pinjam/{book}', [PeminjamanController::class, 'store'])->name('pinjam.store');
+    Route::get('/peminjaman-saya', [PeminjamanController::class, 'myPeminjaman'])->name('peminjaman.saya');
     
     Route::get('/card/{id}', [AuthController::class, 'showCard'])->name('card');
     Route::get('/card/png/{id}', [AuthController::class, 'saveAsPNG'])->name('card.png');

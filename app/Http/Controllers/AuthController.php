@@ -236,26 +236,28 @@ public function loginSubmit(Request $request)
 public function returnHistory()
 {
     $loginAs = session('login_as');
-    $peminjaman = null;
 
-    if ($loginAs === 'siswa') {
-        $identifier = auth()->user()->nisn;
+    // If admin, show all returned peminjaman grouped by role
+    if ($loginAs === 'admin' || session('is_admin')) {
         $peminjaman = Peminjaman::where('status', 'dikembalikan')
-                        ->where('nisn', $identifier)
                         ->orderBy('tanggal_kembali', 'desc')
-                        ->get();
-    } elseif ($loginAs === 'guru') {
-        $identifier = auth()->user()->nip;
+                        ->get()
+                        ->groupBy('role');
+    } else {
+        if ($loginAs === 'siswa') {
+            $identifier = auth()->user()->nisn;
+        } elseif ($loginAs === 'guru') {
+            $identifier = auth()->user()->nip;
+        } else {
+            $identifier = auth()->user()->email;
+        }
+
         $peminjaman = Peminjaman::where('status', 'dikembalikan')
-                        ->where('nip', $identifier)
+                        ->where('npm', $identifier)
+                        ->where('role', $loginAs)
                         ->orderBy('tanggal_kembali', 'desc')
-                        ->get();
-    } elseif ($loginAs === 'umum') {
-        $identifier = auth()->user()->email;
-        $peminjaman = Peminjaman::where('status', 'dikembalikan')
-                        ->where('email', $identifier)
-                        ->orderBy('tanggal_kembali', 'desc')
-                        ->get();
+                        ->get()
+                        ->groupBy('role');
     }
 
     return view('auth.return-history', compact('peminjaman'));
@@ -264,27 +266,20 @@ public function returnHistory()
 public function borrowHistory()
 {
     $loginAs = session('login_as');
-    $peminjaman = null;
 
     if ($loginAs === 'siswa') {
         $identifier = auth()->user()->nisn;
-        $peminjaman = Peminjaman::where('status', 'dipinjam')
-                        ->where('nisn', $identifier)
-                        ->orderBy('tanggal_pinjam', 'desc')
-                        ->get();
     } elseif ($loginAs === 'guru') {
         $identifier = auth()->user()->nip;
-        $peminjaman = Peminjaman::where('status', 'dipinjam')
-                        ->where('nip', $identifier)
-                        ->orderBy('tanggal_pinjam', 'desc')
-                        ->get();
-    } elseif ($loginAs === 'umum') {
+    } else {
         $identifier = auth()->user()->email;
-        $peminjaman = Peminjaman::where('status', 'dipinjam')
-                        ->where('email', $identifier)
-                        ->orderBy('tanggal_pinjam', 'desc')
-                        ->get();
     }
+
+    $peminjaman = Peminjaman::where('status', 'dipinjam')
+                    ->where('npm', $identifier)
+                    ->where('role', $loginAs)
+                    ->orderBy('tanggal_pinjam', 'desc')
+                    ->get();
 
     return view('auth.borrow-history', compact('peminjaman'));
 }
