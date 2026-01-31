@@ -104,6 +104,14 @@ Route::prefix('admin')->middleware(['check.admin'])->group(function () {
         Route::post('/peminjaman/proses', [RiwayatController::class, 'prosesPeminjaman'])->name('admin.riwayat.peminjaman.proses');
         Route::get('/peminjaman/scan', [RiwayatController::class, 'scanPeminjaman'])->name('admin.riwayat.peminjaman.scan');
         Route::get('/peminjaman/pdf', [RiwayatController::class, 'printPeminjamanPdf'])->name('admin.riwayat.peminjaman.pdf');
+        
+        // Route API untuk Scan Peminjaman
+        Route::get('/peminjaman/get-user/{id}', [RiwayatController::class, 'getUser']);
+        Route::get('/peminjaman/get-book/{id}', [RiwayatController::class, 'getBook']);
+
+        // ✨ UPDATE & DELETE PEMINJAMAN (Baru ditambahkan)
+        Route::put('/peminjaman/update/{id}', [RiwayatController::class, 'updatePeminjaman'])->name('admin.riwayat.peminjaman.update');
+        Route::delete('/peminjaman/delete/{id}', [RiwayatController::class, 'destroyPeminjaman'])->name('admin.riwayat.peminjaman.destroy');
 
         // PENGEMBALIAN
         Route::prefix('pengembalian')->name('admin.riwayat.pengembalian.')->group(function () {
@@ -111,8 +119,7 @@ Route::prefix('admin')->middleware(['check.admin'])->group(function () {
             Route::post('/proses', [RiwayatController::class, 'prosesPengembalian'])->name('proses');
             Route::get('/scan', [RiwayatController::class, 'scanPengembalian'])->name('scankembali');
             Route::get('/pdf-cetak', [RiwayatController::class, 'printPengembalianPdf'])->name('pdfkembali');
-            
-            // ✨ RUTE DESTROY PENGEMBALIAN (DITAMBAHKAN DI SINI)
+            Route::put('/update/{id}', [RiwayatController::class, 'updatePengembalian'])->name('update');
             Route::delete('/{id}', [RiwayatController::class, 'destroyPengembalian'])->name('destroy');
         });
 

@@ -216,7 +216,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.10.2/dist/quagga.js"></script>
 
 <script>
-  // SEMUA LOGIKA JAVASCRIPT ANDA TETAP DI SINI TANPA PERUBAHAN
   let selectedFile = null;
 
   window.addEventListener('load', function() {

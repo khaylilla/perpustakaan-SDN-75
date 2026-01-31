@@ -4,16 +4,23 @@
 
 @section('content')
 <style>
-    /* 1. ANIMATIONS */
+    /* 1. ANIMATIONS & THEME VARIABLES */
+    :root {
+        --primary-blue: #0f172a;
+        --secondary-blue: #1e40af;
+        --accent-red: #dc2626;
+        --soft-red: #fef2f2;
+    }
+
     @keyframes slideInUp {
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes pulse-green {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-        70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
     }
 
     /* 2. HEADER & NAVIGATION */
@@ -29,7 +36,7 @@
         width: 45px;
         height: 45px;
         background: white;
-        color: #1e293b;
+        color: var(--primary-blue);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -37,15 +44,17 @@
         text-decoration: none;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
     }
 
     .btn-back-circle:hover {
-        background: #10b981;
+        background: var(--accent-red);
         color: white;
         transform: translateX(-5px);
+        border-color: var(--accent-red);
     }
 
-    /* 3. MAIN SCANNER CARD */
+    /* 3. MAIN SCANNER CARD - THEME CONSISTENCY */
     .scanner-wrapper {
         max-width: 900px;
         margin: 0 auto;
@@ -56,7 +65,7 @@
         background: white;
         border-radius: 30px;
         padding: 40px;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
         border: 1px solid #f1f5f9;
         position: relative;
         overflow: hidden;
@@ -66,7 +75,7 @@
         content: '';
         position: absolute;
         top: 0; left: 0; width: 100%; height: 8px;
-        background: linear-gradient(90deg, #059669, #10b981);
+        background: linear-gradient(90deg, var(--secondary-blue), var(--accent-red));
     }
 
     /* 4. STEP INDICATOR */
@@ -80,36 +89,38 @@
     .step-item {
         background: #f8fafc;
         padding: 25px;
-        border-radius: 20px;
+        border-radius: 24px;
         border: 2px solid transparent;
         transition: all 0.4s ease;
         text-align: center;
     }
 
     .step-item.active {
-        background: #f0fdf4;
-        border-color: #10b981;
-        animation: pulse-green 2s infinite;
+        background: #fff;
+        border-color: var(--accent-red);
+        animation: pulse-red 2s infinite;
     }
 
     .step-number {
-        width: 35px;
-        height: 35px;
+        width: 38px;
+        height: 38px;
         background: #e2e8f0;
         color: #64748b;
-        border-radius: 50%;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 15px;
-        font-weight: 700;
-        font-size: 14px;
+        font-weight: 800;
+        font-size: 15px;
     }
 
     .active .step-number {
-        background: #10b981;
+        background: var(--secondary-blue);
         color: white;
     }
+
+    .active h6 { color: var(--secondary-blue); }
 
     /* 5. INPUT REFINEMENT */
     .input-wrapper {
@@ -122,7 +133,7 @@
         left: 20px;
         top: 50%;
         transform: translateY(-50%);
-        color: #94a3b8;
+        color: var(--secondary-blue);
         font-size: 18px;
     }
 
@@ -131,17 +142,18 @@
         padding: 16px 16px 16px 55px;
         background: #f1f5f9;
         border: 2px solid transparent;
-        border-radius: 15px;
+        border-radius: 16px;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.3s ease;
+        color: var(--primary-blue);
     }
 
     .scan-input-field:focus {
         background: white;
-        border-color: #10b981;
+        border-color: var(--secondary-blue);
         outline: none;
-        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.1);
+        box-shadow: 0 10px 20px rgba(30, 64, 175, 0.1);
     }
 
     .data-preview {
@@ -150,38 +162,45 @@
     }
 
     .data-preview span {
-        font-size: 13px;
+        font-size: 12px;
+        font-weight: 600;
         color: #64748b;
-        background: #f0fdf4;
-        padding: 5px 12px;
-        border-radius: 8px;
+        background: #f1f5f9;
+        padding: 6px 14px;
+        border-radius: 10px;
         display: inline-block;
     }
 
-    .data-preview strong { color: #059669; }
+    .data-preview strong { color: var(--accent-red); }
 
-    /* 6. SUBMIT BUTTON */
+    /* 6. SUBMIT BUTTON - BLUE GRADIENT */
     .btn-proses-final {
         width: 100%;
-        background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
         color: white;
         border: none;
-        padding: 18px;
-        border-radius: 15px;
-        font-weight: 700;
+        padding: 20px;
+        border-radius: 18px;
+        font-weight: 800;
         font-size: 16px;
         margin-top: 30px;
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 12px;
+        letter-spacing: 1px;
     }
 
     .btn-proses-final:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(15, 23, 42, 0.25);
         background: #000;
+    }
+
+    .text-info-scan {
+        color: var(--accent-red);
+        font-weight: 700;
     }
 </style>
 
@@ -193,8 +212,8 @@
             <i class="bi bi-arrow-left fs-5"></i>
         </a>
         <div>
-            <h4 class="fw-bold mb-0">Scanner Pengembalian</h4>
-            <p class="text-muted small mb-0">Scan kartu anggota dan barcode buku yang akan dikembalikan</p>
+            <h4 class="fw-bold mb-0" style="color: var(--primary-blue);">Scanner Pengembalian</h4>
+            <p class="text-muted small mb-0">Proses pengembalian buku melalui pemindaian barcode</p>
         </div>
     </div>
 
@@ -207,12 +226,12 @@
                     <div class="step-number">1</div>
                     <h6 class="fw-bold mb-3">Identitas Anggota</h6>
                     <div class="input-wrapper">
-                        <i class="bi bi-person-badge"></i>
+                        <i class="bi bi-person-badge-fill"></i>
                         <input type="text" id="npm" class="scan-input-field" 
-                               placeholder="Scan/Input NPM..." onkeydown="handleEnter('npm', event)" autofocus>
+                               placeholder="Tap kartu / input NPM..." onkeydown="handleEnter('npm', event)" autofocus>
                     </div>
                     <div class="data-preview" id="previewAnggota">
-                        <span>Menunggu input...</span>
+                        <span>Standby...</span>
                     </div>
                 </div>
 
@@ -221,35 +240,28 @@
                     <div class="step-number">2</div>
                     <h6 class="fw-bold mb-3">Barcode Buku</h6>
                     <div class="input-wrapper">
-                        <i class="bi bi-book"></i>
+                        <i class="bi bi-upc-scan"></i>
                         <input type="text" id="nomorBuku" class="scan-input-field" 
-                               placeholder="Scan Barcode Buku..." onkeydown="handleEnter('buku', event)">
+                               placeholder="Scan barcode buku..." onkeydown="handleEnter('buku', event)">
                     </div>
                     <div class="data-preview" id="previewBuku">
-                        <span>Menunggu input...</span>
+                        <span>Standby...</span>
                     </div>
                 </div>
             </div>
 
             <button class="btn-proses-final" onclick="prosesPengembalian()">
-                <i class="bi bi-arrow-counterclockwise fs-4"></i>
+                <i class="bi bi-arrow-counterclockwise fs-5"></i>
                 SIMPAN PENGEMBALIAN
             </button>
-
-            <div class="text-center mt-4">
-                <small class="text-muted">
-                    <i class="bi bi-shield-check me-1"></i> 
-                    Sistem akan otomatis memverifikasi status peminjaman aktif.
-                </small>
             </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-// Logic UX: Berpindah step secara otomatis
+// Identik dengan logika peminjaman untuk konsistensi UX
 function handleEnter(type, event){
     if(event.key === "Enter"){
         event.preventDefault();
@@ -266,32 +278,25 @@ function handleEnter(type, event){
 }
 
 function updateInfo(type, value){
-    if(type==="npm"){
-        const preview = document.getElementById("previewAnggota");
-        preview.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mencari...';
-        
-        fetch(`/admin/riwayat/peminjaman/get-user/${value}`)
-            .then(res=>res.json())
-            .then(data=>{
-                preview.innerHTML = `<span>Anggota: <strong>${data.nama ?? 'Tidak Ditemukan'}</strong></span>`;
-            })
-            .catch(() => {
-                preview.innerHTML = '<span class="text-danger">Gagal memuat data</span>';
-            });
-    }
-    if(type==="buku"){
-        const preview = document.getElementById("previewBuku");
-        preview.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mencari...';
+    const preview = document.getElementById(type === "npm" ? "previewAnggota" : "previewBuku");
+    preview.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Mencari...';
+    
+    const url = type === "npm" 
+        ? `/admin/riwayat/peminjaman/get-user/${value}` 
+        : `/admin/riwayat/peminjaman/get-book/${value}`;
 
-        fetch(`/admin/riwayat/peminjaman/get-book/${value}`)
-            .then(res=>res.json())
-            .then(data=>{
-                preview.innerHTML = `<span>Judul: <strong>${data.judul ?? '-'}</strong> | Stok: ${data.jumlah ?? 0}</span>`;
-            })
-            .catch(() => {
-                preview.innerHTML = '<span class="text-danger">Gagal memuat data</span>';
-            });
-    }
+    fetch(url)
+        .then(res=>res.json())
+        .then(data=>{
+            if(type === "npm"){
+                preview.innerHTML = `<span>User: <strong>${data.nama || 'Tidak Ditemukan'}</strong></span>`;
+            } else {
+                preview.innerHTML = `<span>Judul: <strong>${data.judul || '-'}</strong></span>`;
+            }
+        })
+        .catch(() => {
+            preview.innerHTML = '<span class="text-danger">Gagal memuat data</span>';
+        });
 }
 
 function prosesPengembalian() {
@@ -299,7 +304,12 @@ function prosesPengembalian() {
     const nomorBuku = document.getElementById('nomorBuku').value.trim();
 
     if (!npm || !nomorBuku) {
-        Swal.fire({ icon: 'warning', title: 'Data Belum Lengkap', text: 'Scan Anggota dan Buku terlebih dahulu!', confirmButtonColor: '#10b981' });
+        Swal.fire({ 
+            icon: 'warning', 
+            title: 'Data Belum Lengkap', 
+            text: 'Pastikan Anggota dan Buku sudah di-scan!', 
+            confirmButtonColor: '#1e40af' 
+        });
         return;
     }
 
@@ -309,12 +319,13 @@ function prosesPengembalian() {
         const peminjamTipe = data.peminjam_tipe || 'umum';
         if (peminjamTipe === 'guru') {
             Swal.fire({
-                title: 'Jumlah Buku Kembali',
+                title: 'Input Jumlah',
+                text: 'Berapa buku yang dikembalikan?',
                 input: 'number',
                 inputValue: 1,
                 inputAttributes: { min: 1, step: 1 },
                 showCancelButton: true,
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: '#1e40af',
                 confirmButtonText: 'Proses'
             }).then((result) => {
                 if (result.isConfirmed) submitPengembalianAdmin(npm, nomorBuku, result.value);
@@ -335,13 +346,14 @@ function submitPengembalianAdmin(npm, nomorBuku, jumlah) {
     })
     .then(res => res.json())
     .then(data => {
+        const isSuccess = data.message.toLowerCase().includes('berhasil');
         Swal.fire({
-            icon: data.message.toLowerCase().includes('berhasil') ? 'success' : 'error',
-            title: data.message.toLowerCase().includes('berhasil') ? 'Berhasil!' : 'Gagal!',
+            icon: isSuccess ? 'success' : 'error',
+            title: isSuccess ? 'Berhasil!' : 'Gagal!',
             text: data.message,
-            confirmButtonColor: '#10b981'
+            confirmButtonColor: isSuccess ? '#1e40af' : '#dc2626'
         }).then(() => {
-            if(data.message.toLowerCase().includes('berhasil')) location.reload();
+            if(isSuccess) location.reload();
         });
     });
 }
