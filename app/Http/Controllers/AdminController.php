@@ -64,11 +64,12 @@ class AdminController extends Controller
             'nama' => 'required|string|max:255',
             'type' => 'required|in:users,guru,umum',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'password' => 'required|min:6', // Saat create, password biasanya wajib
         ]);
 
         $data = $request->all();
         
-        // Handle Password jika ada field password di form
+        // Hash password sebelum simpan
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -84,7 +85,7 @@ class AdminController extends Controller
         } elseif ($request->type === 'guru') {
             Guru::create($data);
         } elseif ($request->type === 'umum') {
-            Umum::create($data); // Pastikan Model Umum punya fillable 'email'
+            Umum::create($data);
         }
 
         return redirect()->back()->with('success', 'Anggota berhasil ditambahkan!');
@@ -95,9 +96,10 @@ class AdminController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $type = $request->type; // Dikirim dari hidden input di modal edit
+        $type = $request->type; 
         $model = null;
 
+        // Cari data berdasarkan tabel asal
         if ($type === 'users') { $model = User::findOrFail($id); }
         elseif ($type === 'guru') { $model = Guru::findOrFail($id); }
         elseif ($type === 'umum') { $model = Umum::findOrFail($id); }
@@ -105,9 +107,18 @@ class AdminController extends Controller
         if ($model) {
             $data = $request->all();
             
+            // LOGIKA PASSWORD: Jika kosong, jangan update password (hapus dari array data)
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
+            } else {
+                unset($data['password']);
+            }
+
+            // LOGIKA FOTO: Hapus yang lama, ganti yang baru jika ada upload
             if ($request->hasFile('foto')) {
-                // Hapus foto lama
-                if ($model->foto) { Storage::disk('public')->delete($model->foto); }
+                if ($model->foto) { 
+                    Storage::disk('public')->delete($model->foto); 
+                }
                 $data['foto'] = $request->file('foto')->store('foto', 'public');
             }
 
@@ -123,7 +134,7 @@ class AdminController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $type = $request->type; // Diambil dari query string ?type=...
+        $type = $request->type; 
         $model = null;
 
         if ($type === 'users') { $model = User::find($id); }
@@ -131,7 +142,9 @@ class AdminController extends Controller
         elseif ($type === 'umum') { $model = Umum::find($id); }
 
         if ($model) {
-            if ($model->foto) { Storage::disk('public')->delete($model->foto); }
+            if ($model->foto) { 
+                Storage::disk('public')->delete($model->foto); 
+            }
             $model->delete();
             return redirect()->back()->with('success', 'Data berhasil dihapus!');
         }
@@ -139,7 +152,7 @@ class AdminController extends Controller
         return redirect()->back()->with('error', 'Data tidak ditemukan.');
     }
 
-    // --- BAGIAN NOTIFIKASI (TIDAK ADA YANG DIHAPUS) ---
+    // --- BAGIAN NOTIFIKASI ---
     public function notifikasi(Request $request)
     {
         $query = Notifikasi::query();

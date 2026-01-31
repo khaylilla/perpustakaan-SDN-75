@@ -211,7 +211,7 @@
                     <div class="col-md-6">
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-person"></i></span>
-                            <input type="text" name="name" class="form-control" placeholder="Nama Anda" value="{{ auth()->user()->name }}" readonly style="background: #f1f5f9;">
+                            <input type="text" name="name" class="form-control" placeholder="Nama Anda" value="{{ auth()->user()->name }}">
                         </div>
                     </div>
                     <div class="col-md-6">

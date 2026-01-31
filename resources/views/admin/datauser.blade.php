@@ -348,6 +348,7 @@
                     <div class="row mt-3">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Ganti Password</label>
+                            {{-- Input password di bawah ini bersifat opsional (tidak ada atribut 'required') --}}
                             <input type="password" name="password" class="form-control input-premium" placeholder="Kosongkan jika tidak diubah">
                         </div>
                         <div class="col-md-6 mb-3">
