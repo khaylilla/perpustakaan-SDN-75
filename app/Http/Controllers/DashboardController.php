@@ -31,9 +31,10 @@ class DashboardController extends Controller
         // ======== FILTER RANGE ========
         $queryRange = function($query) use ($mode, $start, $end, $kelasFilter) {
             if ($kelasFilter) {
-                $query->whereHas('user', function($q) use ($kelasFilter) {
-                    $q->where('kelas', $kelasFilter);
-                });
+                $query->whereIn(
+                    'nama',
+                    User::where('kelas', $kelasFilter)->pluck('nama')
+                );
             }
             if ($mode == 'hari') {
                 $date = $start ?? now()->toDateString();
