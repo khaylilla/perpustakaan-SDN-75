@@ -16,7 +16,14 @@
                     <a href="https://www.facebook.com/share/1D8LwVxsPV/"><i class="bi bi-facebook"></i></a>
                     <a href="https://www.instagram.com/sdn75kotabengkulu?igsh=MTJiM2RsMXo0aGhjOQ=="><i class="bi bi-instagram"></i></a>
                     <a href="https://youtube.com/@sdn75kotabengkulu47?si=pctkFHbmoWfUVXGa"><i class="bi bi-youtube"></i></a>
-                    <a href="#"><i class="bi bi-globe"></i></a>
+                    <a href="https://www.tiktok.com/@sd.negeri.75.kota?_r=1&_t=ZS-93V6OHod4kM" 
+                       target="_blank" rel="noopener">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                             width="18" height="18" viewBox="0 0 24 24" 
+                             fill="currentColor" aria-hidden="true">
+                            <path d="M21 8.5c-1.7 0-3.3-.6-4.5-1.7v7.7c0 3.2-2.6 5.8-5.8 5.8s-5.8-2.6-5.8-5.8 2.6-5.8 5.8-5.8c.3 0 .6 0 .9.1v2.6c-.3-.1-.6-.2-.9-.2-1.8 0-3.3 1.5-3.3 3.3s1.5 3.3 3.3 3.3 3.3-1.5 3.3-3.3V2h2.6c.2 1.4.9 2.6 1.9 3.5 1 1 2.3 1.5 3.7 1.5v1.5z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
 

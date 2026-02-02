@@ -114,6 +114,11 @@ class RiwayatController extends Controller
         }
 
         $query->where('status', 'dikembalikan');
+        // Jika ada session login_as (siswa/guru/umum), batasi hasil hanya untuk role tersebut
+        $loginAs = session('login_as');
+        if (in_array($loginAs, ['siswa', 'guru', 'umum'])) {
+            $query->where('role', $loginAs);
+        }
 
         $peminjaman = $query->orderBy('tanggal_kembali', 'desc')->paginate(10);
         return view('admin.riwayat.pengembalian.pengembalian', compact('peminjaman'));
@@ -237,16 +242,23 @@ class RiwayatController extends Controller
         }
 
         // Durasi berdasarkan role
-        $hari = ($role === 'guru') ? 14 : 7;
-        
+        $tanggalPinjam = now();
+        if ($role === 'guru') {
+            // Guru: maksimal 2 bulan
+            $tanggalKembali = Carbon::parse($tanggalPinjam)->addMonths(2);
+        } else {
+            // Siswa & Umum: 7 hari
+            $tanggalKembali = Carbon::parse($tanggalPinjam)->addDays(7);
+        }
+
         Peminjaman::create([
             'nama' => $user->nama,
             'npm' => $identitas,
             'judul_buku' => $book->judul,
             'nomor_buku' => $book->nomor_buku,
             'jumlah' => $jumlah,
-            'tanggal_pinjam' => now(),
-            'tanggal_kembali' => now()->addDays($hari),
+            'tanggal_pinjam' => $tanggalPinjam,
+            'tanggal_kembali' => $tanggalKembali,
             'status' => 'dipinjam',
             'role' => $role,
         ]);

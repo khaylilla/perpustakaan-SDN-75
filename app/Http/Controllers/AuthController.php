@@ -236,29 +236,22 @@ public function loginSubmit(Request $request)
 public function returnHistory()
 {
     $loginAs = session('login_as');
-
-    // If admin, show all returned peminjaman grouped by role
-    if ($loginAs === 'admin' || session('is_admin')) {
-        $peminjaman = Peminjaman::where('status', 'dikembalikan')
-                        ->orderBy('tanggal_kembali', 'desc')
-                        ->get()
-                        ->groupBy('role');
+    if ($loginAs === 'siswa') {
+        $role = 'siswa';
+    } elseif ($loginAs === 'guru') {
+        $role = 'guru';
+    } elseif ($loginAs === 'umum') {
+        $role = 'umum';
     } else {
-        if ($loginAs === 'siswa') {
-            $identifier = auth()->user()->nisn;
-        } elseif ($loginAs === 'guru') {
-            $identifier = auth()->user()->nip;
-        } else {
-            $identifier = auth()->user()->email;
-        }
-
-        $peminjaman = Peminjaman::where('status', 'dikembalikan')
-                        ->where('npm', $identifier)
-                        ->where('role', $loginAs)
-                        ->orderBy('tanggal_kembali', 'desc')
-                        ->get()
-                        ->groupBy('role');
+        abort(403);
     }
+
+    // Ambil SEMUA pengembalian untuk role yang sedang login, lalu groupBy role
+    $peminjaman = Peminjaman::where('status', 'dikembalikan')
+                    ->where('role', $role)
+                    ->orderBy('tanggal_kembali', 'desc')
+                    ->get()
+                    ->groupBy('role');
 
     return view('auth.return-history', compact('peminjaman'));
 }
@@ -268,18 +261,21 @@ public function borrowHistory()
     $loginAs = session('login_as');
 
     if ($loginAs === 'siswa') {
-        $identifier = auth()->user()->nisn;
+        $role = 'siswa';
     } elseif ($loginAs === 'guru') {
-        $identifier = auth()->user()->nip;
+        $role = 'guru';
+    } elseif ($loginAs === 'umum') {
+        $role = 'umum';
     } else {
-        $identifier = auth()->user()->email;
+        abort(403);
     }
 
+    // Ambil SEMUA peminjaman aktif untuk role yang sedang login, lalu groupBy role
     $peminjaman = Peminjaman::where('status', 'dipinjam')
-                    ->where('npm', $identifier)
-                    ->where('role', $loginAs)
+                    ->where('role', $role)
                     ->orderBy('tanggal_pinjam', 'desc')
-                    ->get();
+                    ->get()
+                    ->groupBy('role');
 
     return view('auth.borrow-history', compact('peminjaman'));
 }
