@@ -39,7 +39,7 @@
 
     .animate-entry {
         animation: fadeInUp 0.6s ease-out forwards;
-        opacity: 0; /* Mulai invisible */
+        opacity: 0;
     }
     
     .delay-1 { animation-delay: 0.1s; }
@@ -50,7 +50,7 @@
     /* ===== FILTER BAR ===== */
     .filter-card {
         background: white;
-        padding: 15px 20px;
+        padding: 10px 15px;
         border-radius: 12px;
         box-shadow: var(--card-shadow);
         display: flex;
@@ -58,6 +58,7 @@
         gap: 10px;
         margin-bottom: 25px;
         border: 1px solid rgba(0,0,0,0.03);
+        flex-wrap: wrap;
     }
     
     .form-select-custom, .form-control-custom {
@@ -92,7 +93,7 @@
         box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3);
     }
 
-    /* ===== DASHBOARD CARDS (GRID SYSTEM) ===== */
+    /* ===== DASHBOARD CARDS ===== */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -116,7 +117,6 @@
         box-shadow: var(--hover-shadow);
     }
 
-    /* Decorative Circle Background */
     .stat-card::before {
         content: '';
         position: absolute;
@@ -176,7 +176,6 @@
     .card-red .stat-icon { background: linear-gradient(135deg, #e74a3b, #c0392b); box-shadow: 0 4px 10px rgba(231, 74, 59, 0.3); }
     .card-red::before { background: #e74a3b; }
 
-
     /* ===== CHART CONTAINERS ===== */
     .chart-box {
         background: white;
@@ -226,7 +225,7 @@
         margin-bottom: 0;
         width: 100%;
         border-collapse: separate; 
-        border-spacing: 0 5px; /* Jarak antar baris */
+        border-spacing: 0 5px;
     }
 
     .table thead th {
@@ -256,7 +255,6 @@
         border-bottom: 1px solid #f8f9fc;
     }
 
-    /* Badge/Pills for Rank */
     .rank-badge {
         width: 25px;
         height: 25px;
@@ -273,9 +271,46 @@
     .rank-2 { background: #c0c0c0; color: #fff; }
     .rank-3 { background: #cd7f32; color: #fff; }
 
+    /* Gaya tambahan untuk rating */
+    .rating-card-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid rgba(0,0,0,0.03);
+        margin-bottom: 30px;
+    }
+    .rating-big-score {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        line-height: 1;
+    }
+    .rating-stars i {
+        font-size: 1.2rem;
+        margin: 0 2px;
+    }
+    .rating-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .progress-custom {
+        height: 8px;
+        border-radius: 10px;
+        background-color: #eee;
+        margin-bottom: 15px;
+    }
 </style>
 
 <div class="container-fluid px-4 py-4">
+
+    <div class="animate-entry d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-dark mb-0">Dashboard Stats</h4>
+    </div>
 
     <div class="animate-entry">
         <form method="GET" class="filter-card">
@@ -302,7 +337,7 @@
             <span class="text-muted">-</span>
             <input type="date" name="end" class="form-control-custom" value="{{ request('end') }}">
 
-            <button class="btn-filter"><i class="fas fa-search me-1"></i> Terapkan</button>
+            <button class="btn-filter"><i class="fas fa-search me-1"></i></button>
         </form>
     </div>
 
@@ -335,6 +370,47 @@
             <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
             <div class="stat-title">Dikembalikan</div>
             <div class="stat-value">{{ number_format($totalPengembalian) }}</div>
+        </div>
+        </div>
+
+    <div class="row animate-entry delay-1">
+        <div class="col-12">
+            <div class="rating-card-box">
+                <div class="row align-items-center">
+                    <div class="col-lg-3 col-md-4 text-center border-end-md">
+                        <div class="section-title justify-content-center mb-3"> Kepuasan Pengguna </div>
+                        <div class="rating-big-score mb-2">{{ $rataRataReview }}</div>
+                        <div class="rating-stars mb-2">
+                            @for($i = 1; $i <= 5; $i++)
+                                <i class="fa{{ $i <= round($rataRataReview) ? 's' : 'r' }} fa-star text-warning"></i>
+                            @endfor
+                        </div>
+                        <p class="text-muted small mb-0">Rata-rata dari seluruh ulasan</p>
+                    </div>
+                    
+                    <div class="col-lg-9 col-md-8 ps-md-5 pt-3 pt-md-0">
+                        <h6 class="text-uppercase text-secondary fw-bold small mb-3">Rating Berdasarkan Kategori</h6>
+                        <div class="row">
+                            @forelse($rataPerKategori as $item)
+                                <div class="col-md-6">
+                                    <div class="rating-label">
+                                        <span>{{ $item->category }}</span>
+                                        <span class="text-dark fw-bold">{{ number_format($item->rata, 1) }}</span>
+                                    </div>
+                                    <div class="progress progress-custom">
+                                        <div class="progress-bar bg-warning" role="progressbar" 
+                                             style="width: {{ ($item->rata / 5) * 100 }}%"></div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="col-12 text-center text-muted py-3">
+                                    Belum ada data rating per kategori.
+                                </div>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -442,7 +518,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Data dari Controller
     const labels = @json($labels);
     const peminjamanData = @json(array_values($grafikPeminjaman));
     const pengembalianData = @json(array_values($grafikPengembalian));
@@ -453,11 +528,10 @@
     const kelasValues = {!! json_encode($siswaPerKelas->values()) !!};
     const bulanDefault = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 
-    // Global Option: Font Family
     Chart.defaults.font.family = "'Poppins', sans-serif";
     Chart.defaults.color = '#858796';
 
-    // 1. AREA CHART (Lebih cantik daripada line biasa)
+    // 1. AREA CHART
     new Chart(document.getElementById('chartPeminjaman'), {
         type: 'line',
         data: {
@@ -468,10 +542,6 @@
                     data: peminjamanData,
                     borderColor: "#4e73df",
                     backgroundColor: "rgba(78, 115, 223, 0.05)",
-                    pointBackgroundColor: "#4e73df",
-                    pointBorderColor: "#fff",
-                    pointHoverBackgroundColor: "#fff",
-                    pointHoverBorderColor: "#4e73df",
                     fill: true,
                     tension: 0.4,
                     borderWidth: 3
@@ -479,12 +549,8 @@
                 {
                     label: "Pengembalian",
                     data: pengembalianData,
-                    borderColor: "#e74a3b", // Warna merah lebih kontras
+                    borderColor: "#e74a3b",
                     backgroundColor: "rgba(231, 74, 59, 0.05)",
-                    pointBackgroundColor: "#e74a3b",
-                    pointBorderColor: "#fff",
-                    pointHoverBackgroundColor: "#fff",
-                    pointHoverBorderColor: "#e74a3b",
                     fill: true,
                     tension: 0.4,
                     borderWidth: 3
@@ -493,29 +559,15 @@
         },
         options: {
             maintainAspectRatio: false,
-            layout: { padding: { left: 10, right: 25, top: 25, bottom: 0 } },
-            plugins: {
-                legend: { display: true, position: 'top', align: 'end' },
-                tooltip: {
-                    backgroundColor: "rgb(255,255,255)",
-                    bodyColor: "#858796",
-                    titleColor: "#6e707e",
-                    borderColor: '#dddfeb',
-                    borderWidth: 1,
-                    xPadding: 15,
-                    yPadding: 15,
-                    displayColors: false,
-                    caretPadding: 10,
-                },
-            },
+            plugins: { legend: { display: true, position: 'top', align: 'end' } },
             scales: {
-                x: { grid: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 7 } },
-                y: { ticks: { maxTicksLimit: 5, padding: 10 }, grid: { color: "rgb(234, 236, 244)", zeroLineColor: "rgb(234, 236, 244)", drawBorder: false } }
+                x: { grid: { display: false } },
+                y: { ticks: { maxTicksLimit: 5 }, grid: { color: "rgb(234, 236, 244)" } }
             }
         }
     });
 
-    // 2. DOUGHNUT CHART (Modern Style)
+    // 2. DOUGHNUT CHART
     new Chart(document.getElementById('chartKategori'), {
         type: 'doughnut',
         data: {
@@ -523,21 +575,13 @@
             datasets: [{
                 data: kategoriValues,
                 backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
-                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'],
-                hoverBorderColor: "rgba(234, 236, 244, 1)",
-                borderWidth: 5, // Tebal putih di tengah
+                borderWidth: 5,
             }]
         },
         options: {
             maintainAspectRatio: false,
-            cutout: '70%', // Lubang tengah lebih besar
-            plugins: {
-                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
-            },
-            animation: {
-                animateScale: true,
-                animateRotate: true
-            }
+            cutout: '70%',
+            plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } }
         }
     });
 
@@ -550,9 +594,7 @@
                 label: "User Aktif",
                 data: userAktifData,
                 backgroundColor: "#1cc88a",
-                hoverBackgroundColor: "#17a673",
                 borderRadius: 5,
-                barPercentage: 0.6,
             }]
         },
         options: {
@@ -573,9 +615,7 @@
                 label: "Jumlah Siswa",
                 data: kelasValues,
                 backgroundColor: "#36b9cc",
-                hoverBackgroundColor: "#2c9faf",
                 borderRadius: 5,
-                barPercentage: 0.6,
             }]
         },
         options: {

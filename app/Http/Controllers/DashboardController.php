@@ -231,10 +231,24 @@ class DashboardController extends Controller
             ->orderBy('kelas')
             ->pluck('total', 'kelas');
 
+        // ======== LOGIKA REVIEW (TERBARU) ========
+        $rataRataReview = \App\Models\Review::avg('rating') ?: 0;
+        $rataRataReview = number_format($rataRataReview, 1);
+
+        $rataPerKategori = \App\Models\Review::select('category', DB::raw('AVG(rating) as rata'))
+            ->groupBy('category')
+            ->get();
+
+        $ulasanTerbaru = \App\Models\Review::latest()
+            ->take(5)
+            ->get();
+
         return view('admin.dashboard', compact(
             'totalPengunjung','pengunjungHarian','totalUser','totalBuku',
             'totalPeminjaman','peminjamanBulanan','totalPengembalian',
-            'bukuFavorit','userAktif','labels','grafikPeminjaman','grafikPengembalian','grafikUserAktif','kategoriBuku','siswaPerKelas','semuaKelas'
+            'bukuFavorit','userAktif','labels','grafikPeminjaman',
+            'grafikPengembalian','grafikUserAktif','kategoriBuku',
+            'siswaPerKelas','semuaKelas', 'rataRataReview', 'ulasanTerbaru', 'rataPerKategori'
         ));
     }
 }

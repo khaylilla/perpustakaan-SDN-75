@@ -321,7 +321,6 @@
         window.location.href = `${window.location.pathname}?${params.toString()}`;
     }
 
-    // LOGIKA SLIDESHOW COVER ASLI (TIDAK DIHAPUS)
     document.addEventListener('DOMContentLoaded', function() {
         const covers = document.querySelectorAll('.book-cover');
         covers.forEach(img => {

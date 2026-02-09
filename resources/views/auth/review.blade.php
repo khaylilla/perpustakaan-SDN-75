@@ -90,7 +90,7 @@
         color: var(--primary);
     }
 
-    .form-control {
+    .form-control, .form-select {
         border: 2px solid #e2e8f0;
         border-left: none;
         border-radius: 0 15px 15px 0;
@@ -100,10 +100,30 @@
         transition: all 0.3s;
     }
 
-    .form-control:focus {
+    .form-control:focus, .form-select:focus {
         background: white;
         border-color: var(--secondary);
         box-shadow: none;
+    }
+
+    /* Star Rating Styling */
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: flex-end;
+        gap: 5px;
+    }
+    .star-rating input { display: none; }
+    .star-rating label {
+        font-size: 1.5rem;
+        color: #cbd5e1;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #facc15;
     }
 
     .btn-gradient {
@@ -129,7 +149,7 @@
     /* === REVIEW GRID === */
     .review-grid {
         max-width: 1200px;
-        margin: 60px auto 100px;
+        margin: 40px auto 100px;
         padding: 0 25px;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -155,6 +175,16 @@
         border-color: var(--secondary);
     }
 
+    .badge-category {
+        background: #f1f5f9;
+        color: var(--primary);
+        padding: 5px 12px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
     .quote-icon {
         width: 45px; height: 45px;
         background: rgba(231, 167, 94, 0.1);
@@ -169,7 +199,7 @@
         color: #334155; 
         font-size: 1.05rem;
         line-height: 1.7; 
-        margin-bottom: 25px;
+        margin-bottom: 20px;
         font-weight: 500;
     }
 
@@ -184,6 +214,14 @@
         color: white;
         display: flex; align-items: center; justify-content: center;
         font-weight: 800; font-size: 1.2rem;
+    }
+
+    /* Filter Pills Styling */
+    .filter-pills .btn {
+        border-radius: 20px;
+        font-weight: 600;
+        padding: 8px 20px;
+        transition: all 0.3s;
     }
 
 </style>
@@ -217,7 +255,30 @@
                     <div class="col-md-6">
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
-                            <input type="text" name="role" class="form-control" placeholder="Status Anda (E.g. Siswa Kelas 6)" required>
+                            <input type="text" name="role" class="form-control" placeholder="Status (Contoh: Siswa Kelas 6)" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                            <select name="category" class="form-select" required>
+                                <option value="" selected disabled>Pilih Kategori</option>
+                                <option value="Fasilitas">Fasilitas</option>
+                                <option value="Layanan">Layanan</option>
+                                <option value="Buku">Koleksi Buku</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center h-100 ps-2">
+                            <span class="me-3 fw-bold text-muted small">Rating:</span>
+                            <div class="star-rating">
+                                <input type="radio" id="star5" name="rating" value="5" required/><label for="star5"><i class="bi bi-star-fill"></i></label>
+                                <input type="radio" id="star4" name="rating" value="4" /><label for="star4"><i class="bi bi-star-fill"></i></label>
+                                <input type="radio" id="star3" name="rating" value="3" /><label for="star3"><i class="bi bi-star-fill"></i></label>
+                                <input type="radio" id="star2" name="rating" value="2" /><label for="star2"><i class="bi bi-star-fill"></i></label>
+                                <input type="radio" id="star1" name="rating" value="1" /><label for="star1"><i class="bi bi-star-fill"></i></label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -250,12 +311,44 @@
     @endauth
 </div>
 
+<div class="container mt-5 filter-pills">
+    <div class="d-flex justify-content-center flex-wrap gap-2 animate__animated animate__fadeIn">
+        <a href="{{ route('reviews.index') }}" 
+           class="btn {{ !request('category') ? 'btn-primary' : 'btn-outline-primary' }}">
+           Semua
+        </a>
+        <a href="{{ route('reviews.index', ['category' => 'Fasilitas']) }}" 
+           class="btn {{ request('category') == 'Fasilitas' ? 'btn-primary' : 'btn-outline-primary' }}">
+           Fasilitas
+        </a>
+        <a href="{{ route('reviews.index', ['category' => 'Layanan']) }}" 
+           class="btn {{ request('category') == 'Layanan' ? 'btn-primary' : 'btn-outline-primary' }}">
+           Layanan
+        </a>
+        <a href="{{ route('reviews.index', ['category' => 'Buku']) }}" 
+           class="btn {{ request('category') == 'Buku' ? 'btn-primary' : 'btn-outline-primary' }}">
+           Koleksi Buku
+        </a>
+    </div>
+</div>
+
 <div class="review-grid">
     @php $colors = ['#0d3c84', '#1e293b', '#ea580c', '#334155', '#475569', '#e7a75e']; @endphp
 
-    @foreach($reviews as $index => $r)
+    @forelse($reviews as $index => $r)
     <div class="review-card animate__animated animate__fadeInUp" style="animation-delay: {{ $index * 0.1 }}s">
         <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="badge-category">
+                    <i class="bi bi-tag-fill me-1"></i> {{ $r->category }}
+                </span>
+
+                <div class="text-warning">
+                    @for($i = 1; $i <= 5; $i++)
+                        <i class="bi bi-star-fill {{ $i <= ($r->rating ?? 5) ? '' : 'text-muted opacity-25' }}" style="font-size: 0.85rem;"></i>
+                    @endfor
+                </div>
+            </div>
             <div class="d-flex justify-content-between align-items-start">
                 <div class="quote-icon"><i class="bi bi-quote"></i></div>
                 <small class="text-muted fw-bold" style="font-size: 0.75rem">
@@ -269,12 +362,17 @@
                 {{ strtoupper(substr($r->name, 0, 2)) }}
             </div>
             <div>
-                <h6 class="user-name">{{ $r->name }}</h6>
-                <span class="user-role">{{ $r->role }}</span>
+                <h6 class="user-name mb-0 fw-bold">{{ $r->name }}</h6>
+                <small class="user-role text-muted">{{ $r->role }}</small>
             </div>
         </div>
     </div>
-    @endforeach
+    @empty
+    <div class="col-12 text-center py-5">
+        <i class="bi bi-chat-left-dots text-muted" style="font-size: 3rem; opacity: 0.3;"></i>
+        <p class="text-muted mt-3">Belum ada ulasan untuk kategori ini.</p>
+    </div>
+    @endforelse
 </div>
 
 @if(session('success'))

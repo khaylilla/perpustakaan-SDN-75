@@ -23,11 +23,10 @@
         margin: 0;
         padding: 0;
         font-family: var(--font-body);
-        background: #000; /* Fallback */
+        background: #000;
         overflow-x: hidden;
     }
 
-    /* --- BACKGROUND IMAGE WITH ZOOM ANIMATION --- */
     .bg-wrapper {
         position: fixed;
         top: 0;
@@ -50,7 +49,6 @@
         to { transform: scale(1.15); }
     }
 
-    /* Overlay Sinematik untuk memperjelas Card */
     .bg-overlay {
         position: fixed;
         inset: 0;
@@ -62,11 +60,12 @@
         min-height: 100vh;
         padding: 80px 20px;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+        gap: 30px;
     }
 
-    /* Glass Card Utama */
     .book-card {
         background: var(--glass-white);
         backdrop-filter: blur(15px);
@@ -81,7 +80,6 @@
         box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5);
     }
 
-    /* Bagian Cover Visual */
     .book-cover-section {
         background: #f1f5f9;
         padding: 50px;
@@ -117,7 +115,6 @@
         transform: scale(1);
     }
 
-    /* Label Stok / Status */
     .status-badge {
         position: absolute;
         top: 30px;
@@ -133,7 +130,6 @@
         z-index: 10;
     }
 
-    /* Detail Informasi */
     .book-info-section {
         padding: 60px;
         background: #fff;
@@ -158,7 +154,6 @@
         gap: 8px;
     }
 
-    /* Grid Spesifikasi */
     .specs-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -189,7 +184,6 @@
         color: var(--deep-navy);
     }
 
-    /* Deskripsi Area */
     .description-box h3 {
         font-size: 1.1rem;
         font-weight: 800;
@@ -203,7 +197,6 @@
         font-size: 0.95rem;
     }
 
-    /* Tombol-tombol */
     .action-group {
         display: flex;
         gap: 12px;
@@ -220,6 +213,8 @@
         align-items: center;
         gap: 8px;
         font-size: 0.95rem;
+        border: none;
+        cursor: pointer;
     }
 
     .btn-back {
@@ -245,11 +240,70 @@
         color: #fff;
     }
 
+    /* --- EBOOK READER STYLES --- */
+    .ebook-container {
+        display: none;
+        width: 100%;
+        max-width: 1100px;
+        background: var(--glass-white);
+        backdrop-filter: blur(15px);
+        border-radius: 30px;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .ebook-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 0 10px;
+    }
+
+    .ebook-header h4 {
+        margin: 0;
+        font-family: var(--font-heading);
+        color: var(--deep-navy);
+        font-weight: 700;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-print {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-print:hover {
+        background: #059669;
+        transform: translateY(-2px);
+    }
+
+    .iframe-wrapper {
+        position: relative;
+        width: 100%;
+        height: 800px;
+        border-radius: 20px;
+        overflow: hidden;
+        background: #525659;
+    }
+
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
     @media (max-width: 992px) {
         .book-card { grid-template-columns: 1fr; border-radius: 30px; }
         .book-info-section { padding: 40px; }
         .book-info-section h1 { font-size: 2.2rem; }
         .book-cover-section { padding: 40px; }
+        .iframe-wrapper { height: 500px; }
     }
 </style>
 
@@ -260,7 +314,6 @@
 
 <div class="detail-page">
     <div class="book-card" data-aos="zoom-in">
-        
         <div class="book-cover-section">
             <span class="status-badge">
                 <i class="bi bi-stack me-1"></i> Stok: {{ $book->jumlah }}
@@ -318,18 +371,47 @@
                     <a href="{{ route('buku.index') }}" class="btn-custom btn-back">
                         <i class="bi bi-arrow-left"></i> Kembali
                     </a>
-                    
-                    @if($book->ebook)
-                        @php $ebookUrl = strpos($book->ebook, 'http') === 0 ? $book->ebook : asset('storage/' . $book->ebook); @endphp
-                        <a href="{{ $ebookUrl }}" target="_blank" class="btn-custom btn-download">
-                            <i class="bi bi-journal-bookmark-fill"></i> Baca Digital
-                        </a>
-                    @endif
-                </div>
+    
+                @if($book->ebook)
+                @php 
+                    $isExternal = strpos($book->ebook, 'http') === 0;
+                    $ebookUrl = $isExternal ? $book->ebook : asset('storage/' . $book->ebook); 
+                @endphp
+
+                @if($isExternal)
+                    <a href="{{ $ebookUrl }}" target="_blank" class="btn-custom btn-download">
+                        <i class="bi bi-box-arrow-up-right"></i> Baca Detail
+                    </a>
+                @else
+
+                <button onclick="toggleEbook()" class="btn-custom btn-download">
+                    <i class="bi bi-journal-bookmark-fill"></i> <span id="btnText">Baca Digital</span>
+                </button>
+                @endif
+            @endif
+            </div>
             </div>
         </div>
-
     </div>
+
+    @if($book->ebook)
+    <div class="ebook-container" id="ebookSection" data-aos="fade-up">
+        <div class="ebook-header">
+            <h4><i class="bi bi-book-half me-2"></i> Digital Reader</h4>
+            <div class="header-actions">
+                <button onclick="printEbook()" class="btn-custom btn-print" style="padding: 5px 15px;">
+                    <i class="bi bi-printer"></i> Cetak 
+                </button>
+                <button onclick="toggleEbook()" class="btn-custom btn-back" style="padding: 5px 15px;">
+                    <i class="bi bi-x-lg"></i> Tutup
+                </button>
+            </div>
+        </div>
+        <div class="iframe-wrapper">
+            <iframe src="{{ $ebookUrl }}" id="ebookIframe"></iframe>
+        </div>
+    </div>
+    @endif
 </div>
 
 @include('components.footer')
@@ -349,5 +431,30 @@
             }, 4000);
         }
     });
+    
+    function toggleEbook() {
+        const ebookSection = document.getElementById('ebookSection');
+        const btnText = document.getElementById('btnText');
+        
+        if (ebookSection.style.display === "none" || ebookSection.style.display === "") {
+            ebookSection.style.display = "block";
+            btnText.innerText = "Tutup Reader";
+            setTimeout(() => {
+                ebookSection.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        } else {
+            ebookSection.style.display = "none";
+            btnText.innerText = "Baca Digital";
+        }
+    }
+
+    // Fungsi Baru untuk Mencetak PDF dari Iframe
+    function printEbook() {
+        const iframe = document.getElementById('ebookIframe');
+        if (iframe) {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        }
+    }
 </script>
 @endsection

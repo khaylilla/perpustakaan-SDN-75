@@ -31,7 +31,7 @@ Route::get('/buku/{id}', [BookController::class, 'showBook'])->name('buku.show')
 Route::get('/artikel', [AuthController::class, 'artikel'])->name('auth.artikel');
 Route::get('/artikel/{id}', [ArtikelController::class, 'show'])->name('artikel.show');
 
-Route::get('/kontak', [ReviewController::class, 'index'])->name('auth.review');
+Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
 Route::post('/reviews/store', [ReviewController::class, 'store'])->name('reviews.store');
 
 // FORGOT PASSWORD

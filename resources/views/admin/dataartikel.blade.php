@@ -473,6 +473,10 @@
                                                 <input type="text" name="subjudul" value="{{ $artikel->subjudul }}" class="form-control form-control-custom">
                                             </div>
                                             <div class="col-md-12">
+                                                <label class="form-label-custom">Link / URL Sumber (Opsional)</label>
+                                                <input type="url" name="link" value="{{ $artikel->link }}" class="form-control form-control-custom" placeholder="https://contoh.com/berita-asli">
+                                            </div>
+                                            <div class="col-md-12">
                                                 <label class="form-label-custom">Isi Konten</label>
                                                 <textarea name="isi" rows="6" class="form-control form-control-custom" required>{{ $artikel->isi }}</textarea>
                                             </div>
@@ -569,6 +573,10 @@
                         <div class="col-md-12">
                             <label class="form-label-custom">Sub Judul / Keterangan Singkat</label>
                             <input type="text" name="subjudul" class="form-control form-control-custom" placeholder="Opsional...">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label-custom">Link / URL Sumber (Opsional)</label>
+                            <input type="url" name="link" class="form-control form-control-custom" placeholder="https://contoh.com/link-tujuan">
                         </div>
                         <div class="col-md-12">
                             <label class="form-label-custom">Isi Artikel</label>

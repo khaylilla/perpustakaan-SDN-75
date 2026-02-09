@@ -176,7 +176,10 @@
       @foreach($artikels as $artikel)
       <div class="artikel-item" data-aos="fade-up">
         
-        <a href="{{ route('artikel.show', $artikel->id) }}" class="content-link">
+        {{-- Logika Redirect Image --}}
+        <a href="{{ $artikel->link ? $artikel->link : route('artikel.show', $artikel->id) }}" 
+           class="content-link" 
+           @if($artikel->link) target="_blank" @endif>
             <div class="artikel-img-wrapper shadow-sm">
               @if($artikel->foto)
                 <img src="{{ asset('storage/' . $artikel->foto) }}" alt="{{ $artikel->judul }}">
@@ -191,13 +194,19 @@
         <div class="artikel-content">
           <span class="badge-kat">{{ $artikel->kategori }}</span>
           
-          <a href="{{ route('artikel.show', $artikel->id) }}" class="content-link text-decoration-none">
+          {{-- Logika Redirect Judul --}}
+          <a href="{{ $artikel->link ? $artikel->link : route('artikel.show', $artikel->id) }}" 
+             class="content-link text-decoration-none"
+             @if($artikel->link) target="_blank" @endif>
             <h5>{{ $artikel->judul }}</h5>
           </a>
 
           <p>{{ Str::limit($artikel->isi, 160) }}</p>
           
-          <a href="{{ route('artikel.show', $artikel->id) }}" class="btn-read content-link">
+          {{-- Logika Redirect Tombol --}}
+          <a href="{{ $artikel->link ? $artikel->link : route('artikel.show', $artikel->id) }}" 
+             class="btn-read content-link"
+             @if($artikel->link) target="_blank" @endif>
             Baca Selengkapnya <i class="bi bi-arrow-right-short"></i>
           </a>
         </div>

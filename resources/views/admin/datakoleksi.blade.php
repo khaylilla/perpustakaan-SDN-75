@@ -293,7 +293,7 @@
                             <div class="fw-bold text-dark">{{ $book->judul }}</div>
                             <div class="small text-muted">
                                 {{ $book->penulis }} | {{ $book->barcode }}
-                                @if($book->ebook_file)
+                                @if($book->ebook)
                                     <span class="ms-1 badge bg-info text-white"><i class="bi bi-cloud-download"></i> E-book</span>
                                 @endif
                             </div>
@@ -347,11 +347,17 @@
                             <label class="form-label-custom">Barcode / ISBN (Scan Alat di Sini)</label>
                             <input type="text" name="barcode" id="barcode_input_add" class="form-control form-control-custom barcode-field" required placeholder="Gunakan alat scanner...">
                         </div>
-                        
+
+                        <div class="col-md-6">
+                        <label class="form-label-custom">Upload File E-book (PDF)</label>
+                            <input type="file" name="ebook" class="form-control form-control-custom" accept=".pdf">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Atau Link E-book (URL)</label>
+                            <input type="url" name="ebook_url" class="form-control form-control-custom" placeholder="https://example.com/ebook.pdf">
+                        </div>
                         <div class="col-md-12">
-                            <label class="form-label-custom">Upload E-book (PDF/EPUB)</label>
-                            <input type="file" name="ebook_file" class="form-control form-control-custom" accept=".pdf,.epub">
-                            <small class="text-muted">Kosongkan jika hanya buku fisik.</small>
+                            <small class="text-muted">*Gunakan salah satu (link atau file upload), kosongkan jika tidak ada.</small>
                         </div>
 
                         <div class="col-md-12">
@@ -430,16 +436,41 @@
                         <div class="col-md-6">
                             <label class="form-label-custom">Barcode / ISBN (Scan Alat di Sini)</label>
                             <input type="text" name="barcode" class="form-control form-control-custom barcode-field" value="{{ $book->barcode }}" required placeholder="Gunakan alat scanner...">
+                        </div> 
+
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Update File E-book (PDF/EPUB)</label>
+                            <input type="file" name="ebook" class="form-control form-control-custom" accept=".pdf,.epub">
+    
+                        @if($book->ebook)
+                        <div class="mt-1">
+                            <small class="text-success fw-bold"><i class="bi bi-file-earmark-check"></i> Ada File</small>
+                            <small class="text-muted d-block text-truncate" style="max-width: 200px;">{{ basename($book->ebook) }}</small>
+                        </div>
+                        @else
+                            <small class="text-muted mt-1 d-block">File kosong.</small>
+                            @endif
                         </div>
                         
+                        <div class="col-md-6">
+                            <label class="form-label-custom">Update Link E-book (URL)</label>
+                            <input type="url" name="ebook_url" class="form-control form-control-custom" 
+                            value="{{ $book->ebook_url ?? '' }}" placeholder="https://example.com/buku.pdf">
+
+                        @if($book->ebook_url)
+                        <div class="mt-1">
+                            <small class="text-primary"><i class="bi bi-link-45deg"></i> Link saat ini:</small>
+                            <a href="{{ $book->ebook_url }}" target="_blank" class="d-block small text-truncate text-decoration-none">
+                                {{ $book->ebook_url }}
+                            </a>
+                        </div>
+                        @else
+                            <small class="text-muted mt-1 d-block">Link kosong.</small>
+                        @endif
+                        </div>
+
                         <div class="col-md-12">
-                            <label class="form-label-custom">Update File E-book (PDF/EPUB)</label>
-                            <input type="file" name="ebook_file" class="form-control form-control-custom" accept=".pdf,.epub">
-                            @if($book->ebook_file)
-                                <small class="text-success"><i class="bi bi-file-earmark-check"></i> File saat ini: {{ basename($book->ebook_file) }}</small>
-                            @else
-                                <small class="text-muted">Kosongkan jika tidak ada file digital.</small>
-                            @endif
+                            <small class="text-muted fst-italic">*Isi salah satu jika ingin mengubah (Upload File atau Link URL).</small>
                         </div>
 
                         <div class="col-md-12">

@@ -12,33 +12,58 @@ use PDF;
 class BookController extends Controller
 {
     public function index(Request $request)
-{
-    $query = Book::query();
+    {
+        $query = Book::query();
 
-    if ($request->keyword) {
-        $query->where('judul', 'like', '%'.$request->keyword.'%')
-              ->orWhere('penulis', 'like', '%'.$request->keyword.'%')
-              ->orWhere('kategori', 'like', '%'.$request->keyword.'%');
+        /* LOGIKA LAMA DIPERTAHANKAN: 
+           Menambahkan sinkronisasi agar 'search' dari view koleksi 
+           bisa terbaca juga oleh 'keyword' di controller.
+        */
+        $keyword = $request->keyword ?? $request->search;
+        
+        if ($keyword) {
+            $query->where(function($q) use ($keyword) {
+                $q->where('judul', 'like', '%'.$keyword.'%')
+                  ->orWhere('penulis', 'like', '%'.$keyword.'%')
+                  ->orWhere('kategori', 'like', '%'.$keyword.'%')
+                  ->orWhere('penerbit', 'like', '%'.$keyword.'%');
+            });
+        }
+
+        // Filter Kategori (Mendukung filter_kategori lama dan kategori baru)
+        $kategori = $request->filter_kategori ?? $request->kategori;
+        if ($kategori) {
+            $query->where('kategori', $kategori);
+        }
+
+        if ($request->filter_tahun) {
+            $query->where('tahun_terbit', $request->filter_tahun);
+        }
+
+        // Logika Sorting
+        if ($request->sort == 'judul_az') {
+            $query->orderBy('judul', 'asc');
+        } elseif ($request->sort == 'judul_za') {
+            $query->orderBy('judul', 'desc');
+        } elseif ($request->sort == 'terbaru') {
+            $query->orderBy('created_at', 'desc');
+        } else {
+            $query->orderBy('kategori')->orderBy('tahun_terbit');
+        }
+
+        $books = $query->paginate(15)->withQueryString();
+
+        $allKategori = Book::select('kategori')->distinct()->pluck('kategori');
+        $allTahun = Book::select('tahun_terbit')->distinct()->pluck('tahun_terbit');
+
+        /* Jika request datang dari admin, arahkan ke datakoleksi.
+           Jika dari user umum, arahkan ke view koleksi.
+        */
+        if ($request->is('admin/*')) {
+            return view('admin.datakoleksi', compact('books', 'allKategori', 'allTahun'));
+        }
+        return view('auth.koleksi', compact('books', 'allKategori', 'allTahun'));
     }
-
-    if ($request->filter_kategori) {
-        $query->where('kategori', $request->filter_kategori);
-    }
-
-    if ($request->filter_tahun) {
-        $query->where('tahun_terbit', $request->filter_tahun);
-    }
-
-    $books = $query->orderBy('kategori')
-               ->orderBy('tahun_terbit')
-               ->paginate(15)
-               ->withQueryString();
-
-    $allKategori = Book::select('kategori')->distinct()->pluck('kategori');
-    $allTahun = Book::select('tahun_terbit')->distinct()->pluck('tahun_terbit');
-
-    return view('admin.datakoleksi', compact('books', 'allKategori', 'allTahun'));
-}
 
     public function store(Request $request)
     {
@@ -51,7 +76,7 @@ class BookController extends Controller
             'kategori' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
             'ebook_url' => 'nullable|url',
-            'ebook_file' => 'nullable|mimes:pdf|max:10240',
+            'ebook' => 'nullable|mimes:pdf|max:20480', // Ditambah jadi 20MB agar lebih aman
             'barcode' => 'required|string|max:100|unique:books,barcode',
             'nomor_buku' => 'nullable|string|max:50',
             'rak' => 'nullable|string|max:50',
@@ -62,14 +87,13 @@ class BookController extends Controller
         // Generate nomor_buku dari barcode jika belum ada
         $nomor_buku = $request->nomor_buku;
         if (!$nomor_buku) {
-            $year = now()->year;
             $nomor_buku = $request->barcode;
         }
 
-        // Handle e-book (prioritas: file upload > URL)
+        // Handle e-book (Logic: File upload diprioritaskan)
         $ebook = null;
-        if ($request->hasFile('ebook_file')) {
-            $ebook = $request->file('ebook_file')->store('ebooks', 'public');
+        if ($request->hasFile('ebook')) {
+            $ebook = $request->file('ebook')->store('ebooks', 'public');
         } elseif ($request->ebook_url) {
             $ebook = $request->ebook_url;
         }
@@ -113,7 +137,7 @@ class BookController extends Controller
             'kategori' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
             'ebook_url' => 'nullable|url',
-            'ebook_file' => 'nullable|mimes:pdf|max:10240',
+            'ebook' => 'nullable|mimes:pdf|max:20480',
             'barcode' => 'required|string|max:100|unique:books,barcode,' . $id,
             'nomor_buku' => 'nullable|string|max:50',
             'rak' => 'nullable|string|max:50',
@@ -121,54 +145,43 @@ class BookController extends Controller
             'jumlah' => 'nullable|integer|min:0',
         ]);
 
-        // Generate nomor_buku dari barcode jika belum ada atau jika barcode berubah
+        // Generate nomor_buku
         $nomor_buku = $request->nomor_buku;
         if (!$nomor_buku || $book->barcode !== $request->barcode) {
-            $year = now()->year;
             $nomor_buku = $request->barcode;
         }
 
         // Handle e-book update
         $ebook = $book->ebook;
-        if ($request->hasFile('ebook_file')) {
-            // Hapus file lama jika ada dan bukan URL
-            if ($book->ebook && strpos($book->ebook, 'http') !== 0) {
-                if (Storage::disk('public')->exists($book->ebook)) {
-                    Storage::disk('public')->delete($book->ebook);
-                }
+        if ($request->hasFile('ebook')) {
+            // Hapus file lama jika ada di storage (bukan URL)
+            if ($book->ebook && !filter_var($book->ebook, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($book->ebook);
             }
-            $ebook = $request->file('ebook_file')->store('ebooks', 'public');
+            $ebook = $request->file('ebook')->store('ebooks', 'public');
         } elseif ($request->ebook_url) {
-            // Hapus file lama jika ada dan user ganti dengan URL
-            if ($book->ebook && strpos($book->ebook, 'http') !== 0) {
-                if (Storage::disk('public')->exists($book->ebook)) {
-                    Storage::disk('public')->delete($book->ebook);
-                }
+            if ($book->ebook && !filter_var($book->ebook, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($book->ebook);
             }
             $ebook = $request->ebook_url;
         }
-
-        // Isi data umum dulu
-        $book->fill($request->except(['cover', 'nomor_buku', 'barcode', 'ebook_url', 'ebook_file']));
+        
+        $book->fill($request->except(['cover', 'nomor_buku', 'barcode', 'ebook_url', 'ebook']));
         $book->nomor_buku = $nomor_buku;
         $book->barcode = $request->barcode;
         $book->ebook = $ebook;
 
-        // HANDLE COVER TERAKHIR (setelah fill, agar tidak ke-reset)
+        // HANDLE COVER
         if ($request->hasFile('cover')) {
-            // Hapus cover lama
             if ($book->cover) {
                 $oldCovers = json_decode($book->cover, true);
                 if ($oldCovers) {
                     foreach ($oldCovers as $oldCover) {
-                        if (Storage::disk('public')->exists($oldCover)) {
-                            Storage::disk('public')->delete($oldCover);
-                        }
+                        Storage::disk('public')->delete($oldCover);
                     }
                 }
             }
             
-            // Upload cover baru
             $newCovers = [];
             foreach ($request->file('cover') as $file) {
                 $newCovers[] = $file->store('covers', 'public');
@@ -185,13 +198,17 @@ class BookController extends Controller
     {
         $book = Book::findOrFail($id);
 
+        // Hapus Cover
         $covers = json_decode($book->cover, true);
         if ($covers) {
             foreach ($covers as $cover) {
-                if (Storage::disk('public')->exists($cover)) {
-                    Storage::disk('public')->delete($cover);
-                }
+                Storage::disk('public')->delete($cover);
             }
+        }
+
+        // Hapus Ebook jika berupa file
+        if ($book->ebook && !filter_var($book->ebook, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($book->ebook);
         }
 
         $book->delete();
@@ -202,11 +219,12 @@ class BookController extends Controller
     public function printPDF(Request $request)
     {
         $query = Book::query();
+        $keyword = $request->keyword ?? $request->search;
 
-        if($request->keyword){
-            $query->where('judul','like','%'.$request->keyword.'%')
-                  ->orWhere('penulis','like','%'.$request->keyword.'%')
-                  ->orWhere('kategori','like','%'.$request->keyword.'%');
+        if($keyword){
+            $query->where('judul','like','%'.$keyword.'%')
+                  ->orWhere('penulis','like','%'.$keyword.'%')
+                  ->orWhere('kategori','like','%'.$keyword.'%');
         }
 
         if ($request->filter_kategori) $query->where('kategori', $request->filter_kategori);
@@ -214,7 +232,6 @@ class BookController extends Controller
 
         $books = $query->orderBy('kategori')->orderBy('tahun_terbit')->get();
 
-        // Generate barcode on-the-fly di blade PDF
         $pdf = PDF::loadView('admin.koleksi_pdf', compact('books'));
         return $pdf->stream('Data_Koleksi.pdf');
     }
@@ -222,10 +239,7 @@ class BookController extends Controller
     public function showCard($id)
     {
         $book = Book::findOrFail($id);
-
-        // Generate barcode on-the-fly
-        $barcode = DNS1D::getBarcodeSVG($book->id, 'C128', 2, 50);
-
+        $barcode = DNS1D::getBarcodeSVG($book->barcode, 'C128', 2, 50);
         return view('admin.card', compact('book', 'barcode'));
     }
 
@@ -234,5 +248,4 @@ class BookController extends Controller
         $book = Book::findOrFail($id);
         return view('auth.show', compact('book'));
     }
-
 }

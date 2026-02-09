@@ -33,7 +33,7 @@
                     <a class="nav-link {{ request()->routeIs('auth.artikel') ? 'active' : '' }}" href="{{ route('auth.artikel') }}">Artikel</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('auth.review') ? 'active' : '' }}" href="{{ route('auth.review') }}">Review</a>
+                    <a class="nav-link {{ request()->routeIs('reviews.index') ? 'active' : '' }}" href="{{ route('reviews.index') }}">Review</a>
                 </li>
             </ul>
 
