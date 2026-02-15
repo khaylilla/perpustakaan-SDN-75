@@ -128,22 +128,22 @@ section { padding: 40px 0; }
 <div class="hero-slider swiper">
     <div class="swiper-wrapper">
         <div class="swiper-slide">
-            <img src="{{ asset('FT.jpg') }}" alt="Gedung Teknik">
+            <img src="{{ asset('FT.jpg') }}" alt="Foto Guru SDN 75 Kota Bengkulu">
             <div class="hero-overlay"></div>
             <div class="hero-content" data-aos="fade-up">
                 <span class="hero-badge">Digital Repository</span>
                 <h1>Eksplorasi Ilmu Terlengkap</h1>
-                <p class="mb-4 opacity-75 d-none d-md-block">Akses ribuan referensi buku, jurnal, dan karya ilmiah pilihan dari SDN 75 Kota Bengkulu.</p>
+                <p class="mb-4 opacity-75 d-none d-md-block">Akses ribuan referensi buku menarik dari SDN 75 Kota Bengkulu.</p>
                 <a href="{{ route('buku.index') }}" class="btn-primary-custom">Mulai Jelajah <i class="bi bi-arrow-right ms-2"></i></a>
             </div>
         </div>
         <div class="swiper-slide">
-            <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1600" alt="Interior">
+            <img src="{{ asset('perpus.jpg') }}" alt="PerpustakaanSDN 75 Kota Bengkulu">
             <div class="hero-overlay"></div>
             <div class="hero-content">
                 <span class="hero-badge">Modern Library</span>
-                <h1>Fasilitas Riset & Inovasi</h1>
-                <p class="mb-4 opacity-75 d-none d-md-block">Ruang baca yang nyaman dan koleksi digital yang selalu diperbarui untuk riset Anda.</p>
+                <h1>Perpustakaan dan Ruang Baca</h1>
+                <p class="mb-4 opacity-75 d-none d-md-block">Ruang baca yang nyaman dan koleksi digital yang selalu diperbarui untuk Anda.</p>
                 <a href="#koleksi" class="btn-primary-custom">Lihat Koleksi</a>
             </div>
         </div>
@@ -215,7 +215,7 @@ section { padding: 40px 0; }
     <div class="container">
         <div class="section-header d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h2 class="section-title">Wawasan Terbaru</h2>
+                <h2 class="section-title">Informasi Terkini</h2>
                 <div style="width: 40px; height: 4px; background: var(--primary-blue); border-radius: 2px;"></div>
             </div>
         </div>

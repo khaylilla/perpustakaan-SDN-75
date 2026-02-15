@@ -159,8 +159,8 @@
 </div>
 
 <section class="hero-section" data-aos="zoom-out">
-  <h1 data-aos="fade-up">Wawasan & Inovasi</h1>
-  <p data-aos="fade-up" data-aos-delay="100">Jelajahi berita dan artikel terbaru dari Fakultas Teknik UNIB.</p>
+  <h1 data-aos="fade-up">Berita & Kegiatan</h1>
+  <p data-aos="fade-up" data-aos-delay="100">Jelajahi berita, kegiatan, dan informasi dari SDN 75 Kota Bengkulu.</p>
 </section>
 
 <div class="artikel-container">

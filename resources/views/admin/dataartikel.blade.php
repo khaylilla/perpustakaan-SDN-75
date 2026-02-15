@@ -270,6 +270,15 @@
         border: none;
         box-shadow: 0 25px 50px -12px rgba(66, 62, 62, 0.25);
     }
+
+    .modal-custom .modal-dialog {
+        margin-right: 10% !important; 
+    }
+    @media (min-width: 992px) {
+        .modal-custom .modal-dialog {
+            margin-right: 280px; /* leave space for sidebar */
+        }
+    }
     
     .modal-header-custom {
         background: var(--theme-blue);
@@ -336,7 +345,30 @@
                             <span class="hero-stat-number" style="font-size: 3.5rem;">{{ $artikels->count() }}</span>
                         </div>
                         <div class="mb-3 border-start border-white border-opacity-50 ps-3">
-                            <span class="d-block text-white fw-bold">Total Publikasi</span>
+                        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                        <script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                            document.querySelectorAll('form.confirm-delete').forEach(function(form){
+                                form.addEventListener('submit', function(e){
+                                    e.preventDefault();
+                                    const name = form.dataset.name || 'item ini';
+                                    Swal.fire({
+                                        title: 'Hapus data?',
+                                        text: `Hapus ${name} secara permanen?`,
+                                        icon: 'warning',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Ya, hapus',
+                                        cancelButtonText: 'Batal',
+                                        confirmButtonColor: '#dc3545'
+                                    }).then((result) => {
+                                        if(result.isConfirmed){
+                                            form.submit();
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                        </script>
                             <span class="d-block text-white-50 small">Berita, Artikel & Pengumuman Sekolah</span>
                         </div>
                     </div>
@@ -373,14 +405,7 @@
                 </div>
             </form>
         </div>
-
-        @if(session('success'))
-            <div class="alert alert-success border-0 m-4 d-flex align-items-center gap-3 shadow-sm rounded-3">
-                <i class="bi bi-check-circle-fill fs-4"></i>
-                <div>{{ session('success') }}</div>
-            </div>
-        @endif
-
+        
         <div class="table-responsive">
             <table class="table table-custom align-middle">
                 <thead>
@@ -389,7 +414,7 @@
                         <th>Detail Artikel</th>
                         <th>Kategori</th>
                         <th>Preview Isi</th>
-                        <th class="text-center pe-4">Kontrol</th>
+                        <th class="text-center pe-4">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -504,7 +529,7 @@
                     {{-- Modal Delete (Inside Loop) --}}
                     <div class="modal fade modal-custom" id="deleteModal{{ $artikel->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
-                            <form method="POST" action="{{ route('admin.dataartikel.destroy', $artikel->id) }}">
+                            <form method="POST" action="{{ route('admin.dataartikel.destroy', $artikel->id) }}" class="confirm-delete" data-name="{{ $artikel->judul }}">
                                 @csrf @method('DELETE')
                                 <div class="modal-content text-center overflow-hidden">
                                     <div class="p-5">

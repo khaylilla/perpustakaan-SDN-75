@@ -185,7 +185,7 @@
 
 <div class="container-detail" data-aos="fade-up">
     <a href="{{ route('auth.artikel') }}" class="nav-back">
-        <i class="bi bi-arrow-left"></i> KEMBALI KE BERITA
+        <i class="bi bi-arrow-left"></i> KEMBALI
     </a>
 
     <header class="article-header">

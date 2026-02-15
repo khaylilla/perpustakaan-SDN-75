@@ -127,8 +127,8 @@ public function store(Request $request, Book $book)
     // ✨ DURASI BERDASARKAN ROLE
     $tanggalPinjam = Carbon::now();
     if ($peminjamTipe === 'guru') {
-        // Guru: maksimal 2 bulan
-        $tanggalKembali = $tanggalPinjam->copy()->addMonths(2);
+        // Guru: maksimal 1 bulan
+        $tanggalKembali = $tanggalPinjam->copy()->addMonths(1);
     } else {
         // Siswa & Umum: 7 hari
         $tanggalKembali = $tanggalPinjam->copy()->addDays(7);

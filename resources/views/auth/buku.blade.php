@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Koleksi Buku')
+@section('title', 'Koleksi Buku SDN 75')
 
 @section('content')
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
@@ -220,9 +220,9 @@
 <div class="content-container">
     <div class="container">
         <header class="page-header" data-aos="fade-down">
-            <span class="text-uppercase tracking-widest text-primary fw-bold small">Digital Repository</span>
+            <span class="text-uppercase tracking-widest text-primary fw-bold small">Perpustakaan Digital SDN 75</span>
             <h1>Koleksi Buku</h1>
-            <p class="text-muted">Temukan pengetahuan dalam ribuan literatur pilihan fakultas.</p>
+            <p class="text-muted">Temukan koleksi buku dan bahan bacaan Perpustakaan Digital SDN 75 Kota Bengkulu.</p>
         </header>
 
         <div class="filter-wrapper" data-aos="fade-up">

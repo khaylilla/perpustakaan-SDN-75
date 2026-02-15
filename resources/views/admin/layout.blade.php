@@ -8,6 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
   <style>
     :root {
@@ -391,6 +392,39 @@
           document.body.classList.remove('sidebar-open');
         }
       });
+      
+      document.querySelectorAll('form.confirm-delete').forEach(function(form){
+        form.addEventListener('submit', function(e){
+          e.preventDefault();
+          const name = form.dataset.name || 'item ini';
+          Swal.fire({
+            title: 'Hapus data?',
+            text: `Hapus ${name} secara permanen?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#dc3545'
+          }).then((result) => {
+            if(result.isConfirmed){
+              form.submit();
+            }
+          });
+        });
+      });
+
+      // Global: show toast if session success provided
+      @if(session('success'))
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: "{{ addslashes(session('success')) }}",
+          timer: 3000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+      @endif
     });
   </script>
 </body>

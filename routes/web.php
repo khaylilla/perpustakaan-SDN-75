@@ -77,6 +77,7 @@ Route::prefix('admin')->middleware(['check.admin'])->group(function () {
     // DATA ABSEN
     Route::get('/dataabsen', [AbsenController::class, 'index'])->name('admin.dataabsen');
     Route::post('/dataabsen', [AbsenController::class, 'store'])->name('admin.dataabsen.store');
+    Route::get('/absen/get-user/{identifier}', [AbsenController::class, 'getUser'])->name('admin.absen.getUser');
     Route::put('/dataabsen/{id}', [AbsenController::class, 'update'])->name('admin.dataabsen.update');
     Route::delete('/dataabsen/{id}', [AbsenController::class, 'destroy'])->name('admin.dataabsen.delete');
     Route::get('/dataabsen/print', [AbsenController::class, 'printPdf'])->name('admin.dataabsen.print');

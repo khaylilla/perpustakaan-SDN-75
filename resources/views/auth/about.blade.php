@@ -98,9 +98,9 @@
   /* ==== GALLERY SECTION ==== */
   .gallery-container {
     position: relative;
-    padding-bottom: 100px;
+    padding-bottom: 10px !important;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: 0px !important;
   }
 
   .section-label {
@@ -166,13 +166,17 @@
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
   }
 
-  .nav-btn:hover { 
-    background: var(--accent-red); 
+  .nav-btn:hover {
+    background: var(--accent-red);
     box-shadow: 0 0 20px var(--accent-red);
-    transform: translateY(-50%) scale(1.1); 
+    transform: translateY(-50%) scale(1.08);
   }
-  .prev-btn { left: -25px; }
-  .next-btn { right: -25px; }
+  /* Place navigation buttons just inside the gallery edges */
+  .prev-btn { left: 12px; }
+  .next-btn { right: 12px; }
+
+  /* ensure swiper container is positioned for absolute children */
+  .swiper-landscape { position: relative; }
 
   @media(max-width: 1200px) {
     .prev-btn { left: 10px; }
@@ -194,64 +198,67 @@
 
 <div class="container">
   <div class="hero-wrapper" data-aos="fade-up">
-    <h1 class="main-title">Modernitas dalam <br>Genggaman Literasi.</h1>
+    <h1 class="main-title">Perpustakaan Digital<br>SDN 75 Kota Bengkulu</h1>
     <p class="text-muted" style="font-size: 1.1rem; max-width: 650px; margin: 0 auto; opacity: 0.9;">
-      Pusat rujukan teknik digital yang menghubungkan tradisi akademik dengan teknologi masa depan.
+      Sumber belajar digital untuk siswa SDN 75 Kota Bengkulu. Koleksi buku, e-book, dan sumber belajar interaktif siap diakses kapan saja.
     </p>
   </div>
 
   <div class="grid-info">
     <div class="glass-card" data-aos="fade-up" data-aos-delay="100">
       <i class="bi bi-eye-fill"></i>
-      <h6 class="fw-bold text-uppercase mb-2" style="color: var(--deep-navy); font-size: 0.85rem; letter-spacing: 1px;">Visi Utama</h6>
-      <p class="text-muted small m-0">Menjadi rujukan teknik terbaik dengan akses digital inklusif bagi seluruh sivitas akademika.</p>
+      <h6 class="fw-bold text-uppercase mb-2" style="color: var(--deep-navy); font-size: 0.85rem; letter-spacing: 1px;">Visi</h6>
+      <p class="text-muted small m-0">Membangun budaya literasi digital di SDN 75, memudahkan akses pengetahuan untuk setiap siswa.</p>
     </div>
     <div class="glass-card" data-aos="fade-up" data-aos-delay="200">
-      <i class="bi bi- lightning-charge-fill"></i>
-      <i class="bi bi-stars"></i>
-      <h6 class="fw-bold text-uppercase mb-2" style="color: var(--deep-navy); font-size: 0.85rem; letter-spacing: 1px;">Layanan Prima</h6>
-      <p class="text-muted small m-0">Sirkulasi koleksi fisik dan akses database jurnal internasional secara real-time dan terintegrasi.</p>
+      <i class="bi bi-journal-bookmark"></i>
+      <h6 class="fw-bold text-uppercase mb-2" style="color: var(--deep-navy); font-size: 0.85rem; letter-spacing: 1px;">Layanan</h6>
+      <p class="text-muted small m-0">Koleksi e-book, materi pembelajaran, dan rekomendasi bacaan usia SD yang terkurasi untuk proses belajar mengajar.</p>
     </div>
     <div class="glass-card" data-aos="fade-up" data-aos-delay="300">
       <i class="bi bi-building-check"></i>
       <h6 class="fw-bold text-uppercase mb-2" style="color: var(--deep-navy); font-size: 0.85rem; letter-spacing: 1px;">Fasilitas</h6>
-      <p class="text-muted small m-0">Ruang kolaborasi yang dirancang untuk merangsang riset, kreativitas, dan inovasi mahasiswa.</p>
+      <p class="text-muted small m-0">Ruang baca nyaman, akses komputer untuk pencarian bahan ajar, dan kegiatan literasi seperti klub bacaan dan storytime.</p>
     </div>
   </div>
 
   <div class="gallery-container" data-aos="fade-up">
     <div class="section-label">
-      <i class="bi bi-camera-fill"></i> Galeri Perpustakaan
+      <i class="bi bi-camera-fill"></i> Galeri Perpustakaan Digital
     </div>
-
-    <button class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
 
     <div class="swiper-landscape swiper">
       <div class="swiper-wrapper">
         <div class="swiper-slide" style="width: auto;">
-          <a href="{{ asset('FT.jpg') }}" data-fancybox="gallery" data-caption="Gedung Fakultas Teknik">
+          <a href="{{ asset('FT.jpg') }}" data-fancybox="gallery" data-caption="Guru dan Staff SDN 75">
             <div class="gallery-item"><img src="{{ asset('FT.jpg') }}"></div>
           </a>
         </div>
         <div class="swiper-slide" style="width: auto;">
-          <a href="https://images.unsplash.com/photo-1541339907198-e08759dfc3ef?q=80&w=1470" data-fancybox="gallery" data-caption="Ruang Baca Modern">
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1541339907198-e08759dfc3ef?q=80&w=1470"></div>
+          <a href="{{ asset('perpus.jpg') }}" data-fancybox="gallery" data-caption="Gedung Perpustakaan SDN 75">
+            <div class="gallery-item"><img src="{{ asset('perpus.jpg') }}"></div>
           </a>
         </div>
         <div class="swiper-slide" style="width: auto;">
-          <a href="https://images.unsplash.com/photo-1568667256549-094345857637?q=80&w=1430" data-fancybox="gallery" data-caption="Koleksi Buku Lengkap">
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1568667256549-094345857637?q=80&w=1430"></div>
+          <a href="{{ asset('baca.jpg') }}" data-fancybox="gallery" data-caption="Ruang Baca SDN 75">
+            <div class="gallery-item"><img src="{{ asset('baca.jpg') }}"></div>
           </a>
         </div>
         <div class="swiper-slide" style="width: auto;">
-          <a href="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=1473" data-fancybox="gallery" data-caption="Area Diskusi Digital">
-            <div class="gallery-item"><img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=1473"></div>
+          <a href="{{ asset('gedung.jpg') }}" data-fancybox="gallery" data-caption="Gedung Sekolah SDN 75">
+            <div class="gallery-item"><img src="{{ asset('gedung.jpg') }}"></div>
+          </a>
+        </div>
+        <div class="swiper-slide" style="width: auto;">
+          <a href="{{ asset('sekolah.jpg') }}" data-fancybox="gallery" data-caption="SDN 75 Kota Bengkulu">
+            <div class="gallery-item"><img src="{{ asset('sekolah.jpg') }}"></div>
           </a>
         </div>
       </div>
-    </div>
 
-    <button class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+      <button class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+      <button class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
+    </div>
   </div>
 </div>
 

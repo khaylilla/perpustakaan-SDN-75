@@ -8,7 +8,7 @@
             </div>
             <div class="brand-text-wrapper ms-3">
                 <span class="logo-text-main">DIGITAL <span class="text-accent">LIBRARY</span></span>
-                <span class="logo-text-sub">FAKULTAS TEKNIK UNIB</span>
+                <span class="logo-text-sub">SDN 75 KOTA BENGKULU</span>
             </div>
         </a>
 

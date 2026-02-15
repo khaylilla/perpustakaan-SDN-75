@@ -188,10 +188,23 @@
 
     /* === MODAL === */
     .modal-custom .modal-content { border-radius: 20px; border: none; }
-    .modal-header-custom { background: var(--theme-blue); color: white; padding: 20px 30px; }
-    .form-label-custom { font-weight: 600; color: var(--theme-blue); font-size: 0.85rem; }
-    .form-control-custom { border-radius: 10px; padding: 10px; border: 1px solid #cbd5e1; }
+    .modal-header-custom { background: var(--theme-blue); color: white; padding: 15px 25px; }
+    .form-label-custom { font-weight: 600; color: var(--theme-blue); font-size: 0.85rem; margin-bottom: 4px; }
+    .form-control-custom { border-radius: 10px; padding: 8px 12px; border: 1px solid #cbd5e1; font-size: 0.9rem; }
     .btn-submit-custom { background: var(--theme-red); color: white; border: none; border-radius: 10px; padding: 10px 25px; font-weight: 600; }
+
+    /* Ensure custom modals appear above sidebar and leave right gap */
+    .modal-custom {
+        z-index: 20050 !important;
+    }
+    .modal-custom .modal-dialog {
+        margin-right: 10% !important; 
+    }
+    @media (min-width: 992px) {
+        .modal-custom .modal-dialog {
+            margin-right: 280px; /* leave space for sidebar */
+        }
+    }
 </style>
 
 <div class="container-fluid py-4">
@@ -256,13 +269,6 @@
             </form>
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success border-0 m-4 d-flex align-items-center gap-3 shadow-sm rounded-3">
-                <i class="bi bi-check-circle-fill fs-4"></i>
-                <div>{{ session('success') }}</div>
-            </div>
-        @endif
-
         <div class="table-responsive">
             <table class="table table-custom align-middle">
                 <thead>
@@ -309,9 +315,9 @@
                         <td class="text-center pe-4">
                             <div class="d-flex justify-content-center gap-2">
                                 <button class="btn-icon btn-edit-soft" data-bs-toggle="modal" data-bs-target="#editModal{{ $book->id }}"><i class="bi bi-pencil-fill"></i></button>
-                                <form action="{{ route('admin.datakoleksi.delete', $book->id) }}" method="POST">
+                                <form action="{{ route('admin.datakoleksi.delete', $book->id) }}" method="POST" class="confirm-delete" data-name="{{ $book->judul }}">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn-icon btn-del-soft" onclick="return confirm('Hapus data ini?')"><i class="bi bi-trash-fill"></i></button>
+                                    <button type="submit" class="btn-icon btn-del-soft"><i class="bi bi-trash-fill"></i></button>
                                 </form>
                             </div>
                         </td>
@@ -334,30 +340,30 @@
             @csrf
             <div class="modal-content">
                 <div class="modal-header-custom d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-plus-circle me-2"></i>Tambah Koleksi Baru</h5>
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-plus-circle me-2"></i>Tambah Koleksi Baru</h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="row g-3">
+                <div class="modal-body p-3">
+                    <div class="row g-2">
                         <div class="col-md-6">
                             <label class="form-label-custom">Upload Cover</label>
                             <input type="file" name="cover[]" class="form-control form-control-custom" multiple accept="image/*">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label-custom">Barcode / ISBN (Scan Alat di Sini)</label>
-                            <input type="text" name="barcode" id="barcode_input_add" class="form-control form-control-custom barcode-field" required placeholder="Gunakan alat scanner...">
+                            <label class="form-label-custom">Barcode / ISBN</label>
+                            <input type="text" name="barcode" id="barcode_input_add" class="form-control form-control-custom barcode-field" required placeholder="Scan barcode...">
                         </div>
 
                         <div class="col-md-6">
-                        <label class="form-label-custom">Upload File E-book (PDF)</label>
+                            <label class="form-label-custom">File E-book (PDF)</label>
                             <input type="file" name="ebook" class="form-control form-control-custom" accept=".pdf">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label-custom">Atau Link E-book (URL)</label>
-                            <input type="url" name="ebook_url" class="form-control form-control-custom" placeholder="https://example.com/ebook.pdf">
+                            <label class="form-label-custom">Link E-book (URL)</label>
+                            <input type="url" name="ebook_url" class="form-control form-control-custom" placeholder="https://...">
                         </div>
-                        <div class="col-md-12">
-                            <small class="text-muted">*Gunakan salah satu (link atau file upload), kosongkan jika tidak ada.</small>
+                        <div class="col-12">
+                            <small class="text-muted">Isi salah satu (pdf atau link)</small>
                         </div>
 
                         <div class="col-md-12">
@@ -367,7 +373,7 @@
 
                         <div class="col-md-12">
                             <label class="form-label-custom">Deskripsi / Sinopsis</label>
-                            <textarea name="deskripsi" class="form-control form-control-custom" rows="4" placeholder="Masukkan ringkasan cerita atau detail buku..."></textarea>
+                            <textarea name="deskripsi" class="form-control form-control-custom" rows="3"></textarea>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label-custom">Penulis</label>
@@ -378,7 +384,7 @@
                             <input type="text" name="penerbit" class="form-control form-control-custom">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label-custom">Tahun Terbit</label>
+                            <label class="form-label-custom">Tahun</label>
                             <input type="number" name="tahun_terbit" class="form-control form-control-custom">
                         </div>
                         <div class="col-md-4">
@@ -389,7 +395,7 @@
                             </datalist>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label-custom">Jumlah Stok</label>
+                            <label class="form-label-custom">Stok</label>
                             <input type="number" name="jumlah" class="form-control form-control-custom" min="0" value="1">
                         </div>
                         <div class="col-md-6">
@@ -405,9 +411,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-submit-custom rounded-pill">Simpan Koleksi</button>
+                <div class="modal-footer border-0 pt-0 pb-3 px-3">
+                    <button type="button" class="btn btn-light rounded-pill px-3 btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-submit-custom rounded-pill btn-sm px-4">Simpan Koleksi</button>
                 </div>
             </div>
         </form>
@@ -422,55 +428,38 @@
             @method('PUT')
             <div class="modal-content">
                 <div class="modal-header-custom d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-pencil-square me-2"></i>Edit Koleksi: {{ Str::limit($book->judul, 20) }}</h5>
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-pencil-square me-2"></i>Edit: {{ Str::limit($book->judul, 25) }}</h6>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="row g-3">
+                <div class="modal-body p-3">
+                    <div class="row g-2">
                         <div class="col-md-6">
                             <label class="form-label-custom">Update Cover</label>
                             <input type="file" name="cover[]" class="form-control form-control-custom" multiple accept="image/*">
-                            <small class="text-muted">Kosongkan jika tidak ingin ganti cover.</small>
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Barcode / ISBN (Scan Alat di Sini)</label>
-                            <input type="text" name="barcode" class="form-control form-control-custom barcode-field" value="{{ $book->barcode }}" required placeholder="Gunakan alat scanner...">
+                            <label class="form-label-custom">Barcode / ISBN</label>
+                            <input type="text" name="barcode" class="form-control form-control-custom barcode-field" value="{{ $book->barcode }}" required>
                         </div> 
 
                         <div class="col-md-6">
-                            <label class="form-label-custom">Update File E-book (PDF/EPUB)</label>
+                            <label class="form-label-custom">Update File E-book</label>
                             <input type="file" name="ebook" class="form-control form-control-custom" accept=".pdf,.epub">
-    
-                        @if($book->ebook)
-                        <div class="mt-1">
-                            <small class="text-success fw-bold"><i class="bi bi-file-earmark-check"></i> Ada File</small>
-                            <small class="text-muted d-block text-truncate" style="max-width: 200px;">{{ basename($book->ebook) }}</small>
-                        </div>
-                        @else
-                            <small class="text-muted mt-1 d-block">File kosong.</small>
+                            @if($book->ebook)
+                                <small class="text-success fw-bold d-block mt-1"><i class="bi bi-file-earmark-check"></i> File ada</small>
                             @endif
                         </div>
                         
                         <div class="col-md-6">
-                            <label class="form-label-custom">Update Link E-book (URL)</label>
-                            <input type="url" name="ebook_url" class="form-control form-control-custom" 
-                            value="{{ $book->ebook_url ?? '' }}" placeholder="https://example.com/buku.pdf">
-
-                        @if($book->ebook_url)
-                        <div class="mt-1">
-                            <small class="text-primary"><i class="bi bi-link-45deg"></i> Link saat ini:</small>
-                            <a href="{{ $book->ebook_url }}" target="_blank" class="d-block small text-truncate text-decoration-none">
-                                {{ $book->ebook_url }}
-                            </a>
+                            <label class="form-label-custom">Update Link E-book</label>
+                            <input type="url" name="ebook_url" class="form-control form-control-custom" value="{{ $book->ebook_url ?? '' }}">
+                            @if($book->ebook_url)
+                                <a href="{{ $book->ebook_url }}" target="_blank" class="small text-truncate d-block text-decoration-none mt-1">Lihat Link</a>
+                            @endif
                         </div>
-                        @else
-                            <small class="text-muted mt-1 d-block">Link kosong.</small>
-                        @endif
-                        </div>
-
-                        <div class="col-md-12">
-                            <small class="text-muted fst-italic">*Isi salah satu jika ingin mengubah (Upload File atau Link URL).</small>
+                        <div class="col-12">
+                            <small class="text-muted">Isi salah satu (pdf atau link)</small>
                         </div>
 
                         <div class="col-md-12">
@@ -480,7 +469,7 @@
 
                         <div class="col-md-12">
                             <label class="form-label-custom">Deskripsi / Sinopsis</label>
-                            <textarea name="deskripsi" class="form-control form-control-custom" rows="4" placeholder="Masukkan ringkasan cerita...">{{ $book->deskripsi }}</textarea>
+                            <textarea name="deskripsi" class="form-control form-control-custom" rows="3">{{ $book->deskripsi }}</textarea>
                         </div>
 
                         <div class="col-md-6">
@@ -494,7 +483,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label-custom">Tahun Terbit</label>
+                            <label class="form-label-custom">Tahun</label>
                             <input type="number" name="tahun_terbit" class="form-control form-control-custom" value="{{ $book->tahun_terbit }}">
                         </div>
 
@@ -507,7 +496,7 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label class="form-label-custom">Jumlah Stok</label>
+                            <label class="form-label-custom">Stok</label>
                             <input type="number" name="jumlah" class="form-control form-control-custom" min="0" value="{{ $book->jumlah }}">
                         </div>
 
@@ -525,9 +514,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 pt-0 pb-4 px-4">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-submit-custom rounded-pill">Update Data</button>
+                <div class="modal-footer border-0 pt-0 pb-3 px-3">
+                    <button type="button" class="btn btn-light rounded-pill px-3 btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-submit-custom rounded-pill btn-sm px-4">Update Data</button>
                 </div>
             </div>
         </form>
@@ -540,8 +529,7 @@
     document.querySelectorAll('.barcode-field').forEach(input => {
         input.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault(); // Biar nggak langsung submit form kalau kescan
-                // Fokus pindah ke input Judul setelah scan
+                e.preventDefault(); 
                 const form = this.form;
                 const index = Array.prototype.indexOf.call(form, this);
                 if(form.elements[index + 2]) form.elements[index + 2].focus();
@@ -568,3 +556,39 @@
 </script>
 
 @endsection
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('form.confirm-delete').forEach(function(form){
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            const name = form.dataset.name || 'item ini';
+            Swal.fire({
+                title: 'Hapus data?',
+                text: `Hapus ${name} secara permanen?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, hapus',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#dc3545'
+            }).then((result) => {
+                if(result.isConfirmed){
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: "{{ session('success') }}",
+        timer: 3000,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+    });
+@endif
+</script>

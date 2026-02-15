@@ -41,7 +41,7 @@
                 <h5 class="footer-heading">Hubungi Kami</h5>
                 <div class="contact-item">
                     <i class="bi bi-geo-alt-fill"></i>
-                    <p>FJl. Re Martadinata RT 03 RW 04 kel.kandang Kec.kampung Melayu kota Bengkulu</p>
+                    <p>Jl. Re Martadinata RT. 03, RW. 04, Kel. Kandang Kec. Kampung Melayu kota Bengkulu</p>
                 </div>
                 <div class="contact-item">
                     <i class="bi bi-envelope-fill"></i>
