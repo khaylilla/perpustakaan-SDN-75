@@ -183,7 +183,7 @@
             </div>
             <div class="col-md-3">
                 <span class="filter-label">Tanggal Pinjam</span>
-                <input type="date" id="filter-date" class="search-input-custom" style="padding-left: 15px;">
+                <input type="date" id="filter-date" name="filter_date" class="search-input-custom" style="padding-left: 15px;" value="{{ request('filter_date') }}">
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100 shadow-sm" style="border-radius: 12px; padding: 10px; font-size: 13px; font-weight: 700; background: #1e40af; border: none;">

@@ -223,7 +223,7 @@
                         </div>
                         <div class="mb-3 border-start border-white border-opacity-50 ps-3">
                             <span class="d-block text-white fw-bold">Total Koleksi</span>
-                            <span class="d-block text-white-50 small">Buku, Skripsi & Referensi Digital</span>
+                            <span class="d-block text-white-50 small">Buku, Cerita & Referensi Digital</span>
                         </div>
                     </div>
                 </div>

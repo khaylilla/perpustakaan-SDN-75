@@ -156,7 +156,7 @@
             </div>
             <div class="col-md-3">
                 <span class="filter-label">Tanggal Transaksi</span>
-                <input type="date" id="filter-date" class="search-input-custom" style="padding-left: 15px;">
+                <input type="date" id="filter-date" name="filter_date" class="search-input-custom" style="padding-left: 15px;" value="{{ request('filter_date') }}">
             </div>
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100 shadow-sm" style="border-radius: 12px; padding: 10px; font-size: 13px; font-weight: 700; background: #1e3a8a; border: none;">
@@ -164,7 +164,7 @@
                 </button>
             </div>
             <div class="col-md-2">
-                <a href="{{ route('admin.riwayat.pengembalian.pdfkembali') }}" class="btn btn-outline-primary w-100" style="border-radius: 12px; padding: 10px; font-size: 13px; font-weight: 700; border: 2px solid #dbeafe;">
+                <a href="{{ route('admin.riwayat.pengembalian.pdfkembali') }}" id="downloadPdf" class="btn btn-outline-primary w-100" style="border-radius: 12px; padding: 10px; font-size: 13px; font-weight: 700; border: 2px solid #dbeafe;">
                     <i class="bi bi-file-earmark-pdf-fill me-1"></i> PDF
                 </a>
             </div>
@@ -188,7 +188,7 @@
                 </thead>
                 <tbody>
                     @forelse($peminjaman->where('status', 'dikembalikan') as $index => $p)
-                        <tr data-date="{{ \Carbon\Carbon::parse($p->tanggal_pinjam)->format('Y-m-d') }}">
+                        <tr data-date="{{ $p->tanggal_kembali ? \Carbon\Carbon::parse($p->tanggal_kembali)->format('Y-m-d') : '' }}">
                             <td class="text-center fw-bold text-muted small">{{ $index + 1 }}</td>
                             <td>
                                 <div class="fw-bold text-dark" style="font-size: 14px;">{{ $p->nama }}</div>
@@ -315,6 +315,15 @@ document.addEventListener('DOMContentLoaded', function () {
             row.style.display = (!selectedDate || rowDate === selectedDate) ? '' : 'none';
         });
     });
+    // 3. Update PDF link with filter_date when selected
+    const pdfBtn = document.getElementById('downloadPdf');
+    if (pdfBtn) {
+        pdfBtn.addEventListener('click', function(e){
+            if (dateInput.value) {
+                this.href = `{{ route('admin.riwayat.pengembalian.pdfkembali') }}?filter_date=${dateInput.value}`;
+            }
+        });
+    }
 });
 
 // 3. SWEETALERT DELETE

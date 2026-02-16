@@ -255,9 +255,10 @@
                 <i class="bi bi-tags"></i>
                 <select id="filterKategori" onchange="applyFilters()">
                     <option value="">Semua Kategori</option>
-                    <option value="bacaan" {{ request('kategori')=='bacaan'?'selected':'' }}>Bacaan</option>
-                    <option value="referensi" {{ request('kategori')=='referensi'?'selected':'' }}>Referensi</option>
-                    <option value="skripsi" {{ request('kategori')=='skripsi'?'selected':'' }}>Skripsi</option>
+                    <option value="Bacaan" {{ request('kategori')=='Bacaan'?'selected':'' }}>Bacaan</option>
+                    <option value="Umum" {{ request('kategori')=='Umum'?'selected':'' }}>Umum</option>
+                    <option value="Pelajaran" {{ request('kategori')=='Pelajaran'?'selected':'' }}>Pelajaran</option>
+                    <option value="Cerita" {{ request('kategori')=='Cerita'?'selected':'' }}>Cerita</option>
                 </select>
             </div>
         </div>

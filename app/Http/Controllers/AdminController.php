@@ -18,6 +18,7 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->keyword;
+        $category = $request->category;
 
         // Ambil data dari ketiga tabel dengan filter keyword
         $usersQuery = User::query();
@@ -31,26 +32,43 @@ class AdminController extends Controller
         }
 
         // Map data agar memiliki property 'type' untuk identifikasi tabel di View
-        $usersData = $usersQuery->get()->map(function($item) {
-            $item->type = 'users';
-            $item->identifier = $item->nisn ?? '-';
-            return $item;
-        });
+        $mapUsers = function($collection) {
+            return $collection->map(function($item) {
+                $item->type = 'users';
+                $item->identifier = $item->nisn ?? '-';
+                return $item;
+            });
+        };
 
-        $umumData = $umumQuery->get()->map(function($item) {
-            $item->type = 'umum';
-            $item->identifier = $item->email ?? '-';
-            return $item;
-        });
+        $mapUmum = function($collection) {
+            return $collection->map(function($item) {
+                $item->type = 'umum';
+                $item->identifier = $item->email ?? '-';
+                return $item;
+            });
+        };
 
-        $guruData = $guruQuery->get()->map(function($item) {
-            $item->type = 'guru';
-            $item->identifier = $item->nip ?? '-';
-            return $item;
-        });
+        $mapGuru = function($collection) {
+            return $collection->map(function($item) {
+                $item->type = 'guru';
+                $item->identifier = $item->nip ?? '-';
+                return $item;
+            });
+        };
 
-        // Gabung semua data
-        $users = $usersData->concat($umumData)->concat($guruData);
+        // Jika ada filter kategori, ambil hanya dari tabel yang relevan
+        if ($category === 'users') {
+            $users = $mapUsers($usersQuery->orderBy('nama')->get());
+        } elseif ($category === 'guru') {
+            $users = $mapGuru($guruQuery->orderBy('nama')->get());
+        } elseif ($category === 'umum') {
+            $users = $mapUmum($umumQuery->orderBy('nama')->get());
+        } else {
+            // Semua kategori digabungkan
+            $users = $mapUsers($usersQuery->orderBy('nama')->get())
+                ->concat($mapUmum($umumQuery->orderBy('nama')->get()))
+                ->concat($mapGuru($guruQuery->orderBy('nama')->get()));
+        }
 
         return view('admin.datauser', compact('users'));
     }

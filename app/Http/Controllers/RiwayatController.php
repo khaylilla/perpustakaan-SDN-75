@@ -35,6 +35,11 @@ class RiwayatController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Filter by tanggal_pinjam (date only)
+        if ($request->filled('filter_date')) {
+            $query->whereDate('tanggal_pinjam', $request->filter_date);
+        }
+
         $peminjaman = $query->orderBy('tanggal_pinjam', 'desc')->paginate(10);
         return view('admin.riwayat.peminjaman.peminjaman', compact('peminjaman'));
     }
@@ -46,7 +51,11 @@ class RiwayatController extends Controller
 
     public function printPeminjamanPdf(Request $request)
     {
-        $peminjaman = Peminjaman::where('status', 'dipinjam')->get();
+        $query = Peminjaman::where('status', 'dipinjam');
+        if ($request->filled('filter_date')) {
+            $query->whereDate('tanggal_pinjam', $request->filter_date);
+        }
+        $peminjaman = $query->get();
         $pdf = PDF::loadView('admin.riwayat.peminjaman.pdf', compact('peminjaman'));
         return $pdf->download('laporan_peminjaman.pdf');
     }
@@ -64,12 +73,11 @@ class RiwayatController extends Controller
         ]);
 
         $peminjaman = Peminjaman::findOrFail($id);
-        
-        // Logika jika status diubah ke dikembalikan via manual edit
         if ($peminjaman->status == 'dipinjam' && $request->status == 'dikembalikan') {
             $peminjaman->update([
                 'status' => 'dikembalikan',
-                'tanggal_kembali' => now()
+                'tanggal_kembali' => now(),
+                'jumlah_kembali' => $peminjaman->jumlah ?? 1
             ]);
             Book::where('nomor_buku', $peminjaman->nomor_buku)->increment('jumlah', $peminjaman->jumlah ?? 1);
         } else {
@@ -79,9 +87,6 @@ class RiwayatController extends Controller
         return redirect()->back()->with('success', 'Data peminjaman berhasil diperbarui!');
     }
 
-    /**
-     * Hapus data peminjaman (Digunakan oleh tombol Trash di Blade)
-     */
     public function destroyPeminjaman($id)
     {
         $p = Peminjaman::findOrFail($id);
@@ -114,6 +119,10 @@ class RiwayatController extends Controller
         }
 
         $query->where('status', 'dikembalikan');
+        // Filter by tanggal_kembali if provided
+        if ($request->filled('filter_date')) {
+            $query->whereDate('tanggal_kembali', $request->filter_date);
+        }
         // Jika ada session login_as (siswa/guru/umum), batasi hasil hanya untuk role tersebut
         $loginAs = session('login_as');
         if (in_array($loginAs, ['siswa', 'guru', 'umum'])) {
@@ -129,9 +138,13 @@ class RiwayatController extends Controller
         return view('admin.riwayat.pengembalian.scankembali');
     }
 
-    public function printPengembalianPdf()
+    public function printPengembalianPdf(Request $request)
     {
-        $peminjaman = Peminjaman::where('status', 'dikembalikan')->get();
+        $query = Peminjaman::where('status', 'dikembalikan');
+        if ($request->filled('filter_date')) {
+            $query->whereDate('tanggal_kembali', $request->filter_date);
+        }
+        $peminjaman = $query->get();
         $pdf = PDF::loadView('admin.riwayat.pengembalian.pdfkembali', compact('peminjaman'));
         return $pdf->download('laporan_pengembalian.pdf');
     }
