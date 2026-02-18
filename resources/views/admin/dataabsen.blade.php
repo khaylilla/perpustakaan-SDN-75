@@ -196,6 +196,7 @@
                     <option value="">Semua</option>
                     <option value="siswa" {{ request('type') == 'siswa' ? 'selected' : '' }}>Siswa</option>
                     <option value="guru" {{ request('type') == 'guru' ? 'selected' : '' }}>Guru</option>
+                    <option value="umum" {{ request('type') == 'umum' ? 'selected' : '' }}>Umum</option>
                 </select>
             </div>
             <div class="col-md-4">
@@ -208,7 +209,7 @@
             </div>
             <div class="col-md-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary w-100 btn-sm-custom fw-bold shadow-sm">Filter</button>
-                <a href="{{ route('admin.dataabsen.export', ['groupBy' => 'day']) }}" class="btn btn-outline-danger btn-sm-custom px-3 shadow-sm">
+                <a href="{{ route('admin.dataabsen.export', ['groupBy' => 'day']) }}{{ http_build_query(request()->only(['start_date','end_date','type','order','keyword'])) ? '?' . http_build_query(request()->only(['start_date','end_date','type','order','keyword'])) : '' }}" class="btn btn-outline-danger btn-sm-custom px-3 shadow-sm">
                     <i class="bi bi-file-pdf"></i>
                 </a>
             </div>
@@ -239,7 +240,10 @@
                             </div>
                         </td>
                         <td><code class="px-2 py-1 bg-light rounded text-dark border" style="font-size: 0.75rem;">{{ $absen->npm }}</code></td>
-                        <td><span class="badge-time">{{ $absen->created_at->format('H:i') }} WIB</span></td>
+                        <td>
+                            <div><span class="badge-time">{{ $absen->created_at->format('H:i') }} WIB</span></div>
+                            <div class="small text-muted mt-1">{{ $absen->created_at->format('d/m/Y') }}</div>
+                        </td>
                         <td class="text-end">
                             <div class="d-flex justify-content-end gap-1">
                                 <form action="{{ route('admin.dataabsen.delete', $absen->id) }}" method="POST">

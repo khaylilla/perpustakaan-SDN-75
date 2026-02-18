@@ -20,6 +20,7 @@
         <th>Nama</th>
         <th>NPM</th>
         <th>Tanggal</th>
+        <th>Jam</th>
       </tr>
     </thead>
     <tbody>
@@ -28,7 +29,8 @@
           <td>{{ $index + 1 }}</td>
           <td>{{ $absen->nama }}</td>
           <td>{{ $absen->npm }}</td>
-          <td>{{ $absen->tanggal }}</td>
+          <td>{{ \Carbon\Carbon::parse($absen->tanggal)->format('d/m/Y') }}</td>
+          <td>{{ $absen->created_at ? $absen->created_at->format('H:i') : \Carbon\Carbon::parse($absen->tanggal)->format('H:i') }} WIB</td>
         </tr>
       @endforeach
     </tbody>
