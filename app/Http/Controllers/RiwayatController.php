@@ -282,42 +282,21 @@ class RiwayatController extends Controller
 
     public function prosesPengembalian(Request $request)
     {
-        $identitas = trim($request->npm);
-        
-        // Cari user dulu untuk tentukan kolom mana yang dipakai
-        $user = Guru::where('nip', $identitas)->first() 
-                ?? Umum::where('email', $identitas)->orWhere('nohp', $identitas)->first() 
-                ?? User::where('nisn', $identitas)->first();
+        $request->validate([
+            'npm' => 'required',
+            'nomor_buku' => 'required'
+        ]);
 
-        if (!$user) return response()->json(['message' => 'User tidak ditemukan'], 404);
+        $npm = trim($request->npm);
 
-        $nisn = null;
-        $nip = null;
-        $email = null;
+        $peminjaman = Peminjaman::where('npm', $npm)
+            ->where('nomor_buku', $request->nomor_buku)
+            ->where('status', 'dipinjam')
+            ->first();
 
-        if (isset($user->nip)) {
-            $nip = $user->nip;
-        } elseif (isset($user->email) && !isset($user->nisn)) {
-            $email = $user->email;
-        } elseif (isset($user->nisn)) {
-            $nisn = $user->nisn;
+        if (!$peminjaman) {
+            return response()->json(['message' => 'Data peminjaman aktif tidak ditemukan.'], 400);
         }
-
-        // Cari peminjaman dengan kolom yang sesuai
-        $query = Peminjaman::where('nomor_buku', $request->nomor_buku)
-            ->where('status', 'dipinjam');
-
-        if ($nip) {
-            $query->where('nip', $nip);
-        } elseif ($email) {
-            $query->where('email', $email);
-        } else {
-            $query->where('nisn', $nisn);
-        }
-
-        $peminjaman = $query->first();
-
-        if (!$peminjaman) return response()->json(['message' => 'Data peminjaman aktif tidak ditemukan.'], 400);
 
         $jumlah = $request->jumlah ?? $peminjaman->jumlah;
 
@@ -330,5 +309,42 @@ class RiwayatController extends Controller
         Book::where('nomor_buku', $request->nomor_buku)->increment('jumlah', $jumlah);
 
         return response()->json(['message' => 'Buku berhasil dikembalikan!']);
+    }
+
+    /**
+     * Proses pengembalian khusus untuk guru (menggunakan `nip` sebagai identitas)
+     * Mirip dengan prosesPeminjaman untuk guru, tapi pada saat pengembalian
+     * stok buku akan ditambah kembali.
+     */
+    public function prosesPengembalianGuru(Request $request)
+    {
+        $request->validate([
+            'nip' => 'required',
+            'nomor_buku' => 'required',
+            'jumlah' => 'nullable|integer|min:1',
+        ]);
+
+        $nip = trim($request->nip);
+
+        $peminjaman = Peminjaman::where('npm', $nip)
+            ->where('nomor_buku', $request->nomor_buku)
+            ->where('status', 'dipinjam')
+            ->first();
+
+        if (!$peminjaman) {
+            return response()->json(['message' => 'Data peminjaman aktif tidak ditemukan.'], 400);
+        }
+
+        $jumlah = $request->jumlah ?? $peminjaman->jumlah;
+
+        $peminjaman->update([
+            'jumlah_kembali' => $jumlah,
+            'status' => 'dikembalikan',
+            'tanggal_kembali' => now()
+        ]);
+
+        Book::where('nomor_buku', $request->nomor_buku)->increment('jumlah', $jumlah);
+
+        return response()->json(['message' => 'Buku berhasil dikembalikan oleh guru!']);
     }
 }

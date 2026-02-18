@@ -312,15 +312,17 @@ function prosesPengembalian() {
         });
         return;
     }
-
+    // Ambil data user untuk menampilkan nama (jika perlu), lalu selalu minta jumlah lewat popup
     fetch(`/admin/riwayat/peminjaman/get-user/${identitas}`)
-    .then(res => res.json())
-    .then(data => {
-        const peminjamTipe = data.peminjam_tipe || 'umum';
-        if (peminjamTipe === 'guru') {
+        .then(res => {
+            if (!res.ok) throw new Error('User tidak ditemukan');
+            return res.json();
+        })
+        .then(data => {
+            const namaUser = data.nama || identitas;
             Swal.fire({
                 title: 'Input Jumlah',
-                text: 'Berapa buku yang dikembalikan?',
+                html: `<div style="text-align:left;margin-bottom:8px">Anggota: <strong>${namaUser}</strong><br>Buku: <strong>${nomorBuku}</strong></div>`,
                 input: 'number',
                 inputValue: 1,
                 inputAttributes: { min: 1, step: 1 },
@@ -330,10 +332,10 @@ function prosesPengembalian() {
             }).then((result) => {
                 if (result.isConfirmed) submitPengembalianAdmin(identitas, nomorBuku, result.value);
             });
-        } else {
-            submitPengembalianAdmin(identitas, nomorBuku, 1);
-        }
-    });
+        })
+        .catch(() => {
+            Swal.fire({ icon: 'error', title: 'Gagal', text: 'User tidak ditemukan', confirmButtonColor: '#dc2626' });
+        });
 }
 
 function submitPengembalianAdmin(identitas, nomorBuku, jumlah) {
