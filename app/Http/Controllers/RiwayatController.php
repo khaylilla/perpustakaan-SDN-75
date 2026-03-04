@@ -149,9 +149,6 @@ class RiwayatController extends Controller
         return $pdf->download('laporan_pengembalian.pdf');
     }
 
-    /**
-     * Update data pengembalian (Fungsi yang tadi hilang)
-     */
     public function updatePengembalian(Request $request, $id)
     {
         $request->validate([

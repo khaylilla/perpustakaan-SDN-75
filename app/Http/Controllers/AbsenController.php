@@ -20,6 +20,8 @@ class AbsenController extends Controller
         $keyword    = $request->get('keyword');
         $start_date = $request->get('start_date');
         $end_date   = $request->get('end_date');
+        $order      = $request->get('order', 'desc'); 
+        $type       = $request->get('type');
 
         // Query dasar untuk absen
         $query = Absen::query();
@@ -33,13 +35,43 @@ class AbsenController extends Controller
             });
         }
 
-        // Filter tanggal
+        // Filter tanggal: gunakan `created_at` (waktu rekam) agar konsisten dengan tampilan
         if ($start_date && $end_date) {
-            $query->whereBetween('tanggal', [$start_date, $end_date]);
+            $start = $start_date . ' 00:00:00';
+            $end = $end_date . ' 23:59:59';
+            $query->whereBetween('created_at', [$start, $end]);
+        } elseif ($start_date) {
+            $query->whereDate('created_at', $start_date);
+        } elseif ($end_date) {
+            $query->whereDate('created_at', $end_date);
         }
 
-        // Ambil data absen
-        $absens = $query->orderBy('tanggal', 'desc')->get();
+        // Filter kategori berdasarkan keberadaan identifier di tabel masing-masing
+        if ($type && in_array($type, ['siswa', 'guru', 'umum'])) {
+            if ($type === 'siswa') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')
+                      ->from('users')
+                      ->whereColumn('users.nisn', 'absens.npm');
+                });
+            } elseif ($type === 'guru') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')
+                      ->from('guru')
+                      ->whereColumn('guru.nip', 'absens.npm');
+                });
+            } elseif ($type === 'umum') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')
+                      ->from('umum')
+                      ->whereColumn('umum.email', 'absens.npm');
+                });
+            }
+        }
+
+        // Urutkan berdasarkan created_at agar konsisten dengan tampilan waktu
+        $order = in_array(strtolower($order), ['asc', 'desc']) ? strtolower($order) : 'desc';
+        $absens = $query->orderBy('created_at', $order)->get();
 
         // Ambil data keseluruhan dari 3 tabel untuk referensi
         $allUsers = User::get()->map(function($item) {
@@ -126,16 +158,47 @@ public function update(Request $request, $id)
     {
         $start_date = $request->get('start_date');
         $end_date   = $request->get('end_date');
+        $order      = $request->get('order', 'desc');
+        $type       = $request->get('type');
 
-        // Query dasar
-        $query = Absen::orderBy('tanggal', 'desc');
+        $query = Absen::query();
 
-        // Filter jika ada range tanggal
+        // Filter tanggal menggunakan created_at
         if ($start_date && $end_date) {
-            $query->whereBetween('tanggal', [$start_date, $end_date]);
+            $start = $start_date . ' 00:00:00';
+            $end = $end_date . ' 23:59:59';
+            $query->whereBetween('created_at', [$start, $end]);
+        } elseif ($start_date) {
+            $query->whereDate('created_at', $start_date);
+        } elseif ($end_date) {
+            $query->whereDate('created_at', $end_date);
         }
 
-        $absens = $query->get();
+        // Filter kategori
+        if ($type && in_array($type, ['siswa', 'guru', 'umum'])) {
+            if ($type === 'siswa') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')
+                      ->from('users')
+                      ->whereColumn('users.nisn', 'absens.npm');
+                });
+            } elseif ($type === 'guru') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')
+                      ->from('guru')
+                      ->whereColumn('guru.nip', 'absens.npm');
+                });
+            } elseif ($type === 'umum') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')
+                      ->from('umum')
+                      ->whereColumn('umum.email', 'absens.npm');
+                });
+            }
+        }
+
+        $order = in_array(strtolower($order), ['asc', 'desc']) ? strtolower($order) : 'desc';
+        $absens = $query->orderBy('created_at', $order)->get();
 
         $pdf = Pdf::loadView('admin.absen_pdf', compact('absens'))
                   ->setPaper('a4', 'portrait');
@@ -150,14 +213,39 @@ public function update(Request $request, $id)
     {
         $start_date = $request->get('start_date');
         $end_date   = $request->get('end_date');
+        $order      = $request->get('order', 'desc');
+        $type       = $request->get('type');
 
-        $query = Absen::orderBy('tanggal', 'asc');
+        $query = Absen::query();
 
         if ($start_date && $end_date) {
-            $query->whereBetween('tanggal', [$start_date, $end_date]);
+            $start = $start_date . ' 00:00:00';
+            $end = $end_date . ' 23:59:59';
+            $query->whereBetween('created_at', [$start, $end]);
+        } elseif ($start_date) {
+            $query->whereDate('created_at', $start_date);
+        } elseif ($end_date) {
+            $query->whereDate('created_at', $end_date);
         }
 
-        $absens = $query->get();
+        if ($type && in_array($type, ['siswa', 'guru', 'umum'])) {
+            if ($type === 'siswa') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')->from('users')->whereColumn('users.nisn', 'absens.npm');
+                });
+            } elseif ($type === 'guru') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')->from('guru')->whereColumn('guru.nip', 'absens.npm');
+                });
+            } elseif ($type === 'umum') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')->from('umum')->whereColumn('umum.email', 'absens.npm');
+                });
+            }
+        }
+
+        $order = in_array(strtolower($order), ['asc', 'desc']) ? strtolower($order) : 'desc';
+        $absens = $query->orderBy('created_at', $order)->get();
 
         $pdf = Pdf::loadView('admin.absen_pdf', compact('absens'))
                 ->setPaper('a4', 'portrait'); // <-- ini A4 portrait
@@ -169,16 +257,39 @@ public function update(Request $request, $id)
     {
         $start_date = $request->get('start_date');
         $end_date   = $request->get('end_date');
+        $order      = $request->get('order', 'desc');
+        $type       = $request->get('type');
 
-        // Query dasar
-        $query = Absen::orderBy('tanggal', 'asc');
+        $query = Absen::query();
 
-        // Filter jika ada range tanggal
         if ($start_date && $end_date) {
-            $query->whereBetween('tanggal', [$start_date, $end_date]);
+            $start = $start_date . ' 00:00:00';
+            $end = $end_date . ' 23:59:59';
+            $query->whereBetween('created_at', [$start, $end]);
+        } elseif ($start_date) {
+            $query->whereDate('created_at', $start_date);
+        } elseif ($end_date) {
+            $query->whereDate('created_at', $end_date);
         }
 
-        $absens = $query->get();
+        if ($type && in_array($type, ['siswa', 'guru', 'umum'])) {
+            if ($type === 'siswa') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')->from('users')->whereColumn('users.nisn', 'absens.npm');
+                });
+            } elseif ($type === 'guru') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')->from('guru')->whereColumn('guru.nip', 'absens.npm');
+                });
+            } elseif ($type === 'umum') {
+                $query->whereExists(function ($q) {
+                    $q->selectRaw('1')->from('umum')->whereColumn('umum.email', 'absens.npm');
+                });
+            }
+        }
+
+        $order = in_array(strtolower($order), ['asc', 'desc']) ? strtolower($order) : 'desc';
+        $absens = $query->orderBy('created_at', $order)->get();
 
         // Load Blade PDF khusus full tabel
         $pdf = Pdf::loadView('admin.absen_pdf_full', compact('absens'))
