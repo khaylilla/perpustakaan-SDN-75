@@ -134,7 +134,7 @@ public function loginSubmit(Request $request)
     // ======================
     if (
         $request->identifier === 'admin123' &&
-        $request->password === 'admin123'
+        $request->password === 'sdn75oke'
     ) {
         session([
             'is_admin' => true,
